@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+  },
+  "devDependencies": {
+    "bs-platform": "^1.7.4",
+    "webpack": "^1.14.0"
+  },
+  "scripts": {
+    "start": "bsb -make-world -w",
+    "build": "webpack -w",
+    "clean": "bsb -clean-world"
+  }
+}
