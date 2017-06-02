@@ -15,7 +15,7 @@ let hsl h s l => "hsl(" ^ (si h) ^ ", " ^ (si s) ^ "%, " ^ (si l) ^ "%)";
 let draw_point ctx count age (x, y) => {
   Ctx.setFillStyle ctx (hsl 0 100 (100 * (count - age) / count));
   Ctx.beginPath ctx;
-  Ctx.circle ctx x y 10.0;
+  Ctx.circle ctx x y 15.0;
   Ctx.fill ctx;
 };
 

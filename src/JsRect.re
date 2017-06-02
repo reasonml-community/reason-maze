@@ -77,20 +77,6 @@ let points_to_line p1 p2 (w, h) (wsize, hsize) => {
   Shared.Line pts
 };
 
-/*
-let drawable_walls walls (w, h) osize => {
-  List.map
-
-  (fun (start, vend) => {
-    points_to_line
-      (from_vertex start w)
-      (from_vertex vend w)
-      (w, h) osize
-  })
-  walls
-};
-*/
-
 let drawable_wall (start, vend) (w, h) osize => {
   points_to_line
     (from_vertex start w)

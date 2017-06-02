@@ -1,7 +1,6 @@
 module Ctx = Canvas.Ctx;
 
 module type Board = Shared.Board;
-module WallSet = Shared.WallSet;
 
 Random.self_init();
 

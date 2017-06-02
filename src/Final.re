@@ -4,13 +4,15 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
     let full = Board.adjacency_list bsize;
     let traveled = Generator.spanning_tree
       (Board.vertex_count bsize) full;
-    let walls = Shared.walls_remaining full traveled;
+    let walls = Walls.walls_remaining full traveled;
+    /*
     List.iter
       (fun wall =>
         Board.drawable_wall wall bsize csize
           |> DrawShared.draw_wall ctx)
       walls;
     Canvas.Ctx.setStrokeStyle ctx "green";
+      */
 
     List.iter
       (fun {Shared.Edge.dest, src, age} => {
