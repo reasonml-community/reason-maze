@@ -1,6 +1,4 @@
 
-type b;
-type t = (int, int, b);
 type size =  (int, int);
 
 let vertex (x, y, w) => x + y * w;
@@ -53,8 +51,6 @@ module Float = {
   let (/) t t' => t /. t';
   let ( * ) t t' => t *. t';
 };
-
-/* type {dx: float, dy: float, fx: float, fy: float}; */
 
 let points_to_line p1 p2 (w, h) (wsize, hsize) => {
   let dx = wsize /. (float_of_int w);

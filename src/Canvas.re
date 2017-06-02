@@ -24,6 +24,7 @@ module Ctx = {
   external setFillStyle : ctx => string => unit = "fillStyle" [@@bs.set];
   external setStrokeStyle : ctx => string => unit = "strokeStyle" [@@bs.set];
   external setStrokeWidth : ctx => float => unit = "lineWidth" [@@bs.set];
+  external setLineCap : ctx => string => unit = "lineCap" [@@bs.set];
   external fillRect : ctx => float => float => float => float => unit = "" [@@bs.send];
   external strokeRect : ctx => float => float => float => float => unit = "" [@@bs.send];
   external clearRect : ctx => float => float => float => float => unit = "" [@@bs.send];
