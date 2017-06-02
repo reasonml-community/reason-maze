@@ -2,41 +2,49 @@ module Ctx = Canvas.Ctx;
 
 module type Board = Shared.Board;
 
-let draw ctx walls => {
-  List.iter
-  (fun wall => {
-    switch (wall)  {
-      | Shared.Line ((x, y), (a, b)) => {
-        Ctx.beginPath ctx;
-        Ctx.moveTo ctx x y;
-        Ctx.lineTo ctx a b;
-        Ctx.stroke ctx;
-      }
+let draw_wall ctx wall => {
+  switch (wall)  {
+    | Shared.Line ((x, y), (a, b)) => {
+      Ctx.beginPath ctx;
+      Ctx.moveTo ctx x y;
+      Ctx.lineTo ctx a b;
+      Ctx.stroke ctx;
     }
-  })
-  walls
+  }
 };
 
-let fill board => {
-  for x in 0 to 9 {
-    for y in 0 to 9 {
-      JsRect.add_wall board (x, y) JsRect.Direction.Up;
-      JsRect.add_wall board (x, y) JsRect.Direction.Right;
+module Wall = {
+  type t = (int, int);
+  let compare (x, y) (a, b) => {
+    switch (compare x a) {
+      | 0 => compare y b
+      | v => v
     }
   };
-  ()
 };
 
-let init () => {
-  open JsRect;
-  let board = create 10 10;
-  add_wall board (1, 1) JsRect.Direction.Up;
-  add_wall board (1, 1) JsRect.Direction.Left;
-  Js.log board;
-  add_wall board (4, 4) JsRect.Direction.Down;
-  add_wall board (4, 4) JsRect.Direction.Right;
-  fill board;
-  board;
+module WallSet = Set.Make(Wall);
+
+let get_walls walls clear => {
+  let (i, res) = Array.fold_left
+  (fun (i, res) ends => {
+    (
+      i + 1,
+      (List.fold_left
+      (fun res vend => {
+        vend < i
+          ? res
+          : (WallSet.mem (i, vend) clear
+            ? res
+            : [(i, vend), ...res])
+      })
+      []
+      ends) @ res
+    )
+  })
+  (0, [])
+  walls;
+  res
 };
 
 let main () => {
@@ -45,11 +53,22 @@ let main () => {
 
   Ctx.setStrokeWidth ctx 2.0;
 
-  let board = init ();
+  let size = (10, 10);
+  let walls = JsRect.adjacency_list size;
+  let tree = BreadthFirstSearch.spanning_tree (JsRect.vertex_count size) walls;
+  let clear = WallSet.of_list (List.map (fun (a, b) => a > b ? (b, a) : (a,
+                                                                         b)) tree);
+  let to_draw = get_walls walls clear;
+  Js.log (walls, Array.of_list tree, WallSet.elements clear |> Array.of_list, to_draw);
+  List.iter
+  (fun wall => JsRect.drawable_wall wall size (500.0, 500.0) |> draw_wall ctx)
+  to_draw;
+
+
+  /*
   draw ctx (JsRect.drawable_walls board (500.0, 500.0));
   Ctx.strokeRect ctx 1.0 1.0 498.0 498.0;
 
-  /*
   let ctx = Dom.createCtx Dom.document;
   let state = ref (Hunting.initial ctx);
   Animate.loop (fun () => state := Hunting.draw !state)

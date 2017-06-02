@@ -6,6 +6,14 @@ type size = (float, float);
 
 module type Board = {
   type t;
+  type size;
+  let num_vertices: size => int;
+  let adjacency_list: size => list (int, int);
+  let drawable_walls: list (int, int) => size => (float, float) => list drawable_wall;
+};
+
+module type Old_Board = {
+  type t;
   module Direction: {
     type t;
   };

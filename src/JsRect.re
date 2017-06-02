@@ -1,150 +1,97 @@
 
 type b;
 type t = (int, int, b);
-module Direction = {
-  type t =
-    | Up
-    | Down
-    | Left
-    | Right;
+type size =  (int, int);
+
+let vertex (x, y, w) => x + y * w;
+let from_vertex v w => (v mod w, v / w);
+
+let vertex_count (w, h) => w * h;
+
+let adjacent_to x y w h => {
+  let a = [];
+  let a = x === 0 ? a : [vertex (x - 1, y, w), ...a];
+  let a = y === 0 ? a : [vertex (x, y - 1, w), ...a];
+  let a = x >= w - 1 ? a : [vertex (x + 1, y, w), ...a];
+  let a = y >= h - 1 ? a : [vertex (x, y + 1, w), ...a];
+  a;
 };
 
-let board: int => int => b = [%bs.raw {|
-  function (w, h) {
-    var b = {v: [], h: []}
-    for (var x=0; x<w-1; x++) {
-      var r = []
-      b.v.push(r)
-      for (var y=0;y<h;y++) {
-        r.push(0)
-      }
+let adjacency_list (w, h) => {
+  let v = Array.make (w * h) [];
+  for x in 0 to (w - 1) {
+    for y in 0 to (h - 1) {
+      Array.set v
+        (vertex (x, y, w))
+        (adjacent_to x y w h);
     }
-    for (var x=0; x<w; x++) {
-      var r = []
-      b.h.push(r)
-      for (var y=0;y<h-1;y++) {
-        r.push(0)
-      }
-    }
-    return b
-  }
-|}];
-
-let create w h => (w, h, board w h);
-let adjacent (w, h, _) (x, y) => {
-  List.map (fun (d, _) => d)
-  (List.filter (fun (_, b) => b)
-  Direction.[
-    (Left, x > 0),
-    (Right, x < w - 1),
-    (Up, y > 0),
-    (Down, y < h - 1)
-  ])
+  };
+  v
 };
 
-let _is_open: b => int => int => int => bool = [%bs.raw {|
-  function (board, x, y, dir) {
-    switch (dir) {
-      case 0:
-        if (x <= 0) return false
-        return board.h[x-1][y]
-      case 1:
-        if (x > board.h.length - 1) return false
-        return board.h[x][y]
-      case 2:
-        if (y <= 0) return false
-        return board.v[x][y-1]
-      case 3:
-        if (y > board.v[0].length - 1) return false
-        return board.v[x][y]
-    }
-  }
-|}];
+type direction =
+  | Up
+  | Down
+  | Left
+  | Right;
 
-let dir_to_int direction => Direction.(switch direction {
-  | Left => 0
-  | Right => 1
-  | Up => 2
-  | Down => 3
-});
-
-let _add_wall: b => int => int => int => unit = [%bs.raw {|
-  function (board, x, y, dir) {
-    switch (dir) {
-      case 0: // Left
-        if (x <= 0 || x > board.v.length) return
-        if (y < 0 || y > board.v[0].length - 1) return
-        board.v[x-1][y] = true
-        break
-      case 1: // Right
-        if (x < 0 || x > board.v.length - 1) return
-        if (y < 0 || y > board.v[0].length - 1) return
-        board.v[x][y] = true
-        break
-      case 2: // Up
-        if (y <= 0 || y > board.h[0].length) return
-        if (x < 0 || x > board.h.length - 1) return
-        board.h[x][y-1] = true
-        break
-      case 3: // Down
-        if (y < 0 || y >= board.h[0].length) return
-        if (x < 0 || x > board.h.length - 1) return
-        board.h[x][y] = true
-        break
-    }
-  }
-|}];
-
-let is_open (_, _, board) (x, y) direction => {
-  _is_open board x y (dir_to_int direction)
+let direction_to (x, y) (a, b) => {
+  x === a - 1
+    ? Left
+    : (x === a + 1
+       ? Right
+       : (y === a - 1
+          ? Up
+          : (y === a + 1
+             ? Down
+             : Left)))
 };
 
-let add_wall (_, _, board) (x, y) direction => {
-  _add_wall board x y (dir_to_int direction)
+module Float = {
+  let (+) t t' => t +. t';
+  let (-) t t' => t -. t';
+  let ( * ) t t' => t *. t';
 };
 
-let open_adjacent t pos => {
-  List.filter (is_open t pos) (adjacent t pos)
+let points_to_line p1 p2 (w, h) (wsize, hsize) => {
+  let dx = wsize /. (float_of_int w);
+  let dy = hsize /. (float_of_int h);
+  let (x, y) = p1;
+  let fx = float_of_int(x);
+  let fy = float_of_int(y);
+  open Float;
+
+  let pts = switch (direction_to p1 p2) {
+    | Up => ((fx * dx, fy * dy),
+             ((fx + 1.0) * dx, fy * dy))
+    | Down => ((fx * dx, (fy + 1.0) * dy),
+               ((fx + 1.0) * dx, (fy + 1.0) * dy))
+    | Left => ((fx * dx, fy * dy),
+               (fx * dx, (fy + 1.0) * dy))
+    | Right => (((fx + 1.0) * dx, fy * dy),
+                ((fx + 1.0) * dx, (fy + 1.0) * dy))
+  };
+  Shared.Line pts
 };
 
-let _drawable_walls: b => float => float =>
-  array ((float, float), (float, float)) =
-[%bs.raw {|
-  function (board, wsize, hsize) {
-    var res = []
-    var w = board.h.length
-    var h = board.h[0].length + 1
-    var vs = wsize / w
-    var hs = hsize / h
-    for (var x=0; x < w-1; x++) {
-      for (var y=0; y < h; y++) {
-        if (board.v[x][y]) {
-          res.push([
-            [hs + x * hs, y * vs],
-            [hs + x * hs, (y + 1) * vs],
-          ])
-        }
-      }
-    }
-
-    for (var x=0; x < w; x++) {
-      for (var y=0; y < h-1; y++) {
-        if (board.h[x][y]) {
-          res.push([
-            [x * hs, vs + y * vs],
-            [(x + 1) * hs, vs + y * vs],
-          ])
-        }
-      }
-    }
-
-    return res
-  }
-|}];
-
-let drawable_walls (_, _, board) (w, h) => {
+/*
+let drawable_walls walls (w, h) osize => {
   List.map
-  (fun (p1, p2) => Shared.Line (p1, p2))
-  (Array.to_list (_drawable_walls board w h))
+
+  (fun (start, vend) => {
+    points_to_line
+      (from_vertex start w)
+      (from_vertex vend w)
+      (w, h) osize
+  })
+  walls
+};
+*/
+
+let drawable_wall (start, vend) (w, h) osize => {
+    points_to_line
+      (from_vertex start w)
+      (from_vertex vend w)
+      (w, h) osize
 };
 
