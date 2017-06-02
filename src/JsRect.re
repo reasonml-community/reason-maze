@@ -71,17 +71,25 @@ let dir_to_int direction => Direction.(switch direction {
 let _add_wall: b => int => int => int => unit = [%bs.raw {|
   function (board, x, y, dir) {
     switch (dir) {
-      case 0:
-        board.h[x-1][y] = true
+      case 0: // Left
+        if (x <= 0 || x > board.v.length) return
+        if (y < 0 || y > board.v[0].length - 1) return
+        board.v[x-1][y] = true
         break
-      case 1:
-        board.h[x][y] = true
-        break
-      case 2:
-        board.v[x][y-1] = true
-        break
-      case 3:
+      case 1: // Right
+        if (x < 0 || x > board.v.length - 1) return
+        if (y < 0 || y > board.v[0].length - 1) return
         board.v[x][y] = true
+        break
+      case 2: // Up
+        if (y <= 0 || y > board.h[0].length) return
+        if (x < 0 || x > board.h.length - 1) return
+        board.h[x][y-1] = true
+        break
+      case 3: // Down
+        if (y < 0 || y >= board.h[0].length) return
+        if (x < 0 || x > board.h.length - 1) return
+        board.h[x][y] = true
         break
     }
   }
@@ -112,8 +120,8 @@ let _drawable_walls: b => float => float =>
       for (var y=0; y < h; y++) {
         if (board.v[x][y]) {
           res.push([
-            [x * hs, y * vs],
-            [x * hs, (y + 1) * vs],
+            [hs + x * hs, y * vs],
+            [hs + x * hs, (y + 1) * vs],
           ])
         }
       }
@@ -123,8 +131,8 @@ let _drawable_walls: b => float => float =>
       for (var y=0; y < h-1; y++) {
         if (board.h[x][y]) {
           res.push([
-            [x * hs, y * vs],
-            [(x + 1) * hs, y * vs],
+            [x * hs, vs + y * vs],
+            [(x + 1) * hs, vs + y * vs],
           ])
         }
       }

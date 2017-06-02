@@ -8,8 +8,10 @@ let getById: string => canvasElement = [%bs.raw {|function(arg) {
   return document.getElementById(arg)
  }|}];
 
-let createOnBody: unit => canvasElement = [%bs.raw {|function() {
+let createOnBody: int => int => canvasElement = [%bs.raw {|function(width, height) {
   var node = document.createElement('canvas')
+  node.width = width
+  node.height = height
   document.body.appendChild(node)
   return node
 }|}];
@@ -23,6 +25,7 @@ module Ctx = {
   external setStrokeStyle : ctx => string => unit = "strokeStyle" [@@bs.set];
   external setStrokeWidth : ctx => float => unit = "lineWidth" [@@bs.set];
   external fillRect : ctx => float => float => float => float => unit = "" [@@bs.send];
+  external strokeRect : ctx => float => float => float => float => unit = "" [@@bs.send];
   external clearRect : ctx => float => float => float => float => unit = "" [@@bs.send];
   external ellipse : ctx => float => float => float => float => float => float => float => unit =
     "" [@@bs.send];
