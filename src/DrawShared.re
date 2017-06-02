@@ -56,5 +56,15 @@ module Draw (Board: Shared.Board) => {
         })
       traveled;
   };
+
+  let connections ctx bsize csize traveled => {
+    List.iter
+      (fun (src, dest) => {
+        Canvas.Ctx.line ctx
+          (Board.vertex_pos src bsize csize)
+          (Board.vertex_pos dest bsize csize)
+        })
+      traveled;
+  };
 };
 

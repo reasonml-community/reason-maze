@@ -11,24 +11,20 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
       Canvas.Ctx.setStrokeStyle ctx "rgb(100, 100, 100)";
       Canvas.Ctx.strokeRect ctx 0.0 0.0 500.0 500.0;
 
-      /*Draw.state ctx bsize csize state;*/
-      let walls = Walls.walls_remaining adjacency state.Shared.State.traveled;
-      /*
-      Draw.dots ctx bsize csize state.traveled state.age 20.0;
-      */
+      let walls = Walls.walls_remaining adjacency (Generator.State.traveled state);
       Canvas.Ctx.setStrokeStyle ctx "rgb(100, 100, 100)";
       Draw.walls ctx bsize csize walls;
       Canvas.Ctx.setStrokeStyle ctx "rgb(200, 200, 200)";
-      Draw.paths ctx bsize csize state.traveled;
+      Draw.paths ctx bsize csize (Generator.State.traveled state);
 
       Canvas.Ctx.setFillStyle ctx "green";
-      Draw.vertex_dots ctx bsize csize state.current 5.0;
+      Draw.vertex_dots ctx bsize csize (Generator.State.current state) 5.0;
 
       Canvas.Ctx.setFillStyle ctx "blue";
-      Draw.vertex_dots ctx bsize csize state.next 5.0;
+      Draw.vertex_dots ctx bsize csize (Generator.State.next state) 5.0;
 
-      switch state {
-        | {current: []} => ()
+      switch (Generator.State.current state) {
+        | [] => ()
         | _ => {Window.setTimeout
                 (fun () => loop (Generator.step state)) 100; ()
         }

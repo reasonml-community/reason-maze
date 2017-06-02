@@ -1,4 +1,19 @@
 
+module State = {
+  type t = {
+    adjacency_list: Shared.adjacency_list,
+    visited: array bool,
+    current: list int,
+    next: list int,
+    age: int,
+    traveled: list Shared.Edge.edge,
+  };
+  let traveled t => t.traveled;
+  let current t => t.current;
+  let next t => t.next;
+  let age t => t.age;
+};
+
 let rec add_adjacent_edges state adjacents next traveled age => {
   let (visited, src) = state;
   switch (adjacents) {
@@ -18,7 +33,7 @@ let rec add_adjacent_edges state adjacents next traveled age => {
 };
 
 let step state => {
-  open Shared.State;
+  open State;
   let {adjacency_list, visited, current, next, traveled, age} = state;
   switch (current) {
     | [] => state
@@ -51,7 +66,7 @@ let init vertices adjacency_list => {
 
   let initial = Random.int vertices;
   Array.set visited initial true;
-  Shared.State.{
+  State.{
     adjacency_list,
     visited,
     current: [initial],

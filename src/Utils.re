@@ -5,3 +5,10 @@ let shuffle d => {
     List.map snd sond;
 };
 
+module Float = {
+  let (+) t t' => t +. t';
+  let (-) t t' => t -. t';
+  let (/) t t' => t /. t';
+  let ( * ) t t' => t *. t';
+};
+

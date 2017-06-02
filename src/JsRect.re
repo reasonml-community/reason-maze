@@ -45,20 +45,13 @@ let direction_to (x, y) (a, b) => {
              : Left)))
 };
 
-module Float = {
-  let (+) t t' => t +. t';
-  let (-) t t' => t -. t';
-  let (/) t t' => t /. t';
-  let ( * ) t t' => t *. t';
-};
-
 let points_to_line p1 p2 (w, h) (wsize, hsize) => {
   let dx = wsize /. (float_of_int w);
   let dy = hsize /. (float_of_int h);
   let (x, y) = p1;
   let fx = float_of_int(x);
   let fy = float_of_int(y);
-  open Float;
+  open Utils.Float;
 
   let pts = switch (direction_to p1 p2) {
     | Up => ((fx * dx, fy * dy),
@@ -81,7 +74,7 @@ let drawable_wall (start, vend) (w, h) osize => {
 };
 
 let point_in_place (x, y) (w, h) (wsize, hsize) => {
-  open Float;
+  open Utils.Float;
   let dx = wsize / (float_of_int w);
   let dy = hsize / (float_of_int h);
   let fx = float_of_int(x);
