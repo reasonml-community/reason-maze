@@ -1,58 +1,55 @@
 
-let shuffle d => {
-    let nd = List.map (fun c => (Random.bits (), c)) d;
-    let sond = List.sort compare nd;
-    List.map snd sond;
-};
-
-let rec inner state adjacents next tree => {
-  let (visited, first) = state;
+let rec inner state adjacents next traveled age => {
+  let (visited, src) = state;
   switch (adjacents) {
-    | [] => (next, tree)
-    | [one, ...rest] => {
-      if (Array.get visited one) {
-        inner state rest next tree;
+    | [] => (next, traveled, age)
+    | [dest, ...rest] => {
+      if (Array.get visited dest) {
+        inner state rest next traveled age;
       } else {
-        Array.set visited one true;
-        inner state rest [one, ...next] [(first, one), ...tree];
+        Array.set visited dest true;
+        inner state rest [dest, ...next] [Shared.Edge.{src, dest, age}, ...traveled] (age + 1);
       }
     }
   }
 };
 
-open Shared.StepResponse;
-
-let step adjacency_list visited current next tree => {
+let step state => {
+  open Shared.State;
+  let {adjacency_list, visited, current, next, traveled, age} = state;
   switch (current) {
-    | [] => {
-      switch (next) {
-        | [] => Done tree
-        | _ => Epoch ((shuffle next), tree)
-      }
+    | [] => state
+
+    | [src] => {
+      let adjacents = Array.get adjacency_list src;
+      let (next, traveled, age) = inner (visited, src) adjacents next traveled age;
+      {...state, current: next, next: [], traveled, age}
     }
 
-    | [first, ...rest] => {
-      let adjacents = Array.get adjacency_list first;
-      let (next, tree) = inner (visited, first) adjacents next tree;
-      Step (rest, next, tree)
+    | [src, ...rest] => {
+      let adjacents = Array.get adjacency_list src;
+      let (next, traveled, age) = inner (visited, src) adjacents next traveled age;
+      {...state, current: Utils.shuffle rest, next, traveled, age}
     }
   }
 };
 
-let spanning_tree vertices adjacency_list => {
+let init vertices adjacency_list => {
   let visited = Array.make vertices false;
 
   let initial = Random.int vertices;
   Array.set visited initial true;
+  Shared.State.{adjacency_list, visited, current: [initial], next: [], traveled: [], age: 0}
+};
 
-  let rec loop current next tree => {
-    switch (step adjacency_list visited current next tree) {
-      | Done tree => tree
-      | Epoch (next, tree) => loop next [] tree
-      | Step (current, next, tree) => loop current next tree
-    }
-  };
+let rec loop state => {
+  switch (step state) {
+    | {current: [], traveled} => traveled
+    | state => loop state
+  }
+};
 
-  loop [initial] [] [];
+let spanning_tree vertices adjacency_list => {
+  init vertices adjacency_list |> loop
 };
 

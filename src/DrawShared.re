@@ -11,3 +11,14 @@ let draw_wall ctx wall => {
   }
 };
 
+let sf = string_of_float;
+let si = string_of_int;
+let hsl h s l => "hsl(" ^ (si h) ^ ", " ^ (si s) ^ "%, " ^ (si l) ^ "%)";
+
+let draw_point ctx age (x, y) => {
+  Ctx.setFillStyle ctx (hsl 0 100 (100 - age));
+  Ctx.beginPath ctx;
+  Ctx.circle ctx x y 10.0;
+  Ctx.fill ctx;
+};
+

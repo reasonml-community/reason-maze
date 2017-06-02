@@ -14,12 +14,20 @@ module WallSet = Set.Make(Wall);
 type drawable_wall =
   | Line ((float, float), (float, float));
 
-module StepResponse = {
-  type edge = (int, int);
-  type step_response =
-    | Epoch (list int, list edge)
-    | Step (list int, list int, list edge)
-    | Done (list edge)
+module Edge = {
+  type edge = {src: int, dest: int, age: int};
+};
+
+module State = {
+  type state = {
+    adjacency_list: array (list int),
+    visited: array bool,
+    current: list int,
+    next: list int,
+    age: int,
+    traveled: list Edge.edge,
+  };
+  type t = state;
 };
 
 module type Board = {
@@ -27,11 +35,16 @@ module type Board = {
   type size;
   let vertex_count: size => int;
   let adjacency_list: size => array (list int);
-  let drawable_walls: (int, int) => size => (float, float) => drawable_wall;
+  let vertex_pos: int => size => (float, float) => (float, float);
+  let drawable_wall: (int, int) => size => (float, float) => drawable_wall;
+};
+
+module type Generator = {
+  let spanning_tree: int => array (list int) => list Edge.edge;
 };
 
 let wall_set tree => WallSet.of_list (
-  List.map (fun (a, b) => a > b ? (b, a) : (a, b)) tree
+  List.map (fun {Edge.src, dest} => src > dest ? (dest, src) : (src, dest)) tree
 );
 
 let get_walls full clear => {
@@ -57,7 +70,7 @@ let get_walls full clear => {
 };
 
 let walls_remaining full tree => {
-  let clear = Shared.wall_set tree;
+  let clear = wall_set tree;
   get_walls full clear;
 }
 

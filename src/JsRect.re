@@ -50,8 +50,11 @@ let direction_to (x, y) (a, b) => {
 module Float = {
   let (+) t t' => t +. t';
   let (-) t t' => t -. t';
+  let (/) t t' => t /. t';
   let ( * ) t t' => t *. t';
 };
+
+/* type {dx: float, dy: float, fx: float, fy: float}; */
 
 let points_to_line p1 p2 (w, h) (wsize, hsize) => {
   let dx = wsize /. (float_of_int w);
@@ -93,5 +96,19 @@ let drawable_wall (start, vend) (w, h) osize => {
       (from_vertex start w)
       (from_vertex vend w)
       (w, h) osize
+};
+
+let point_in_place (x, y) (w, h) (wsize, hsize) => {
+  open Float;
+  let dx = wsize / (float_of_int w);
+  let dy = hsize / (float_of_int h);
+  let fx = float_of_int(x);
+  let fy = float_of_int(y);
+  ((fx + 0.5) * dx, (fy + 0.5) * dy)
+};
+
+let vertex_pos v (w, h) osize => {
+  let p = from_vertex v w;
+  point_in_place p (w, h) osize;
 };
 

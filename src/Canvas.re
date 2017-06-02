@@ -29,6 +29,7 @@ module Ctx = {
   external clearRect : ctx => float => float => float => float => unit = "" [@@bs.send];
   external ellipse : ctx => float => float => float => float => float => float => float => unit =
     "" [@@bs.send];
+  let circle ctx x y r => ellipse ctx x y r r 0.0 0.0 (2.0 *. [%bs.raw "Math.PI"]);
   external moveTo : ctx => float => float => unit = "" [@@bs.send];
   external lineTo : ctx => float => float => unit = "" [@@bs.send];
   external fill : ctx => unit = "" [@@bs.send];
