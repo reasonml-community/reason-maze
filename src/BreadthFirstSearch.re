@@ -20,20 +20,21 @@ let rec inner state adjacents next tree => {
   }
 };
 
-let rec loop state current next tree => {
-  let (adjacency_list, visited) = state;
+open Shared.StepResponse;
+
+let step adjacency_list visited current next tree => {
   switch (current) {
     | [] => {
       switch (next) {
-        | [] => tree
-        | _ => loop state (shuffle next) [] tree
+        | [] => Done tree
+        | _ => Epoch ((shuffle next), tree)
       }
     }
 
     | [first, ...rest] => {
       let adjacents = Array.get adjacency_list first;
       let (next, tree) = inner (visited, first) adjacents next tree;
-      loop state rest next tree
+      Step (rest, next, tree)
     }
   }
 };
@@ -44,6 +45,14 @@ let spanning_tree vertices adjacency_list => {
   let initial = Random.int vertices;
   Array.set visited initial true;
 
-  loop (adjacency_list, visited) [initial] [] [];
+  let rec loop current next tree => {
+    switch (step adjacency_list visited current next tree) {
+      | Done tree => tree
+      | Epoch (next, tree) => loop next [] tree
+      | Step (current, next, tree) => loop current next tree
+    }
+  };
+
+  loop [initial] [] [];
 };
 
