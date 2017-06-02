@@ -36,13 +36,13 @@ type direction =
   | Right;
 
 let direction_to (x, y) (a, b) => {
-  x === a - 1
-    ? Left
-    : (x === a + 1
-       ? Right
-       : (y === a - 1
+  x + 1 === a
+    ? Right
+    : (x - 1 === a
+       ? Left
+       : (y - 1 === b
           ? Up
-          : (y === a + 1
+          : (y + 1 === b
              ? Down
              : Left)))
 };
@@ -92,10 +92,10 @@ let drawable_walls walls (w, h) osize => {
 */
 
 let drawable_wall (start, vend) (w, h) osize => {
-    points_to_line
-      (from_vertex start w)
-      (from_vertex vend w)
-      (w, h) osize
+  points_to_line
+    (from_vertex start w)
+    (from_vertex vend w)
+    (w, h) osize
 };
 
 let point_in_place (x, y) (w, h) (wsize, hsize) => {

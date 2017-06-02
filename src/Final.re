@@ -10,11 +10,18 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
         Board.drawable_wall wall bsize csize
           |> DrawShared.draw_wall ctx)
       walls;
-    Js.log "hi";
+    Canvas.Ctx.setStrokeStyle ctx "green";
+
     List.iter
-      (fun {Shared.Edge.dest, age} =>
-       Board.vertex_pos dest bsize csize
-        |> DrawShared.draw_point ctx age)
+      (fun {Shared.Edge.dest, src, age} => {
+        Board.vertex_pos dest bsize csize
+          |> DrawShared.draw_point ctx (Board.vertex_count bsize) age;
+        /*
+        Canvas.Ctx.line ctx
+          (Board.vertex_pos src bsize csize)
+          (Board.vertex_pos dest bsize csize)
+        */
+        })
       traveled;
   };
 }

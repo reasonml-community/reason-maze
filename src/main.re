@@ -13,7 +13,7 @@ let main () => {
 
   Ctx.setStrokeWidth ctx 2.0;
 
-  let size = (10, 10);
+  let size = (50, 50);
   let csize = (500.0, 500.0);
 
   Draw.draw ctx size csize;

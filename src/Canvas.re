@@ -35,6 +35,12 @@ module Ctx = {
   external fill : ctx => unit = "" [@@bs.send];
   external beginPath : ctx => unit = "" [@@bs.send];
   external stroke : ctx => unit = "" [@@bs.send];
+  let line ctx (x, y) (a, b) => {
+    beginPath ctx;
+    moveTo ctx x y;
+    lineTo ctx a b;
+    stroke ctx;
+  };
 };
 
 /*
