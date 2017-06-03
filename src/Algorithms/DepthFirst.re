@@ -26,7 +26,7 @@ let adjacent_edges visited src adjacents => {
   adjacents
 };
 
-let step state => {
+let _step state => {
   open State;
   let {adjacency_list, visited, current, traveled, age} = state;
   switch (current) {
@@ -40,8 +40,37 @@ let step state => {
         Array.set visited src.dest true;
         let age = age + 1;
         let traveled = [{...src, age}, ...traveled];
-        let next = rest @ adjacent_edges visited src.dest adjacents;
+        let next = rest @ (adjacent_edges visited src.dest adjacents);
         {...state, current: Utils.shuffle next, traveled, age}
+      }
+    }
+  }
+};
+
+let step state => {
+  open State;
+  let {adjacency_list, visited, current, traveled, age} = state;
+  switch (current) {
+    | [] => state
+
+    | [src, ...rest] => {
+      if (Array.get visited src.dest) {
+        {...state, current: Utils.shuffle rest}
+      } else {
+        let adjacents = Array.get adjacency_list src.dest |> Utils.shuffle;
+        let edges = List.map (fun dest => {Shared.Edge.src: src.dest, dest, age: 0}) adjacents;
+        /*let edges = adjacent_edges visited src.dest adjacents;*/
+        switch (edges) {
+        | [edge, ...others] => {
+          let age = age + 1;
+          Array.set visited src.dest true;
+          let traveled = [{...src, age}, ...traveled];
+          let current = [edge, ...(others @ rest)];
+
+          {...state, traveled, age, current}
+        }
+        | _ => state
+        }
       }
     }
   }
@@ -61,7 +90,7 @@ let init vertices adjacency_list => {
   State.{
     adjacency_list,
     visited,
-    current: [Shared.Edge.{dest: initial, src: initial, age: 0}],
+    current: [{Shared.Edge.dest: initial, src: initial, age: 0}],
     traveled: [],
     age: 0
   }
@@ -70,4 +99,5 @@ let init vertices adjacency_list => {
 let spanning_tree vertices adjacency_list => {
   loop (init vertices adjacency_list)
 };
+
 

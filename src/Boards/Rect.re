@@ -42,6 +42,6 @@ let scale (w, h) (wsize, hsize) => {
   wsize /. (fi w)
 };
 
-let border_walls shape size => {
+let border_walls shape => {
   []
 };

@@ -2,16 +2,22 @@ module Ctx = Canvas.Ctx;
 
 Random.self_init();
 
-module Board = (Shared.Board HexTriangle2);
-module Draw = Animate.Draw Board RandomSearch {
-  include Animate.Default;
+module DrawConfig = {
+  include DrawShared.Default;
   let showTrails = false;
   let showAge = true;
-  let batch = 100;
   let showEdge = false;
+  let dotSize = 20.0;
   let showWalls = false;
-  let dotColor age total_age => (DrawShared.hsl 80 100 (100 * (total_age - age) / total_age))
+  let dotColor age total_age => (DrawShared.hsla 0 100 (100 * (total_age - age) / total_age) 0.9)
 };
+module Board = (Shared.Board Rect);
+module Algo = DepthFirst;
+module ADraw = Animate.Draw Board Algo DrawConfig {
+  include Animate.Default;
+  let batch = 1;
+};
+module FDraw = Final.Draw Board Algo DrawConfig;
 
 let iof = int_of_float;
 
@@ -23,10 +29,9 @@ let main () => {
 
   Ctx.setStrokeWidth ctx 3.0;
 
+  let size = 50;
   let size = (50, 50);
-  let size = 100;
-
-  Draw.draw ctx size csize;
+  FDraw.draw ctx size csize;
 };
 
 main ();

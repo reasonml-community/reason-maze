@@ -17,12 +17,12 @@ let range i n => {
   aux (n - 1) []
 };
 
-module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
-  module Draw = DrawShared.Draw(Board);
+module Draw (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: DrawShared.Config) => {
+  module Draw = DrawShared.Draw(Board) DrawConfig;
 
   let walls ctx bsize csize => {
     let full = Board.adjacency_list bsize;
-    Draw.walls ctx bsize csize (all_walls full);
+    Draw.draw_walls ctx bsize csize (all_walls full);
   };
 
   let dots ctx bsize csize => {

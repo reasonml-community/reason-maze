@@ -1,63 +1,24 @@
 
 module type Config = {
-  let unvisitedFill: option string;
-  let showTrails: bool;
-  let wallColor: string;
   let batch: int;
-  let showEdge: bool;
-  let showWalls: bool;
-  let showAge: bool;
-  let dotColor: int => int => string;
 };
 
 module Default: Config = {
-  let unvisitedFill = None;
-  let showTrails = true;
-  let batch = 1;
-  let wallColor = "rgb(100, 100, 100)";
-  let showEdge = true;
-  let showWalls = true;
-  let showAge = false;
-  let dotColor age total_age => (DrawShared.hsl 0 100 (100 * (total_age - age) / total_age));
+  let batch = 10;
 };
 
-module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config) => {
-  module Draw = DrawShared.Draw(Board);
+module Draw (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: DrawShared.Config) (Config: Config) => {
+  module Draw = DrawShared.Draw Board DrawConfig;
 
   let draw ctx bsize csize => {
     let adjacency = Board.adjacency_list bsize;
     let state = Generator.init (Board.Shape.vertex_count bsize) adjacency;
     Canvas.Ctx.setLineCap ctx "round";
-    let batch_size = Config.batch;
-    let rec loop state => {
-      let (wsize, hsize) = csize;
-      Canvas.Ctx.clearRect ctx 0.0 0.0 wsize hsize;
 
+    let rec loop state => {
       let walls = Walls.walls_remaining adjacency (Generator.State.traveled state);
 
-      if (Config.showWalls) {
-        Canvas.Ctx.setStrokeStyle ctx Config.wallColor;
-        Canvas.Ctx.strokeRect ctx 0.0 0.0 wsize hsize;
-        Draw.walls ctx bsize csize walls;
-        Board.border_walls bsize csize |> List.iter (Draw.draw_wall ctx);
-      };
-
-      if (Config.showTrails) {
-        Canvas.Ctx.setStrokeStyle ctx "rgb(200, 200, 200)";
-        Draw.paths ctx bsize csize (Generator.State.traveled state);
-      };
-
-      if (Config.showAge) {
-        Draw.dots ctx bsize csize (Generator.State.traveled state) (Board.Shape.vertex_count bsize) Config.dotColor 15.0;
-      };
-
-      if (Config.showEdge) {
-        Canvas.Ctx.setFillStyle ctx "green";
-        Draw.vertex_dots ctx bsize csize (Generator.State.current state) 5.0;
-
-        Canvas.Ctx.setFillStyle ctx "blue";
-        Draw.vertex_dots ctx bsize csize (Generator.State.next state) 5.0;
-      };
+      Draw.draw ctx bsize csize walls (Generator.State.traveled state) (Generator.State.current state) (Generator.State.next state);
 
       switch (Generator.State.current state) {
         | [] => ()
@@ -66,11 +27,10 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
           for _ in 0 to (Config.batch - 1) {
             tmp := (Generator.step !tmp);
           };
-          Window.setTimeout (fun () => loop !tmp) 100; ()
+          Window.setTimeout (fun () => loop !tmp) 100 |> ignore
         }
       }
     };
     loop state
   };
 };
-

@@ -1,6 +1,6 @@
 
-module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
-  module Draw = DrawShared.Draw(Board);
+module Draw (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: DrawShared.Config) => {
+  module Draw = DrawShared.Draw(Board) DrawConfig;
 
   let draw ctx bsize csize => {
     let full = Board.adjacency_list bsize;
@@ -8,11 +8,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
       (Board.Shape.vertex_count bsize) full;
     let walls = Walls.walls_remaining full traveled;
 
-    /*
-    Draw.dots ctx bsize csize traveled (Board.Shape.vertex_count bsize) (fun _ _ => "red") 15.0;
-    */
-    Draw.walls ctx bsize csize walls;
-    Draw.paths ctx bsize csize traveled;
+    Draw.draw ctx bsize csize walls traveled [] [];
   };
 }
 
