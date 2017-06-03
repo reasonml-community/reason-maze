@@ -1,4 +1,10 @@
 {
   "name": "maze",
-  "sources": "src"
+  "sources": [
+    "src",
+    "src/Algorithms",
+    "src/Boards",
+    "src/FFI",
+    "src/Presenters"
+  ]
 }
