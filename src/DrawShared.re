@@ -1,13 +1,5 @@
 module Ctx = Canvas.Ctx;
 
-let draw_wall ctx wall => {
-  switch (wall)  {
-    | Shared.Line (p1, p2) => {
-      Ctx.line ctx p1 p2
-    }
-  }
-};
-
 let sf = string_of_float;
 let si = string_of_int;
 let hsl h s l => "hsla(" ^ (si h) ^ ", " ^ (si s) ^ "%, " ^ (si l) ^ "%, 0.3)";
@@ -20,6 +12,14 @@ let draw_point ctx count age size (x, y) => {
 };
 
 module Draw (Board: Shared.Board) => {
+
+  let draw_wall ctx wall => {
+    switch (wall)  {
+      | Shared.Line (p1, p2) => {
+        Ctx.line ctx p1 p2
+      }
+    }
+  };
   let walls ctx bsize csize walls => {
     List.iter
       (fun wall =>
@@ -27,6 +27,7 @@ module Draw (Board: Shared.Board) => {
           |> draw_wall ctx)
       walls;
   };
+
 
   let vertex_dots ctx bsize csize vertices size => {
     List.iter

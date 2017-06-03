@@ -107,56 +107,89 @@ let direction_of_points src dest (x, y) (a, b) => {
 
 let sq3 = sqrt 3.0;
 
-let drawable_wall (src, dest) size csize => {
-  let (x, y) = from_vertex src size;
-  let (a, b) = from_vertex dest size;
-  let (w, _) = csize;
+let wall_in_direction fx fy u direction => {
   open Utils.Float;
-  let u = w / (fi size);
-  let pts = switch (direction_of_points src dest (x, y) (a, b)) {
+  switch direction {
     | Zx => {
-        let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx + u / 2.0, fy + u * sq3 / 2.0 - u / sq3),
           (fx + u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
     | Zy => {
-        let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx - u / 2.0, fy + u * sq3 / 2.0 - u / sq3),
           (fx - u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
     | Yminus => {
-        let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy - u / sq3),
           (fx + u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
     | Yplus => {
-        let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy + u / sq3),
           (fx - u / 2.0, fy + u * sq3 / 2.0 - u / sq3)
         )
       }
     | Xminus => {
-        let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy - u / sq3),
           (fx - u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
     | Xplus => {
-        let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy + u / sq3),
           (fx + u / 2.0, fy + u * sq3 / 2.0 - u / sq3)
         )
       }
+  }
+};
+
+let border_walls size csize => {
+  let res = ref [];
+  let (w, _) = csize;
+  let u = w /. (fi size);
+  for x in 0 to (size - 1) {
+    let (fx, fy) = point_pos (x, 0) size csize;
+    res := [
+      Shared.Line (wall_in_direction fx fy u Yminus),
+      Shared.Line (wall_in_direction fx fy u Zx),
+      ...!res
+    ];
   };
+  for y in 0 to (size - 1) {
+    let (fx, fy) = point_pos (0, y) size csize;
+    res := [
+      Shared.Line (wall_in_direction fx fy u Xminus),
+      Shared.Line (wall_in_direction fx fy u Zy),
+      ...!res
+    ];
+  };
+  for x in 0 to (size - 1) {
+    let y = size - 1 - x;
+    let (fx, fy) = point_pos (x, y) size csize;
+    res := [
+      Shared.Line (wall_in_direction fx fy u Yplus),
+      Shared.Line (wall_in_direction fx fy u Xplus),
+      ...!res
+    ];
+  };
+  !res
+};
+
+let drawable_wall (src, dest) size csize => {
+  let (x, y) = from_vertex src size;
+  let (a, b) = from_vertex dest size;
+  let (w, _) = csize;
+  open Utils.Float;
+  let u = w / (fi size);
+  let direction = (direction_of_points src dest (x, y) (a, b));
+  let (fx, fy) = point_pos (x, y) size csize;
+  let pts = wall_in_direction fx fy u direction;
   Shared.Line pts;
 };
 

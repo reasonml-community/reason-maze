@@ -30,5 +30,6 @@ module type Board = {
   let adjacency_list: size => adjacency_list;
   let vertex_pos: int => size => canvas_size => (float, float);
   let drawable_wall: (int, int) => size => canvas_size => drawable_wall;
+  let border_walls: size => canvas_size => list drawable_wall;
 };
 

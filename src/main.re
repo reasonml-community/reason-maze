@@ -7,7 +7,6 @@ Random.self_init();
 module Config = {
   include Animate.Default;
   let showTrails = false;
-  let wallColor = "green";
 };
 
 module Draw = Animate.Draw HexTriangle RandomSearch Config;

@@ -26,6 +26,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
       Canvas.Ctx.setStrokeStyle ctx Config.wallColor;
       Canvas.Ctx.strokeRect ctx 0.0 0.0 500.0 500.0;
       Draw.walls ctx bsize csize walls;
+      Board.border_walls bsize csize |> List.iter (Draw.draw_wall ctx);
 
       if (Config.showTrails) {
         Canvas.Ctx.setStrokeStyle ctx "rgb(200, 200, 200)";
