@@ -12,7 +12,7 @@ module Draw = Animate.Draw Board RandomSearch {
 };
 
 let main () => {
-  let canvas = Canvas.createOnBody 1000 1000;
+  let canvas = Canvas.createOnBody 500 500;
   let ctx = Canvas.getContext canvas;
 
   Ctx.setStrokeWidth ctx 1.0;

@@ -23,7 +23,7 @@ let rec add_adjacent_edges state adjacents next age => {
       } else {
         add_adjacent_edges state rest
           [Shared.Edge.{src, dest, age}, ...next]
-          (age + 1);
+          age;
       }
     }
   }
@@ -41,7 +41,8 @@ let step state => {
       } else {
         let adjacents = Array.get adjacency_list src.dest;
         Array.set visited src.dest true;
-        let traveled = [src, ...traveled];
+        let age = age + 1;
+        let traveled = [{...src, age}, ...traveled];
         let (next, age) = add_adjacent_edges (visited, src.dest) adjacents rest age;
         {...state, current: Utils.shuffle next, traveled, age}
       }
