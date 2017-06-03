@@ -48,24 +48,32 @@ module Draw (Board: Shared.Board) => {
         })
       traveled;
   };
+
   let paths ctx bsize csize traveled => {
     List.iter
       (fun {Shared.Edge.dest, src, age} => {
-        Canvas.Ctx.line ctx
-          (Board.vertex_pos src bsize csize)
-          (Board.vertex_pos dest bsize csize)
+        let a =
+          (Board.vertex_pos src bsize csize);
+        let b =
+          (Board.vertex_pos dest bsize csize);
+        Js.log ("going", a, b, src, dest);
+        Canvas.Ctx.line ctx a b;
         })
       traveled;
   };
 
-  let connections ctx bsize csize traveled => {
+  let connections ctx bsize csize adjacent => {
     List.iter
       (fun (src, dest) => {
+        let a =
+          (Board.vertex_pos src bsize csize);
+        let b =
+          (Board.vertex_pos dest bsize csize);
+        Js.log ("going", a, b, src, dest);
         Canvas.Ctx.line ctx
-          (Board.vertex_pos src bsize csize)
-          (Board.vertex_pos dest bsize csize)
+          a b;
         })
-      traveled;
+      adjacent;
   };
 };
 

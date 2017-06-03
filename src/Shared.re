@@ -54,7 +54,7 @@ module type BoardShape = {
   let to_vertex: shape => (int, int) => option int;
   let from_vertex: shape => int => (int, int);
   let vertex_count: shape => int;
-  let in_bounds: shape => (int, int) => bool;
+  /*let in_bounds: shape => (int, int) => bool;*/
   let all_coordinates: shape => list (int, int);
   let coord_to_board: shape => (int, int) => canvas_size => (float, float);
   let scale: shape => canvas_size => float;
@@ -79,8 +79,11 @@ module Board (Shape: BoardShape) => {
     let res = Array.make (Shape.vertex_count shape) [];
     Shape.all_coordinates shape |> List.iteri
     (fun i (x, y) => {
-      Array.set res i (Shape.Tile.adjacent (x, y) |> optmap
-        (fun (a, b) => Shape.to_vertex shape (x + a, y + b)))
+      Array.set res i (
+        (Shape.Tile.adjacent (x, y))
+        |> optmap
+        (fun (a, b) => (Shape.to_vertex shape (x + a, y + b)))
+      )
     });
     res;
   };
@@ -91,7 +94,10 @@ module Board (Shape: BoardShape) => {
     let (x, y) = Shape.from_vertex shape src;
     let (a, b) = Shape.from_vertex shape dest;
     switch (Shape.Tile.to_direction ((a - x), (b - y))) {
-      | None => None
+      | None => {
+        /*Js.log ("Bad direction", a-x, b-y, x, y, a, b);*/
+        None
+        }
       | Some direction => {
         let wall = Shape.Tile.wall_in_direction direction;
         let scale = Shape.scale shape size;
