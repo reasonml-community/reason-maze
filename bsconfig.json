@@ -1,5 +1,4 @@
 {
   "name": "maze",
-  "reason" : { "react-jsx" : true},
   "sources": "src"
 }

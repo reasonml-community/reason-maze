@@ -6,6 +6,7 @@ module type Config = {
   let batch: int;
   let showEdge: bool;
   let showWalls: bool;
+  let showAge: bool;
 };
 
 module Default: Config = {
@@ -15,6 +16,7 @@ module Default: Config = {
   let wallColor = "rgb(100, 100, 100)";
   let showEdge = true;
   let showWalls = true;
+  let showAge = false;
 };
 
 module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config) => {
@@ -35,7 +37,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
         Canvas.Ctx.setStrokeStyle ctx Config.wallColor;
         Canvas.Ctx.strokeRect ctx 0.0 0.0 wsize hsize;
         Draw.walls ctx bsize csize walls;
-        Board.Shape.border_walls bsize csize |> List.iter (Draw.draw_wall ctx);
+        Board.border_walls bsize csize |> List.iter (Draw.draw_wall ctx);
       };
 
       if (Config.showTrails) {
@@ -43,7 +45,9 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
         Draw.paths ctx bsize csize (Generator.State.traveled state);
       };
 
-      Draw.dots ctx bsize csize (Generator.State.traveled state) (Board.Shape.vertex_count bsize) 15.0;
+      if (Config.showAge) {
+        Draw.dots ctx bsize csize (Generator.State.traveled state) (Board.Shape.vertex_count bsize) 15.0;
+      };
 
       if (Config.showEdge) {
         Canvas.Ctx.setFillStyle ctx "green";

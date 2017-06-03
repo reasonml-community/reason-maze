@@ -61,7 +61,7 @@ module type BoardShape = {
   /* another way to do it would be to map coordinates to a list of directions,
    * and then do the work myself. buuut this is more efficient...
    */
-  let border_walls: shape => canvas_size => list drawable_wall;
+  let border_walls: shape => list ((int, int), Tile.direction);
 };
 
 module type Board = {
@@ -70,10 +70,22 @@ module type Board = {
   let adjacency_list: Shape.shape => adjacency_list;
   let vertex_pos: int => Shape.shape => canvas_size => (float, float);
   let drawable_wall: (int, int) => Shape.shape => canvas_size => option drawable_wall;
+  let border_walls: Shape.shape => canvas_size => list drawable_wall;
 };
 
 module Board (Shape: BoardShape) => {
   module Shape = Shape;
+
+  let border_walls shape size => {
+    List.map
+    (fun ((x, y), direction) => {
+      let wall = Shape.Tile.wall_in_direction direction;
+      let scale = Shape.scale shape size;
+      let offset = Shape.coord_to_board shape (x, y) size;
+      (transform_wall wall scale offset);
+    })
+    (Shape.border_walls shape)
+  };
 
   let adjacency_list shape => {
     let res = Array.make (Shape.vertex_count shape) [];

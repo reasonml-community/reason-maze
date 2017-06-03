@@ -2,24 +2,28 @@ module Ctx = Canvas.Ctx;
 
 Random.self_init();
 
-module Board = (Shared.Board Rect);
+module Board = (Shared.Board HexTriangle2);
 module Draw = Animate.Draw Board RandomSearch {
   include Animate.Default;
   let showTrails = false;
+  let showAge = false;
   let batch = 20;
   let showEdge = false;
-  let showWalls = false;
+  let showWalls = true;
 };
 
+let iof = int_of_float;
+
 let main () => {
-  let canvas = Canvas.createOnBody 500 500;
+  let csize = (1000.0, 1000.0);
+  let (width, height) = csize;
+  let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  Ctx.setStrokeWidth ctx 1.0;
+  Ctx.setStrokeWidth ctx 3.0;
 
-  let size = 20;
   let size = (50, 50);
-  let csize = (500.0, 500.0);
+  let size = 50;
 
   Draw.draw ctx size csize;
   /*
