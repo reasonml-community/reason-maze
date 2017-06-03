@@ -1,5 +1,17 @@
 
-module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
+module type Config = {
+  let unvisitedFill: option string;
+  let showTrails: bool;
+  let wallColor: string;
+};
+
+module Default: Config = {
+  let unvisitedFill = None;
+  let showTrails = true;
+  let wallColor = "rgb(100, 100, 100)";
+};
+
+module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config) => {
   module Draw = DrawShared.Draw(Board);
 
   let draw ctx bsize csize => {
@@ -8,14 +20,17 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
     Canvas.Ctx.setLineCap ctx "round";
     let rec loop state => {
       Canvas.Ctx.clearRect ctx 0.0 0.0 500.0 500.0;
-      Canvas.Ctx.setStrokeStyle ctx "rgb(100, 100, 100)";
-      Canvas.Ctx.strokeRect ctx 0.0 0.0 500.0 500.0;
 
       let walls = Walls.walls_remaining adjacency (Generator.State.traveled state);
-      Canvas.Ctx.setStrokeStyle ctx "rgb(100, 100, 100)";
+
+      Canvas.Ctx.setStrokeStyle ctx Config.wallColor;
+      Canvas.Ctx.strokeRect ctx 0.0 0.0 500.0 500.0;
       Draw.walls ctx bsize csize walls;
-      Canvas.Ctx.setStrokeStyle ctx "rgb(200, 200, 200)";
-      Draw.paths ctx bsize csize (Generator.State.traveled state);
+
+      if (Config.showTrails) {
+        Canvas.Ctx.setStrokeStyle ctx "rgb(200, 200, 200)";
+        Draw.paths ctx bsize csize (Generator.State.traveled state);
+      };
 
       Canvas.Ctx.setFillStyle ctx "green";
       Draw.vertex_dots ctx bsize csize (Generator.State.current state) 5.0;

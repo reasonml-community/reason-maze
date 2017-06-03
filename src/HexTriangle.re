@@ -15,23 +15,6 @@ let from_vertex v s => {
     }
   };
   !res;
-
-  /*
-  let x = ref 0;
-  let y = ref 0;
-  let row = ref 0;
-  for i in 0 to (v - 1) {
-    if (!y == !row) {
-      row := !row + 1;
-      x := !row;
-      y := 0;
-    } else {
-      x := !x - 1;
-      y := !y + 1;
-    }
-  };
-  (!x, !y);
-  */
 };
 
 let to_vertex a b s => {
@@ -100,10 +83,10 @@ let vertex_pos v size (w, h) => {
 };
 
 type direction =
-  | Xm
-  | Xp
-  | Ym
-  | Yp
+  | Xminus
+  | Xplus
+  | Yminus
+  | Yplus
   | Zx
   | Zy;
 
@@ -111,10 +94,10 @@ let direction_of_points src dest (x, y) (a, b) => {
   switch true {
     | _ when (x + 1 === a && y - 1 === b) => Zx
     | _ when (x - 1 === a && y + 1 === b) => Zy
-    | _ when (x + 1 === a && y === b) => Xp
-    | _ when (x - 1 === a && y === b) => Xm
-    | _ when (y + 1 === b && x === a) => Yp
-    | _ when (y - 1 === b && x === a) => Ym
+    | _ when (x + 1 === a && y === b) => Xplus
+    | _ when (x - 1 === a && y === b) => Xminus
+    | _ when (y + 1 === b && x === a) => Yplus
+    | _ when (y - 1 === b && x === a) => Yminus
     | _ => {
       Js.log ("bad dir", x, y, a, b, src, dest);
       Zx
@@ -138,13 +121,6 @@ let drawable_wall (src, dest) size csize => {
           (fx + u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
-    | Ym => {
-        let (fx, fy) = point_pos (x, y) size csize;
-        (
-          (fx, fy - u / sq3),
-          (fx + u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
-        )
-      }
     | Zy => {
         let (fx, fy) = point_pos (x, y) size csize;
         (
@@ -152,21 +128,28 @@ let drawable_wall (src, dest) size csize => {
           (fx - u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
-    | Yp => {
+    | Yminus => {
+        let (fx, fy) = point_pos (x, y) size csize;
+        (
+          (fx, fy - u / sq3),
+          (fx + u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
+        )
+      }
+    | Yplus => {
         let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy + u / sq3),
           (fx - u / 2.0, fy + u * sq3 / 2.0 - u / sq3)
         )
       }
-    | Xm => {
+    | Xminus => {
         let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy - u / sq3),
           (fx - u / 2.0, fy - u * sq3 / 2.0 + u / sq3)
         )
       }
-    | Xp => {
+    | Xplus => {
         let (fx, fy) = point_pos (x, y) size csize;
         (
           (fx, fy + u / sq3),

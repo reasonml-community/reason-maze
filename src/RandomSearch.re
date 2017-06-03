@@ -13,7 +13,6 @@ module State = {
   let age t => t.age;
 };
 
-
 let rec add_adjacent_edges state adjacents next age => {
   let (visited, src) = state;
   switch (adjacents) {

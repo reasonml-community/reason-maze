@@ -4,19 +4,6 @@ module Edge = {
 };
 
 type adjacency_list = array (list int);
-/*
-module State = {
-  type state = {
-    adjacency_list: adjacency_list,
-    visited: array bool,
-    current: list int,
-    next: list int,
-    age: int,
-    traveled: list Edge.edge,
-  };
-  type t = state;
-};
-*/
 
 module type Generator = {
   module State: {
