@@ -56,7 +56,6 @@ module Draw (Board: Shared.Board) => {
           (Board.vertex_pos src bsize csize);
         let b =
           (Board.vertex_pos dest bsize csize);
-        Js.log ("going", a, b, src, dest);
         Canvas.Ctx.line ctx a b;
         })
       traveled;
@@ -69,7 +68,6 @@ module Draw (Board: Shared.Board) => {
           (Board.vertex_pos src bsize csize);
         let b =
           (Board.vertex_pos dest bsize csize);
-        Js.log ("going", a, b, src, dest);
         Canvas.Ctx.line ctx
           a b;
         })

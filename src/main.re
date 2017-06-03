@@ -6,6 +6,9 @@ module Board = (Shared.Board Rect);
 module Draw = Animate.Draw Board RandomSearch {
   include Animate.Default;
   let showTrails = false;
+  let batch = 20;
+  let showEdge = false;
+  let showWalls = false;
 };
 
 let main () => {
@@ -15,8 +18,8 @@ let main () => {
   Ctx.setStrokeWidth ctx 1.0;
 
   let size = 20;
-  let size = (20, 50);
-  let csize = (200.0, 500.0);
+  let size = (50, 50);
+  let csize = (500.0, 500.0);
 
   Draw.draw ctx size csize;
   /*
