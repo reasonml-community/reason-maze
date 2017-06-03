@@ -1,5 +1,5 @@
 
-type size = int;
+type shape = int;
 
 let vertex_count size => {
   size * (size + 1) / 2
@@ -74,7 +74,7 @@ let point_pos (x, y) size (w, h) => {
   let dx = sx * fx - sx * fy;
   let dy = sy * fx + sy * fy;
 
-  (dx + length / 2.0, dy);
+  (dx + length / 2.0, dy + (h - height) / 2.0);
 };
 
 let vertex_pos v size (w, h) => {

@@ -4,12 +4,10 @@ module type Board = Shared.Board;
 
 Random.self_init();
 
-module Config = {
+module Draw = Animate.Draw HexTriangle RandomSearch {
   include Animate.Default;
   let showTrails = false;
 };
-
-module Draw = Animate.Draw HexTriangle RandomSearch Config;
 
 let main () => {
   let canvas = Canvas.createOnBody 1000 1000;
