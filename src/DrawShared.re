@@ -4,8 +4,8 @@ let sf = string_of_float;
 let si = string_of_int;
 let hsl h s l => "hsla(" ^ (si h) ^ ", " ^ (si s) ^ "%, " ^ (si l) ^ "%, 0.3)";
 
-let draw_point ctx count age size (x, y) => {
-  Ctx.setFillStyle ctx (hsl 0 100 (100 * (count - age) / count));
+let draw_point ctx count age dot_color size (x, y) => {
+  Ctx.setFillStyle ctx (dot_color age count);
   Ctx.beginPath ctx;
   Ctx.circle ctx x y size;
   Ctx.fill ctx;
@@ -40,11 +40,11 @@ module Draw (Board: Shared.Board) => {
       vertices;
   };
 
-  let dots ctx bsize csize traveled total_age size => {
+  let dots ctx bsize csize traveled total_age dot_color size => {
     List.iter
       (fun {Shared.Edge.dest, src, age} => {
         Board.vertex_pos dest bsize csize
-          |> draw_point ctx total_age age size;
+          |> draw_point ctx total_age age dot_color size;
         })
       traveled;
   };

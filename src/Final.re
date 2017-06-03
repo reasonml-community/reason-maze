@@ -8,7 +8,9 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
       (Board.Shape.vertex_count bsize) full;
     let walls = Walls.walls_remaining full traveled;
 
-    Draw.dots ctx bsize csize traveled (Board.Shape.vertex_count bsize) 15.0;
+    /*
+    Draw.dots ctx bsize csize traveled (Board.Shape.vertex_count bsize) (fun _ _ => "red") 15.0;
+    */
     Draw.walls ctx bsize csize walls;
     Draw.paths ctx bsize csize traveled;
   };

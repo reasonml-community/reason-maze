@@ -7,6 +7,7 @@ module type Config = {
   let showEdge: bool;
   let showWalls: bool;
   let showAge: bool;
+  let dotColor: int => int => string;
 };
 
 module Default: Config = {
@@ -17,6 +18,7 @@ module Default: Config = {
   let showEdge = true;
   let showWalls = true;
   let showAge = false;
+  let dotColor age total_age => (DrawShared.hsl 0 100 (100 * (total_age - age) / total_age));
 };
 
 module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config) => {
@@ -46,7 +48,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
       };
 
       if (Config.showAge) {
-        Draw.dots ctx bsize csize (Generator.State.traveled state) (Board.Shape.vertex_count bsize) 15.0;
+        Draw.dots ctx bsize csize (Generator.State.traveled state) (Board.Shape.vertex_count bsize) Config.dotColor 15.0;
       };
 
       if (Config.showEdge) {

@@ -6,10 +6,11 @@ module Board = (Shared.Board HexTriangle2);
 module Draw = Animate.Draw Board RandomSearch {
   include Animate.Default;
   let showTrails = false;
-  let showAge = false;
-  let batch = 20;
+  let showAge = true;
+  let batch = 100;
   let showEdge = false;
-  let showWalls = true;
+  let showWalls = false;
+  let dotColor age total_age => (DrawShared.hsl 80 100 (100 * (total_age - age) / total_age))
 };
 
 let iof = int_of_float;
@@ -23,7 +24,7 @@ let main () => {
   Ctx.setStrokeWidth ctx 3.0;
 
   let size = (50, 50);
-  let size = 50;
+  let size = 100;
 
   Draw.draw ctx size csize;
   /*
