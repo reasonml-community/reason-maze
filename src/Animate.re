@@ -16,7 +16,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
 
   let draw ctx bsize csize => {
     let adjacency = Board.adjacency_list bsize;
-    let state = Generator.init (Board.vertex_count bsize) adjacency;
+    let state = Generator.init (Board.Shape.vertex_count bsize) adjacency;
     Canvas.Ctx.setLineCap ctx "round";
     let rec loop state => {
       Canvas.Ctx.clearRect ctx 0.0 0.0 500.0 500.0;
@@ -26,7 +26,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (Config: Config)
       Canvas.Ctx.setStrokeStyle ctx Config.wallColor;
       Canvas.Ctx.strokeRect ctx 0.0 0.0 500.0 500.0;
       Draw.walls ctx bsize csize walls;
-      Board.border_walls bsize csize |> List.iter (Draw.draw_wall ctx);
+      Board.Shape.border_walls bsize csize |> List.iter (Draw.draw_wall ctx);
 
       if (Config.showTrails) {
         Canvas.Ctx.setStrokeStyle ctx "rgb(200, 200, 200)";

@@ -24,7 +24,7 @@ module Draw (Board: Shared.Board) => {
     List.iter
       (fun wall =>
         Board.drawable_wall wall bsize csize
-          |> draw_wall ctx)
+          |> Utils.maybe (draw_wall ctx) |> ignore)
       walls;
   };
 

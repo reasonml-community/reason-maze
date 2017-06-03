@@ -43,7 +43,7 @@ let transform_wall wall scale (dx, dy) => {
 module type Tile = {
   type direction;
   let to_direction: (int, int) => option direction;
-  let from_direction: direction => (int, int);
+  /*let from_direction: direction => (int, int);*/
   let wall_in_direction: direction => drawable_wall;
   let adjacent: (int, int) => list (int, int);
 };
@@ -58,9 +58,13 @@ module type BoardShape = {
   let all_coordinates: shape => list (int, int);
   let coord_to_board: shape => (int, int) => canvas_size => (float, float);
   let scale: shape => canvas_size => float;
+  /* another way to do it would be to map coordinates to a list of directions,
+   * and then do the work myself. buuut this is more efficient...
+   */
+  let border_walls: shape => canvas_size => list drawable_wall;
 };
 
-module type NBoard = {
+module type Board = {
   module Shape: BoardShape;
 
   let adjacency_list: Shape.shape => adjacency_list;
@@ -98,6 +102,7 @@ module Board (Shape: BoardShape) => {
   };
 };
 
+/*
 module type Board = {
   type shape;
   let vertex_count: shape => int;
@@ -106,4 +111,5 @@ module type Board = {
   let drawable_wall: (int, int) => shape => canvas_size => drawable_wall;
   let border_walls: shape => canvas_size => list drawable_wall;
 };
+*/
 

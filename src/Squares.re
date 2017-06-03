@@ -1,5 +1,5 @@
 
-let adjacent = [
+let adjacent _ => [
   (-1, 0),
   ( 1, 0),
   (0, -1),

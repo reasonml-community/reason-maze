@@ -5,10 +5,10 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
   let draw ctx bsize csize => {
     let full = Board.adjacency_list bsize;
     let traveled = Generator.spanning_tree
-      (Board.vertex_count bsize) full;
+      (Board.Shape.vertex_count bsize) full;
     let walls = Walls.walls_remaining full traveled;
 
-    Draw.dots ctx bsize csize traveled (Board.vertex_count bsize) 15.0;
+    Draw.dots ctx bsize csize traveled (Board.Shape.vertex_count bsize) 15.0;
     Draw.walls ctx bsize csize walls;
     Draw.paths ctx bsize csize traveled;
   };

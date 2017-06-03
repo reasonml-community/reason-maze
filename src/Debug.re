@@ -27,14 +27,14 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) => {
 
   let dots ctx bsize csize => {
     let full = Board.adjacency_list bsize;
-    let vertices = Board.vertex_count bsize;
+    let vertices = Board.Shape.vertex_count bsize;
     Draw.vertex_dots ctx bsize csize (range 0 vertices) 10.0;
   };
 
   let paths ctx bsize csize => {
     let full = Board.adjacency_list bsize;
     let traveled = Generator.spanning_tree
-      (Board.vertex_count bsize) full;
+      (Board.Shape.vertex_count bsize) full;
 
     Canvas.Ctx.setStrokeStyle ctx "rgba(100, 100, 100, 0.1)";
     Draw.paths ctx bsize csize traveled;
