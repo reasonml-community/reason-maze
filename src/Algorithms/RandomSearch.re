@@ -11,6 +11,7 @@ module State = {
   let current t => List.map (fun {Shared.Edge.dest} => dest) t.current;
   let next _ => [];
   let age t => t.age;
+  let finished t => t.current === [];
 };
 
 let adjacent_edges visited src adjacents => {

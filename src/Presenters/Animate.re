@@ -20,15 +20,14 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: Dra
 
       Draw.draw ctx bsize csize walls (Generator.State.traveled state) (Generator.State.current state) (Generator.State.next state);
 
-      switch (Generator.State.current state) {
-        | [] => ()
-        | _ => {
-          let tmp = ref state;
-          for _ in 0 to (Config.batch - 1) {
-            tmp := (Generator.step !tmp);
-          };
-          Window.setTimeout (fun () => loop !tmp) 100 |> ignore
-        }
+      if (Generator.State.finished state) {
+        ()
+      } else  {
+        let tmp = ref state;
+        for _ in 0 to (Config.batch - 1) {
+          tmp := (Generator.step !tmp);
+        };
+        Window.setTimeout (fun () => loop !tmp) 100 |> ignore
       }
     };
     loop state

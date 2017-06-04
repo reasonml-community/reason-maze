@@ -14,6 +14,7 @@ let optmap fn lst => List.fold_left
 module type Generator = {
   module State: {
     type t;
+    let finished: t => bool;
     let traveled: t => list Edge.edge;
     let current: t => list int;
     let next: t => list int;

@@ -12,6 +12,7 @@ module State = {
   let current t => t.current;
   let next t => t.next;
   let age t => t.age;
+  let finished t => t.current === [];
 };
 
 let rec add_adjacent_edges state adjacents next traveled age => {
