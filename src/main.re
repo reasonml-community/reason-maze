@@ -5,14 +5,14 @@ Random.self_init();
 module DrawConfig = {
   include DrawShared.Default;
   let showTrails = true;
-  let showAge = false;
+  let showAge = true;
   let showEdge = false;
-  let dotSize = 5.0;
+  let dotSize = 35.0;
   let showWalls = true;
-  let dotColor age total_age => (DrawShared.hsla 0 100 (100 * (total_age - age) / total_age) 0.9)
+  let dotColor age total_age => (DrawShared.hsla 0 100 (100 * (total_age - age) / total_age) 0.1)
 };
 module Board = (Shared.Board Rect);
-module Algo = DepthFirst;
+module Algo = DepthFirst.F { let maxHits = 1; let joinOnHit = 0.01; };
 module ADraw = Animate.Draw Board Algo DrawConfig {
   include Animate.Default;
   let batch = 4;
@@ -31,7 +31,7 @@ let main () => {
 
   let size = 50;
   let size = (30, 30);
-  ADraw.draw ctx size csize;
+  FDraw.draw ctx size csize;
 };
 
 main ();
