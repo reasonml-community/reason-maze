@@ -49,19 +49,19 @@ module type Tile = {
   let adjacent: (int, int) => list (int, int);
 };
 
+module type Draw = {
+  let draw: Canvas.ctx => 'a => (float, float) => unit;
+};
+
 module type BoardShape = {
   type shape;
   module Tile: Tile;
   let to_vertex: shape => (int, int) => option int;
   let from_vertex: shape => int => (int, int);
   let vertex_count: shape => int;
-  /*let in_bounds: shape => (int, int) => bool;*/
-  let all_coordinates: shape => list (int, int);
-  let coord_to_board: shape => (int, int) => canvas_size => (float, float);
+  let all_coordinates: shape => array (int, int);
+  let coord_to_board: shape => canvas_size => (int, int) => (float, float);
   let scale: shape => canvas_size => float;
-  /* another way to do it would be to map coordinates to a list of directions,
-   * and then do the work myself. buuut this is more efficient...
-   */
   let border_walls: shape => list ((int, int), Tile.direction);
 };
 
@@ -82,7 +82,7 @@ module Board (Shape: BoardShape) => {
     (fun ((x, y), direction) => {
       let wall = Shape.Tile.wall_in_direction direction;
       let scale = Shape.scale shape size;
-      let offset = Shape.coord_to_board shape (x, y) size;
+      let offset = Shape.coord_to_board shape size (x, y) ;
       (transform_wall wall scale offset);
     })
     (Shape.border_walls shape)
@@ -90,7 +90,7 @@ module Board (Shape: BoardShape) => {
 
   let adjacency_list shape => {
     let res = Array.make (Shape.vertex_count shape) [];
-    Shape.all_coordinates shape |> List.iteri
+    Shape.all_coordinates shape |> Array.iteri
     (fun i (x, y) => {
       Array.set res i (
         (Shape.Tile.adjacent (x, y))
@@ -101,7 +101,12 @@ module Board (Shape: BoardShape) => {
     res;
   };
 
-  let vertex_pos v shape size => Shape.coord_to_board shape (Shape.from_vertex shape v) size;
+  let (|?<) a b => switch b {
+  | Some x => Some (a x)
+  | None => None
+  };
+
+  let vertex_pos v shape size => Shape.coord_to_board shape size (Shape.from_vertex shape v);
 
   let drawable_wall (src, dest) shape size => {
     let (x, y) = Shape.from_vertex shape src;
@@ -114,7 +119,7 @@ module Board (Shape: BoardShape) => {
       | Some direction => {
         let wall = Shape.Tile.wall_in_direction direction;
         let scale = Shape.scale shape size;
-        let offset = Shape.coord_to_board shape (x, y) size;
+        let offset = Shape.coord_to_board shape size (x, y) ;
         Some (transform_wall wall scale offset);
       }
     }

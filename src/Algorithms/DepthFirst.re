@@ -25,7 +25,10 @@ module F (Config: Config) => {
     };
     let traveled t => t.traveled;
     let current t => List.map (fun {Shared.Edge.dest} => dest) (Array.to_list t.current);
-    let next _ => [];
+    let next t => switch (t.active) {
+    | Some (x, _) => [x.Shared.Edge.dest]
+    | None => []
+    };
     let age t => t.age;
     let finished t => t.active === None;
   };

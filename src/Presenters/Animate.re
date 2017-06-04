@@ -7,7 +7,7 @@ module Default: Config = {
   let batch = 10;
 };
 
-module Draw (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: DrawShared.Config) (Config: Config) => {
+module Draw (Config: Config) (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: DrawShared.Config) => {
   module Draw = DrawShared.Draw Board DrawConfig;
 
   let draw ctx bsize csize => {

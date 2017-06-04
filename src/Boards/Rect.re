@@ -25,12 +25,12 @@ let all_coordinates (w, h) => {
     }
   };
   /* TODO maybe make this tail call recursive? or switch to using an array? */
-  inner 0 0;
+  Array.of_list (inner 0 0);
 };
 
 let fi = float_of_int;
 
-let coord_to_board (w, h) (x, y) (wsize, hsize) => {
+let coord_to_board (w, h) (wsize, hsize) (x, y) => {
   open Utils.Float;
   let dx = wsize / (fi w);
   let dy = hsize / (fi h);

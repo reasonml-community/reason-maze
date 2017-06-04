@@ -23,6 +23,7 @@ let to_direction (dx, dy) => switch (dx, dy) {
   | (0,  1) => Some Yplus
   | (-1, 1) => Some Zy
   | (1, -1) => Some Zx
+  | _ => None
 };
 
 let sq3 = sqrt 3.0;

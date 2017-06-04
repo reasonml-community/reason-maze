@@ -6,12 +6,10 @@ let hsla h s l a => "hsla(" ^ (si h) ^ ", " ^ (si s) ^ "%, " ^ (si l) ^ "%, " ^ 
 
 let draw_point ctx count age dot_color size (x, y) => {
   Ctx.setFillStyle ctx (dot_color age count);
-  Ctx.fillRect ctx (x -. size /. 2.0) (y -. size /. 2.0) size size
-  /*
+  /*Ctx.fillRect ctx (x -. size /. 2.0) (y -. size /. 2.0) size size*/
   Ctx.beginPath ctx;
   Ctx.circle ctx x y size;
   Ctx.fill ctx;
-  */
 };
 
 module type Config = {

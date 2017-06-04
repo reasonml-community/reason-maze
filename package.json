@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "canvas": "^1.6.5",
+    "gifencoder": "^1.0.6"
   },
   "devDependencies": {
     "bs-platform": "^1.7.4",
