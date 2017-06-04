@@ -30,7 +30,7 @@ let main () => {
   Ctx.setStrokeWidth ctx 3.0;
 
   let size = 50;
-  let size = (50, 50);
+  let size = (20, 20);
   FDraw.draw ctx size csize;
 };
 

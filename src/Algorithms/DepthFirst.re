@@ -69,7 +69,7 @@ let step state => {
 
           {...state, traveled, age, current}
         }
-        | _ => state
+        | _ => {...state, current: rest}
         }
       }
     }

@@ -61,7 +61,7 @@ let init vertices adjacency_list => {
   State.{
     adjacency_list,
     visited,
-    current: [Shared.Edge.{dest: initial, src: initial, age: 0}],
+    current: [{Shared.Edge.dest: initial, src: initial, age: 0}],
     traveled: [],
     age: 0
   }
