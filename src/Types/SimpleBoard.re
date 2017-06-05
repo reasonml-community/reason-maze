@@ -1,15 +1,17 @@
 
 module type T = {
   type shape;
+  /* Stuff that can be derived from a Tile.T definition */
   module Coord: Coord.T;
-  let coordinates: shape => list Coord.t;
-  let auto_size: (float, float) => int => (shape, float, (float, float));
-
-  /* Stuff that can be used from a simple tile definition */
   type direction;
   let adjacents: shape => Coord.t => list direction;
   let adjacent_coord: shape => Coord.t => direction => Coord.t;
   let direction_to_border: shape => Coord.t => direction => Border.t;
+
+  let coordinates: shape => list Coord.t;
+  /* TODO need to make a "output coord" or something? */
+  let auto_size: (float, float) => int => (shape, float/* unit size */, (float, float)/* full size */);
+  let offset: shape => float => Coord.t => (float, float);
 };
 
 module FromTile (Tile: Tile.T)/*: (T with module Coord := Tile.Coord)*/ => {

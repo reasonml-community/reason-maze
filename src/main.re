@@ -1,6 +1,6 @@
 
-module M: SimpleBoard.T = TriangleBoard;
-module R: SimpleBoard.T = NewRect;
+/*module M: SimpleBoard.T = TriangleBoard;*/
+/*module R: SimpleBoard.T = NewRect;*/
 
 module DrawConfig = {
   include DrawShared.Default;

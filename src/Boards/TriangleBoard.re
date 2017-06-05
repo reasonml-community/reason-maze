@@ -2,18 +2,14 @@
 include SimpleBoard.FromTile TriangleTile;
 
 type shape = int;
-/*module Coord = Coord2d;*/
-
 
 let coordinates (size: shape) => {
   let v = ref [(0, 0)];
-  /*
-  for x in 0 to (w - 1) {
-    for y in 0 to (h - 1) {
+  for x in 0 to (size - 1) {
+    for y in 0 to (size - 1 - x) {
       v := [(x, y), ...!v];
     }
   };
-  */
   !v;
 };
 
