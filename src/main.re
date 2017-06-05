@@ -36,8 +36,10 @@ let main () => {
 };
 */
 
-let module Manager = Manager.F NewRect NewBFS;
-let module Presenter = Presenter.F NewRect NewBFS;
+let module Gen = BFSSingle;
+let module Board = NewRect;
+let module Manager = Manager.F Board Gen;
+let module Presenter = Presenter.F Board Gen;
 
 /* have this take some config */
 let show ctx (width, height) state => {
@@ -54,7 +56,7 @@ let rec batch state n => if (n === 0) { state } else { batch (Manager.step state
 
 let animate ctx canvas_size state => {
   let rec inner state => {
-    let state = batch state 1;
+    let state = batch state 10;
     show ctx canvas_size state;
     Manager.finished state
       ? (Js.log "done")
@@ -72,7 +74,7 @@ let main () => {
   let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  let state = Manager.init canvas_size 10;  
+  let state = Manager.init canvas_size 40;  
 
   if (false) {
     show ctx canvas_size (Manager.loop_to_end state);
