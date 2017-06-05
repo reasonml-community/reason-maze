@@ -14,7 +14,7 @@ module type T = {
   let offset: shape => float => Coord.t => (float, float);
 };
 
-module FromTile (Tile: Tile.T)/*: (T with module Coord := Tile.Coord)*/ => {
+module FromTile (Tile: Tile.T) => {
   type direction = Tile.direction;
   module Coord = Tile.Coord;
   let adjacents _ => Tile.adjacents;

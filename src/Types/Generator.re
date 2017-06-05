@@ -1,17 +1,27 @@
 
-module Edge = {
-  type t = {src: int, dest: int, age: int};
+module PairSet = Set.Make {
+  type t = (int, int);
+  let compare a b => compare a b;
+};
+
+module IntMap = Map.Make {
+  type t = int;
+  let compare a b => compare a b;
 };
 
 module type T = {
   type state;
   type get_adjacent = int => list int;
+
+  let edges: state => PairSet.t;
+  let visited: state => IntMap.t bool;
+
   /* just does everything */
-  let run: int => list Edge.t;
+  let run: int => state;
+
   /* more granular */
   let init: int => state;
   let step: get_adjacent => state => state;
-  let loop: get_adjacent => state => list Edge.t;
+  let loop_to_end: get_adjacent => state => state;
   let finished: state => bool;
-  let edges: state => list Edge.t;
 };
