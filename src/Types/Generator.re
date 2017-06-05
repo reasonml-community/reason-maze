@@ -1,23 +1,23 @@
 
-module PairSet = Set.Make {
+let module PairSet = Set.Make {
   type t = (int, int);
   let compare a b => compare a b;
 };
 
-module IntMap = Map.Make {
+let module IntMap = Map.Make {
   type t = int;
   let compare a b => compare a b;
 };
+type get_adjacent = int => list int;
 
 module type T = {
   type state;
-  type get_adjacent = int => list int;
 
-  let edges: state => PairSet.t;
-  let visited: state => IntMap.t bool;
+  let edges: state => PairSet.t; /* pairs are *ordered*, lower first */
+  let visited: state => array int; /* 0 means unvisited */
 
   /* just does everything */
-  let run: int => state;
+  let run: int => get_adjacent => state;
 
   /* more granular */
   let init: int => state;

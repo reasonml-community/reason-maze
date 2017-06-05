@@ -23,3 +23,5 @@ let auto_size (cwidth, cheight) hint_num => {
   let height = iof (cheight /. size);
   ((width, height), size, ((fi width) *. size, (fi height) *. size))
 };
+
+let offset shape scale (x, y) => (((fi x) +. 0.5) *. scale, ((fi y) +. 0.5) *. scale);

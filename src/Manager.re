@@ -9,8 +9,11 @@ module State = {
     get_adjacent: int => list int,
     coords: array 'coord,
     coord_map: 'map
-    /*outer_walls: list ('coord, 'direction)*/
   };
+};
+
+module type T = {
+
 };
 
 module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
@@ -40,7 +43,6 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     let count = Array.length coords;
     let gen_state = Gen.init count;
     let get_adjacent = get_adjacent shape coords coord_map;
-    /*let outer_walls = outer_walls shape coords coord_map get_adjacent;*/
 
     State.{count, shape, scale, outsize, gen_state, get_adjacent, coords, coord_map};
   };
@@ -50,14 +52,16 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     gen_state: Gen.step state.get_adjacent state.gen_state
   };
 
-  let loop_to_end state => State.(Gen.loop_to_end state.get_adjacent state.gen_state);
+  let loop_to_end state => State.{...state, gen_state: Gen.loop_to_end state.get_adjacent state.gen_state};
   let finished {State.gen_state} => Gen.finished gen_state;
   let edges {State.gen_state} => Gen.edges gen_state;
 
-  let all_walls {State.shape, coords, coord_map, gen_state, get_adjacent} => {
+  let all_walls {State.shape, scale, coords, coord_map, gen_state, get_adjacent} => {
     let edges = Gen.edges gen_state;
     Array.fold_left
     (fun (i, walls) coord => {
+      let coord = (Array.get coords i);
+      let make_border = Board.direction_to_border shape coord;
       let borders = List.filter (fun d => {
         let next = Board.adjacent_coord shape coord d;
         /* borders */
@@ -67,16 +71,22 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
           let nexti = CoordMap.find next coord_map;
           /* dedup shared walls */
           if (nexti < i) {
-            true
+            false
           } else {
             not (Generator.PairSet.mem (i, nexti) edges)
           }
         }
-      }) (Board.adjacents shape coord);
+      }) (Board.adjacents shape coord)
+      |> List.map (fun direction => {
+        Border.transform
+          scale
+          (Board.offset shape scale coord)
+          (Board.direction_to_border shape coord direction)
+      });
       (i + 1, borders @ walls)
     })
     (0, [])
-    coords
+    coords |> snd
   };
 
   /*

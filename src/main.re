@@ -2,6 +2,9 @@
 /*module M: SimpleBoard.T = TriangleBoard;*/
 /*module R: SimpleBoard.T = NewRect;*/
 
+let iof = int_of_float;
+
+/*
 module DrawConfig = {
   include DrawShared.Default;
   let showTrails = false;
@@ -19,8 +22,6 @@ module ADraw = Animate.Draw {
 };
 module Draw = Final.Draw Board Algo DrawConfig ;
 
-let iof = int_of_float;
-
 let main () => {
   Random.self_init();
   let csize = (1000.0, 1000.0);
@@ -32,6 +33,37 @@ let main () => {
   let size = 500;
   let size = (100, 100);
   Draw.draw ctx size csize;
+};
+*/
+
+let main () => {
+  Random.self_init();
+
+  let module Manager = Manager.F NewRect NewBFS;
+  let module Presenter = Presenter.F NewRect NewBFS;
+  let canvas_size = (500.0, 500.0);
+  let (width, height) = canvas_size;
+  let state = Manager.init canvas_size 10;  
+  let state = Manager.loop_to_end state;
+  let walls = Manager.all_walls state;
+
+  let canvas = Canvas.createOnBody (iof width) (iof height);
+  let ctx = Canvas.getContext canvas;
+
+  Js.log state;
+  Js.log walls;
+
+  Generator.PairSet.iter
+  (fun (a, b) => {
+    Canvas.Ctx.line ctx
+    (NewRect.offset state.shape state.scale (Array.get state.coords a))
+    (NewRect.offset state.shape state.scale (Array.get state.coords b));
+  })
+  (NewBFS.edges state.gen_state);
+
+  Canvas.Ctx.setStrokeWidth ctx 0.5;
+
+  Presenter.draw_walls ctx canvas_size walls;
 };
 
 main ();
