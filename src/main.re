@@ -34,7 +34,7 @@ let main () => {
 */
 
 let module Gen = Random2;
-let module Board = HexHex;
+let module Board = HexBox;
 let module Man = Manager.F Board Gen;
 let module Presenter = Presenter.F Board Gen;
 
@@ -48,9 +48,10 @@ let show ctx (width, height) state => {
   let (w, h) = state.Manager.State.outsize;
   let xm = (width -. w) /. 2.0;
   let ym = (height -. h) /. 2.0;
+  /*let (xm, ym) = (0.0, 0.0);*/
 
   Array.iter (Presenter.draw_shape ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
-  List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);
+  /*List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);*/
   List.iter (Presenter.draw_wall ctx (xm, ym)) (Man.all_walls state);
 };
 
@@ -72,12 +73,13 @@ let main () => {
 
   let canvas_size = (1000.0, 1000.0);
   let (width, height) = canvas_size;
-  let min_margin = 20.0;
+  let min_margin = 50.0;
 
   let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  let state = Man.init (width -. min_margin, height -. min_margin) 20;  
+  let with_margins = (width -. min_margin, height -. min_margin);
+  let state = Man.init with_margins 40;  
 
   if (false) {
     show ctx canvas_size state;
