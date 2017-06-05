@@ -23,7 +23,7 @@ let main () => {
       let maxHits = 1 + Random.int 9;
       let joinOnHit = Random.float 1.0;
     }),
-    (module BreadthFirstSearch),
+    /*(module BreadthFirstSearch),*/
     (module RandomSearch),
     (module RandomSearch2)
   |];

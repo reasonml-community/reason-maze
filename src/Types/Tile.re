@@ -5,6 +5,7 @@ module type T = {
   let adjacents: Coord.t => list direction;
   let adjacent_coord: Coord.t => direction => Coord.t;
   let direction_to_border: Coord.t => direction => Border.t;
+  let to_shape: Coord.t => Shape.t;
 };
 
 module type Simple = {
@@ -13,6 +14,7 @@ module type Simple = {
   let adjacents: list direction;
   let adjacent_coord: direction => Coord.t;
   let direction_to_border: direction => Border.t;
+  let shape: Shape.t;
 };
 
 module FromSimple (Simple: Simple)/*: (T with module Coord := Simple.Coord)*/ => {
@@ -23,6 +25,7 @@ module FromSimple (Simple: Simple)/*: (T with module Coord := Simple.Coord)*/ =>
     Coord.offset coord (Simple.adjacent_coord direction)
   };
   let direction_to_border _ => Simple.direction_to_border;
+  let to_shape _ => Simple.shape;
 };
 
 /*

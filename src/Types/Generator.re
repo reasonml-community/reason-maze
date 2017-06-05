@@ -15,6 +15,7 @@ module type T = {
 
   let edges: state => PairSet.t; /* pairs are *ordered*, lower first */
   let visited: state => array int; /* 0 means unvisited */
+  let max_age: state => int;
 
   /* just does everything */
   let run: int => get_adjacent => state;

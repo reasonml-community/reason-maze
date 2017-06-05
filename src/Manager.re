@@ -12,10 +12,6 @@ module State = {
   };
 };
 
-module type T = {
-
-};
-
 module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
 
   module CoordMap = Map.Make Board.Coord;
@@ -56,6 +52,8 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let finished {State.gen_state} => Gen.finished gen_state;
   let edges {State.gen_state} => Gen.edges gen_state;
 
+  let max_age {State.gen_state} => Gen.max_age gen_state;
+
   let all_edges {State.shape, scale, coords, gen_state} => {
     let to_points (a, b) => (
       (Board.offset shape scale (Array.get coords a)),
@@ -66,6 +64,17 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     (fun pair coll => [to_points pair, ...coll])
     (Gen.edges gen_state)
     []
+  };
+
+  let all_shapes {State.coords, shape, scale, gen_state} => {
+    Array.mapi
+    (fun i coord => {
+      let offset = Board.offset shape scale coord;
+      let shape = Board.tile_at_coord shape coord;
+      let visited = Array.get (Gen.visited gen_state) i;
+      (Shape.transform offset scale shape, visited);
+    })
+    coords
   };
 
   let all_walls {State.shape, scale, coords, coord_map, gen_state, get_adjacent} => {

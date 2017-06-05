@@ -16,6 +16,7 @@ let init size => {
 
 let edges state => state.edges;
 let visited state => state.visited;
+let max_age state => state.step;
 
 let sortpair a b => a > b ? (b, a) : (a, b);
 
