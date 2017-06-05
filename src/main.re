@@ -49,8 +49,8 @@ let show ctx (width, height) state => {
   let xm = (width -. w) /. 2.0;
   let ym = (height -. h) /. 2.0;
 
-  /*List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);*/
   Array.iter (Presenter.draw_shape ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
+  List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);
   List.iter (Presenter.draw_wall ctx (xm, ym)) (Man.all_walls state);
 };
 
@@ -72,11 +72,12 @@ let main () => {
 
   let canvas_size = (1000.0, 1000.0);
   let (width, height) = canvas_size;
+  let min_margin = 20.0;
 
   let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  let state = Man.init canvas_size 20;  
+  let state = Man.init (width -. min_margin, height -. min_margin) 20;  
 
   if (false) {
     show ctx canvas_size state;

@@ -42,7 +42,7 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     }
   };
 
-  let draw_edge ctx (xm, ym) (p1, p2) => {
-    Ctx.line ctx p1 p2
+  let draw_edge ctx (xm, ym) ((x, y), (a, b)) => {
+    Ctx.line ctx (x +. xm, y +. ym) (a +. xm, b +. ym)
   };
 };
