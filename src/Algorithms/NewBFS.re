@@ -33,12 +33,32 @@ let add_edges adjacents state src => {
   adjacents
 };
 
+/**
+ * I think I'll make a different function for this?
+let add_edges_late adjacents state (src, dest) => {
+  Array.set state.visited dest (step + 1);
+  let next = List.fold_left
+  (fun next dest => {
+    if (Array.get state.visited dest > 0) {
+      next
+    } else {
+      Array.set state.visited dest (step + 1);
+      [dest, ...next]
+    }
+  })
+  state.next
+  adjacents;
+  (next, Generator.PairSet.add (sortpair src dest) edges, step + 1)
+};
+*/
+
 let step get_adjacent state => {
   switch (state.frontier) {
   | [] => state
   | [src] => {
     let (frontier, edges, step) = add_edges (get_adjacent src) state src;
-    {...state, frontier, next: [], edges, step}
+    /* TODO add option to shuffle or not */
+    {...state, frontier: Utils.shuffle frontier, next: [], edges, step}
   }
   | [src, ...rest] => {
     let (next, edges, step) = add_edges (get_adjacent src) state src;

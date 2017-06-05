@@ -36,34 +36,49 @@ let main () => {
 };
 */
 
+let module Manager = Manager.F NewRect NewBFS;
+let module Presenter = Presenter.F NewRect NewBFS;
+
+/* have this take some config */
+let show ctx (width, height) state => {
+  Canvas.Ctx.setStrokeWidth ctx 1.0;
+  Canvas.Ctx.setLineCap ctx "round";
+  Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
+  /* TODO might be nice to do something sophisticated with corners... */
+
+  /*List.iter (Presenter.draw_edge ctx) (Manager.all_edges state);*/
+  List.iter (Presenter.draw_wall ctx) (Manager.all_walls state);
+};
+
+let rec batch state n => if (n === 0) { state } else { batch (Manager.step state) (n - 1) };
+
+let animate ctx canvas_size state => {
+  let rec inner state => {
+    let state = batch state 1;
+    show ctx canvas_size state;
+    Manager.finished state
+      ? (Js.log "done")
+      : Window.setTimeout (fun () => inner state) 40 |> ignore
+  };
+  inner state;
+};
+
 let main () => {
   Random.self_init();
 
-  let module Manager = Manager.F NewRect NewBFS;
-  let module Presenter = Presenter.F NewRect NewBFS;
   let canvas_size = (500.0, 500.0);
   let (width, height) = canvas_size;
-  let state = Manager.init canvas_size 10;  
-  let state = Manager.loop_to_end state;
-  let walls = Manager.all_walls state;
 
   let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  Js.log state;
-  Js.log walls;
+  let state = Manager.init canvas_size 10;  
 
-  Generator.PairSet.iter
-  (fun (a, b) => {
-    Canvas.Ctx.line ctx
-    (NewRect.offset state.shape state.scale (Array.get state.coords a))
-    (NewRect.offset state.shape state.scale (Array.get state.coords b));
-  })
-  (NewBFS.edges state.gen_state);
-
-  Canvas.Ctx.setStrokeWidth ctx 0.5;
-
-  Presenter.draw_walls ctx canvas_size walls;
+  if (false) {
+    show ctx canvas_size (Manager.loop_to_end state);
+  } else {
+    animate ctx canvas_size state;
+  }
 };
 
 main ();

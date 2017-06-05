@@ -13,7 +13,6 @@ module Draw (Config: Config) (Board: Shared.Board) (Generator: Shared.Generator)
   let draw ctx bsize csize => {
     let adjacency = Board.adjacency_list bsize;
     let state = Generator.init (Board.Shape.vertex_count bsize) adjacency;
-    Canvas.Ctx.setLineCap ctx "round";
 
     let rec loop state => {
       let walls = Walls.walls_remaining adjacency (Generator.State.traveled state);

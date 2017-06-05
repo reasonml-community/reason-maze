@@ -56,6 +56,18 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let finished {State.gen_state} => Gen.finished gen_state;
   let edges {State.gen_state} => Gen.edges gen_state;
 
+  let all_edges {State.shape, scale, coords, gen_state} => {
+    let to_points (a, b) => (
+      (Board.offset shape scale (Array.get coords a)),
+      (Board.offset shape scale (Array.get coords b))
+    );
+
+    Generator.PairSet.fold
+    (fun pair coll => [to_points pair, ...coll])
+    (Gen.edges gen_state)
+    []
+  };
+
   let all_walls {State.shape, scale, coords, coord_map, gen_state, get_adjacent} => {
     let edges = Gen.edges gen_state;
     Array.fold_left
