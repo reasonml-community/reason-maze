@@ -3,15 +3,15 @@ module Ctx = Canvas.Ctx;
 
 module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
 
-  let draw_wall ctx wall => {
+  let draw_wall ctx (xm, ym) wall => {
     switch (wall)  {
-      | Border.Line (p1, p2) => {
-        Canvas.Ctx.line ctx p1 p2
+      | Border.Line ((x, y), (a, b)) => {
+        Canvas.Ctx.line ctx (x +. xm, y +. ym) (a +. xm, b +. ym)
       }
     }
   };
 
-  let draw_shape ctx max_age (shape, age) => {
+  let draw_shape ctx (xm, ym) max_age (shape, age) => {
     if (age === 0) {
       Ctx.setFillStyle ctx "white";
     } else {
@@ -25,24 +25,24 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
       | [] => ()
       | [(x, y), ...rest] => {
         Ctx.beginPath ctx;
-        Ctx.moveTo ctx x y;
+        Ctx.moveTo ctx (x +. xm) (y +. ym);
         List.iter
-        (fun (x, y) => Ctx.lineTo ctx x y)
+        (fun (x, y) => Ctx.lineTo ctx (x +. xm) (y +. ym))
         rest;
         Ctx.fill ctx;
       }
       }
     }
     | Shape.Rect (x, y, w, h) => {
-      Ctx.fillRect ctx x y w h;
+      Ctx.fillRect ctx (x +. xm) (y +. ym) w h;
     }
     | Shape.Circle ((x, y), r) => {
-      Ctx.circle ctx x y r;
+      Ctx.circle ctx (x +. xm) (y +. ym) r;
     }
     }
   };
 
-  let draw_edge ctx (p1, p2) => {
+  let draw_edge ctx (xm, ym) (p1, p2) => {
     Ctx.line ctx p1 p2
   };
 };

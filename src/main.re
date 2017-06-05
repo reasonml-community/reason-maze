@@ -35,28 +35,32 @@ let main () => {
 
 let module Gen = Random2;
 let module Board = HexHex;
-let module Manager = Manager.F Board Gen;
+let module Man = Manager.F Board Gen;
 let module Presenter = Presenter.F Board Gen;
 
 /* have this take some config */
 let show ctx (width, height) state => {
-  Canvas.Ctx.setStrokeWidth ctx 4.0;
+  Canvas.Ctx.setStrokeWidth ctx 1.0;
   Canvas.Ctx.setLineCap ctx "round";
   Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
   /* TODO might be nice to do something sophisticated with corners... */
 
-  /*List.iter (Presenter.draw_edge ctx) (Manager.all_edges state);*/
-  Array.iter (Presenter.draw_shape ctx (Manager.max_age state)) (Manager.all_shapes state);
-  List.iter (Presenter.draw_wall ctx) (Manager.all_walls state);
+  let (w, h) = state.Manager.State.outsize;
+  let xm = (width -. w) /. 2.0;
+  let ym = (height -. h) /. 2.0;
+
+  /*List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);*/
+  Array.iter (Presenter.draw_shape ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
+  List.iter (Presenter.draw_wall ctx (xm, ym)) (Man.all_walls state);
 };
 
-let rec batch state n => if (n === 0) { state } else { batch (Manager.step state) (n - 1) };
+let rec batch state n => if (n === 0) { state } else { batch (Man.step state) (n - 1) };
 
 let animate ctx batch_size canvas_size state => {
   let rec inner state => {
     let state = batch state batch_size;
     show ctx canvas_size state;
-    Manager.finished state
+    Man.finished state
       ? (Js.log "done")
       : Window.setTimeout (fun () => inner state) 40 |> ignore
   };
@@ -72,12 +76,12 @@ let main () => {
   let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  let state = Manager.init canvas_size 20;  
+  let state = Man.init canvas_size 20;  
 
   if (false) {
     show ctx canvas_size state;
   } else if (false) {
-    show ctx canvas_size (Manager.loop_to_end state);
+    show ctx canvas_size (Man.loop_to_end state);
   } else {
     animate ctx 20 canvas_size state;
   }
