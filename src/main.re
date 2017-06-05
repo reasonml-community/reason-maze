@@ -1,4 +1,7 @@
 
+module M: SimpleBoard.T = TriangleBoard;
+module R: SimpleBoard.T = NewRect;
+
 module DrawConfig = {
   include DrawShared.Default;
   let showTrails = false;

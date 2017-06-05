@@ -4,6 +4,9 @@
     "src",
     "src/Algorithms",
     "src/Boards",
+    "src/Boards/Tiles",
+    "src/Coords",
+    "src/Types",
     "src/FFI",
     "src/Presenters"
   ]

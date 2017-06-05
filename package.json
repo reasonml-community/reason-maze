@@ -9,6 +9,7 @@
   },
   "scripts": {
     "start": "bsb -make-world -w",
+    "make": "bsb -clean && bsb -make-world",
     "build": "webpack -w",
     "clean": "bsb -clean-world"
   }
