@@ -1,7 +1,4 @@
 
-/*module M: SimpleBoard.T = TriangleBoard;*/
-/*module R: SimpleBoard.T = NewRect;*/
-
 let iof = int_of_float;
 
 /*
@@ -37,13 +34,13 @@ let main () => {
 */
 
 let module Gen = Random2;
-let module Board = TriangleBoard;
+let module Board = HexHex;
 let module Manager = Manager.F Board Gen;
 let module Presenter = Presenter.F Board Gen;
 
 /* have this take some config */
 let show ctx (width, height) state => {
-  Canvas.Ctx.setStrokeWidth ctx 1.0;
+  Canvas.Ctx.setStrokeWidth ctx 4.0;
   Canvas.Ctx.setLineCap ctx "round";
   Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
   /* TODO might be nice to do something sophisticated with corners... */
@@ -75,14 +72,14 @@ let main () => {
   let canvas = Canvas.createOnBody (iof width) (iof height);
   let ctx = Canvas.getContext canvas;
 
-  let state = Manager.init canvas_size 30;  
+  let state = Manager.init canvas_size 20;  
 
   if (false) {
     show ctx canvas_size state;
   } else if (false) {
     show ctx canvas_size (Manager.loop_to_end state);
   } else {
-    animate ctx 10 canvas_size state;
+    animate ctx 20 canvas_size state;
   }
 };
 
