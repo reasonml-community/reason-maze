@@ -15,8 +15,8 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     if (age === 0) {
       Ctx.setFillStyle ctx "white";
     } else {
-      let a = 100 - age * 100 / max_age;
-      Ctx.setFillStyle ctx ("hsl(0, 100%, " ^ (string_of_int a) ^ "%)");
+      let a = 100 - age * 50 / max_age;
+      Ctx.setFillStyle ctx ("hsl(80, 100%, " ^ (string_of_int a) ^ "%)");
     };
 
     switch shape {

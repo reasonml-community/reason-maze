@@ -33,7 +33,7 @@ let main () => {
 };
 */
 
-let module Gen = Random2;
+let module Gen = NewDepth;
 let module Board = HexBox;
 let module Man = PaintingManager.F Board Gen;
 let module Presenter = Presenter.F Board Gen;
@@ -110,7 +110,7 @@ let paint () => {
   let ctx = Canvas.getContext canvas;
 
   let with_margins = (width -. min_margin, height -. min_margin);
-  let paint_state = Man.paint_init with_margins 40;  
+  let paint_state = Man.paint_init with_margins 80;  
 
   /*let state = Man.filtered_state paint_state;*/
   
@@ -127,7 +127,7 @@ let paint () => {
   });
   make_button "Go" (fun () => {
     let state = Man.realize_state !pstate;
-    animate ctx 20 canvas_size state;
+    animate ctx 5 canvas_size state;
   });
 };
 
