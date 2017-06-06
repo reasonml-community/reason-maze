@@ -59,3 +59,37 @@ let offset shape scale (x, y) => {
   )
 };
 
+let from_point shape scale (x, y) => {
+  open Utils.Float;
+  let vsize = scale * 2.0 / (sqrt 3.0);
+  let vertical = vsize * 0.75;
+
+  let x' = x * 2.0 / scale - width_to_height_ratio;
+  let y' = (y - vsize / 2.0) / vertical;
+
+  let fy = (y' - x') / 2.0;
+  let fx = x' + fy;
+
+/*x' = fx - fy
+y' = fx + fy
+x' + fy = fx
+y' = x' + fy + fy
+y' = x' + 2fy
+y' - x' = 2fy
+fy = (y' - x') / 2.0
+fx = x' + fy*/
+
+  (int_of_float fx, int_of_float fy)
+};
+
+/*x' = x * 2.0 / scale - width_to_height_ratio = fx - fy
+y' = (y - vsize / 2.0) / vertical = fx + fy
+
+x' = fx - fy
+y' = fx + fy
+x' + fy = fx
+y' = x' + fy + fy
+y' = x' + 2fy
+y' - x' = 2fy
+fx = x' + fy*/
+

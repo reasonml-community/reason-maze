@@ -13,6 +13,7 @@ module type T = {
   let auto_size: (float, float) => int => (shape, float/* unit size */, (float, float)/* full size */);
   let offset: shape => float => Coord.t => (float, float);
   let tile_at_coord: shape => Coord.t => Shape.t;
+  let from_point: shape => float => (float, float) => Coord.t;
 };
 
 module FromTile (Tile: Tile.T) => {

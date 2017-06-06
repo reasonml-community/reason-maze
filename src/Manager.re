@@ -109,23 +109,4 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     (0, [])
     coords |> snd
   };
-
-  /*
-  let outer_walls {State.shape, coords, coord_map, get_adjacent} => {
-    Array.fold_left
-    (fun walls coord => {
-      let borders = List.filter (fun d => {
-        let next = Board.adjacent_coord shape coord d;
-        not (CoordMap.mem next coord_map)
-      }) (Board.adjacents shape coord);
-      if (borders === []) {
-        walls
-      } else {
-        [(coord, borders), ...walls]
-      }
-    })
-    []
-    coords
-  };
-  */
 };
