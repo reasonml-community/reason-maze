@@ -1,0 +1,111 @@
+
+let iof = int_of_float;
+
+let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
+  let module Man = Manager.F Board Gen;
+  let module Presenter = Presenter.F Board Gen;
+
+  /* have this take some config */
+  let show ctx (width, height) state => {
+    Js.log state;
+    Canvas.Ctx.setStrokeWidth ctx 1.0;
+    Canvas.Ctx.setLineCap ctx "round";
+    /*Canvas.Ctx.setFillStyle ctx "white";*/
+    Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
+    /* TODO might be nice to do something sophisticated with corners... */
+
+    let (w, h) = state.Manager.State.outsize;
+    let xm = (width -. w) /. 2.0;
+    let ym = (height -. h) /. 2.0;
+    Js.log (w, h, width, height, xm, ym);
+    /*let (xm, ym) = (0.0, 0.0);*/
+
+    let walls = (Man.all_walls state);
+    Js.log ("walls", Array.of_list walls);
+    Array.iter (Presenter.draw_shape ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
+    /*List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);*/
+    List.iter (Presenter.draw_wall ctx (xm, ym)) walls;
+  };
+
+  /* have this take some config */
+  let show_debug ctx (width, height) state => {
+    Js.log state;
+    Canvas.Ctx.setStrokeWidth ctx 1.0;
+    Canvas.Ctx.setLineCap ctx "round";
+    /*Canvas.Ctx.setFillStyle ctx "white";*/
+    Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
+    /* TODO might be nice to do something sophisticated with corners... */
+
+    let (w, h) = state.Manager.State.outsize;
+    let xm = (width -. w) /. 2.0;
+    let ym = (height -. h) /. 2.0;
+    Js.log (w, h, width, height, xm, ym);
+    /*let (xm, ym) = (0.0, 0.0);*/
+
+    let edges = Man.edges state;
+    Generator.PairSet.iter
+    (fun (a, b) => Js.log(a, b))
+    edges;
+
+    let walls = (Man.all_walls state);
+    /*Js.log ("walls", Array.of_list walls);*/
+    Array.iteri (Presenter.draw_shapei ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
+    /*List.iteri (Presenter.draw_edgei ctx (xm, ym)) (Man.all_edges state);*/
+    List.iteri (Presenter.draw_walli ctx (xm, ym)) walls;
+  };
+
+  let rec batch state n => if (n === 0) { state } else { batch (Man.step state) (n - 1) };
+
+  let animate ctx batch_size canvas_size state => {
+    let rec inner state => {
+      let state = batch state batch_size;
+      show ctx canvas_size state;
+      Man.finished state
+        ? (Js.log "done")
+        : Window.setTimeout (fun () => inner state) 40 |> ignore
+    };
+    inner state;
+  };
+
+  type options = {
+    canvas_size: (float, float),
+    min_margin: float,
+    size_hint: int,
+    
+  };
+
+  let init {canvas_size, min_margin, size_hint} => {
+
+    /*let canvas_size = (1000.0, 1000.0);*/
+    let (width, height) = canvas_size;
+    /*let min_margin = 50.0;*/
+
+    let canvas = Canvas.createOnBody (iof width) (iof height);
+    let ctx = Canvas.getContext canvas;
+
+    let with_margins = (width -. (min_margin *. 2.0), height -. (min_margin *. 2.0));
+    let state = Man.init with_margins size_hint;
+
+    (canvas, ctx, state)
+  };
+
+  let loop {canvas_size} ctx state => {
+    show ctx canvas_size (Man.loop_to_end state);
+  };
+
+  let loop_debug {canvas_size} ctx state => {
+    show_debug ctx canvas_size (Man.loop_to_end state);
+  };
+
+  /*let main {canvas_size, min_margin, size_hint} => {
+
+    if (false) {
+      show ctx canvas_size state;
+    } else if (false) {
+      show ctx canvas_size (Man.loop_to_end state);
+    } else {
+      animate ctx 20 canvas_size state;
+    }
+  };*/
+
+};

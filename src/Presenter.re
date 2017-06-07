@@ -11,6 +11,31 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     }
   };
 
+  let draw_walli ctx (xm, ym) i wall => {
+    draw_wall ctx (xm, ym) wall;
+    switch (wall)  {
+      | Border.Line ((x, y), (a, b)) => {
+        let cx = (a +. x) *. 0.5 +. xm;
+        let cy = (b +. y) *. 0.5 +. ym;
+        let txt = string_of_int i;
+        Ctx.setFillStyle ctx "black";
+        Ctx.fillText ctx txt cx cy;
+      }
+    }
+  };
+
+  let center pts => {
+    let tx = ref 0.0;
+    let ty = ref 0.0;
+    let c = ref 0;
+    List.iter (fun (x, y) => {
+      tx := !tx +. x;
+      ty := !ty +. y;
+      c := !c + 1;
+    }) pts;
+    (!tx /. (float_of_int !c), !ty /. (float_of_int !c))
+  };
+
   let draw_shape ctx (xm, ym) max_age (shape, age) => {
     if (age === 0) {
       Ctx.setFillStyle ctx "white";
@@ -39,6 +64,18 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     | Shape.Circle ((x, y), r) => {
       Ctx.circle ctx (x +. xm) (y +. ym) r;
     }
+    }
+  };
+
+  let draw_shapei ctx (xm, ym) max_age i (shape, age) => {
+    draw_shape ctx (xm, ym) max_age (shape, age);
+    switch shape {
+    | Shape.Polyline pts => {
+      let (cx, cy) = center pts;
+      Ctx.setFillStyle ctx "black";
+      Ctx.fillText ctx (string_of_int i) (cx +. xm) (cy +. ym);
+    }
+    | _ => ()
     }
   };
 

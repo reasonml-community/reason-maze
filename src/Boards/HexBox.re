@@ -5,12 +5,12 @@ type shape = int;
 let coordinates shape => {
   let v = ref [];
   for x in 0 to (shape - 1) {
-    for y in (-x) to (min (shape - x) x) {
+    for y in (-x) to (min (shape - x - 1) x) {
       v := [(x, y), ...!v];
     }
   };
   for x in shape to (shape * 2) {
-    for y in (x - shape * 2 + 2) to (shape - x) {
+    for y in (x - shape * 2 + 2) to (shape - x - 1) {
       v := [(x, y), ...!v];
     }
   };
@@ -23,17 +23,18 @@ let iof = int_of_float;
 let width_to_height_ratio = 1.0 /. 2.0  *. (sqrt 3.0);
 
 let auto_size (cwidth, cheight) hint_num => {
-  let across = fi (hint_num);
+  let double = hint_num * 2;
+  let across = fi (double);
   open Utils.Float;
   if (cwidth * width_to_height_ratio < cheight ) {
     let size = cwidth / across;
-    let height = cwidth * width_to_height_ratio;
+    let height = size * width_to_height_ratio * (across + 0.25);
     Js.log (cwidth, height);
-    (hint_num, size, (cwidth, height))
+    (double, size, (cwidth, height))
   } else {
     let width = cheight / width_to_height_ratio;
-    let size = width / across;
-    (hint_num, size, (width, cheight))
+    let size = width / (across + 0.25);
+    (double, size, (width, cheight))
   }
 };
 
