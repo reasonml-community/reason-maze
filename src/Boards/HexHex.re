@@ -43,6 +43,7 @@ let iof = int_of_float;
 let width_to_height_ratio = 1.0 /. 2.0  *. (sqrt 3.0);
 
 let auto_size (cwidth, cheight) hint_num => {
+  let hint_num = hint_num / 2;
   let across = fi (hint_num * 2 - 1);
   open Utils.Float;
   if (cwidth * width_to_height_ratio < cheight ) {

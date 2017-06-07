@@ -33,7 +33,7 @@ let run () => {
 
   let random_board () => choose [|
     (module HexBox: SimpleBoard.T),
-    (module HexHex),
+    (module HexHex: SimpleBoard.T),
     (module NewHexTriangle),
     (module NewRect),
     /* TODO circle */
