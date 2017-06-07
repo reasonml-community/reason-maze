@@ -1,6 +1,12 @@
 
 module Ctx = Canvas.Ctx;
 
+let hsl h s l => (
+  "hsl(" ^ (string_of_int h) ^
+  ", " ^ (string_of_int s) ^
+  "%, " ^ (string_of_int l) ^
+  "%)");
+
 module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
 
   let draw_wall ctx (xm, ym) wall => {
@@ -36,12 +42,13 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     (!tx /. (float_of_int !c), !ty /. (float_of_int !c))
   };
 
-  let draw_shape ctx (xm, ym) max_age (shape, age) => {
+  let draw_shape ctx (xm, ym) get_color max_age (shape, age) => {
     if (age === 0) {
       Ctx.setFillStyle ctx "white";
     } else {
       let a = 100 - age * 50 / max_age;
-      Ctx.setFillStyle ctx ("hsl(80, 100%, " ^ (string_of_int a) ^ "%)");
+      /*Ctx.setFillStyle ctx ("hsl(80, 100%, " ^ (string_of_int a) ^ "%)");*/
+      Ctx.setFillStyle ctx (get_color a);
     };
 
     switch shape {
@@ -67,8 +74,8 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     }
   };
 
-  let draw_shapei ctx (xm, ym) max_age i (shape, age) => {
-    draw_shape ctx (xm, ym) max_age (shape, age);
+  let draw_shapei ctx (xm, ym) get_color max_age i (shape, age) => {
+    draw_shape ctx (xm, ym) get_color max_age (shape, age);
     switch shape {
     | Shape.Polyline pts => {
       let (cx, cy) = center pts;

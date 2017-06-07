@@ -1,14 +1,28 @@
 
 let iof = int_of_float;
 
+let module Options = {
+  type t = {
+    canvas_size: (float, float),
+    min_margin: float,
+    size_hint: int,
+    /*line_width: float,*/
+    draw_edges: option (float, string),
+    draw_walls: option (float, string),
+    draw_shapes: option (int => string),
+  };
+};
+open Options;
+
 let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let module Man = Manager.F Board Gen;
   let module Presenter = Presenter.F Board Gen;
 
   /* have this take some config */
-  let show ctx (width, height) state => {
-    Js.log state;
-    Canvas.Ctx.setStrokeWidth ctx 1.0;
+  let show ctx options state => {
+    let (width, height) = options.canvas_size;
+    /*Js.log state;*/
+    /*Canvas.Ctx.setStrokeWidth ctx options.line_width;*/
     Canvas.Ctx.setLineCap ctx "round";
     /*Canvas.Ctx.setFillStyle ctx "white";*/
     Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
@@ -17,14 +31,33 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     let (w, h) = state.Manager.State.outsize;
     let xm = (width -. w) /. 2.0;
     let ym = (height -. h) /. 2.0;
-    Js.log (w, h, width, height, xm, ym);
+    /*Js.log (w, h, width, height, xm, ym);*/
     /*let (xm, ym) = (0.0, 0.0);*/
 
-    let walls = (Man.all_walls state);
-    Js.log ("walls", Array.of_list walls);
-    Array.iter (Presenter.draw_shape ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
-    /*List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);*/
-    List.iter (Presenter.draw_wall ctx (xm, ym)) walls;
+    switch (options.draw_shapes) {
+      | Some get_color => {
+        /*Canvas.Ctx.setFillStyle ctx color;*/
+        Array.iter (Presenter.draw_shape ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);
+      }
+      | None => ()
+    };
+    switch (options.draw_edges) {
+      | Some (width, color) => {
+        Canvas.Ctx.setLineWidth ctx width;
+        Canvas.Ctx.setStrokeStyle ctx color;
+        List.iter (Presenter.draw_edge ctx (xm, ym)) (Man.all_edges state);
+      }
+      | None => ()
+    };
+    switch (options.draw_walls) {
+      | Some (width, color) => {
+        Canvas.Ctx.setLineWidth ctx width;
+        Canvas.Ctx.setStrokeStyle ctx color;
+        let walls = (Man.all_walls state);
+        List.iter (Presenter.draw_wall ctx (xm, ym)) walls;
+      }
+      | None => ()
+    };
   };
 
   /* have this take some config */
@@ -49,9 +82,9 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
 
     let walls = (Man.all_walls state);
     /*Js.log ("walls", Array.of_list walls);*/
-    Array.iteri (Presenter.draw_shapei ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);
+    /*Array.iteri (Presenter.draw_shapei ctx (xm, ym) (Man.max_age state)) (Man.all_shapes state);*/
     /*List.iteri (Presenter.draw_edgei ctx (xm, ym)) (Man.all_edges state);*/
-    List.iteri (Presenter.draw_walli ctx (xm, ym)) walls;
+    /*List.iteri (Presenter.draw_walli ctx (xm, ym)) walls;*/
   };
 
   let rec batch state n => if (n === 0) { state } else { batch (Man.step state) (n - 1) };
@@ -65,13 +98,6 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
         : Window.setTimeout (fun () => inner state) 40 |> ignore
     };
     inner state;
-  };
-
-  type options = {
-    canvas_size: (float, float),
-    min_margin: float,
-    size_hint: int,
-    
   };
 
   let init {canvas_size, min_margin, size_hint} => {
@@ -89,8 +115,8 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     (canvas, ctx, state)
   };
 
-  let loop {canvas_size} ctx state => {
-    show ctx canvas_size (Man.loop_to_end state);
+  let loop options ctx state => {
+    show ctx options (Man.loop_to_end state);
   };
 
   let loop_debug {canvas_size} ctx state => {

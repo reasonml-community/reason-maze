@@ -73,3 +73,5 @@ let offset shape scale (x, y) => {
     + cy,
   )
 };
+
+let from_point _ _ _ => (0, 0);
