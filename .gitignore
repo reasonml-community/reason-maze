@@ -1,7 +1,7 @@
 lib/bs
 node_modules
 .merlin
-bundledOutputs
+bundledOutputs/main.js
 shots/*.mov
 .env
 lastPostTime

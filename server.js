@@ -21,7 +21,7 @@ const hasBeenLongEnough = () => {
 };
 const updateLastTime = () => fs.writeFileSync(TIME_FILE, Date.now() + '');
 
-var randomMaze = require('./lib/js/src/randomMaze.js');
+var randomMaze = require('./bundledOutputs/node.js');
 
 app.get('/', (req, res) => {
   const Canvas = require('canvas')
@@ -37,9 +37,9 @@ app.get('/', (req, res) => {
 
 app.get('/post', (req, res) => {
   if (!hasBeenLongEnough()) {
-    //res.send('Not enough time elapsed')
-    // res.end()
-    // return
+    res.send('Not enough time elapsed')
+    res.end()
+    return
   }
 
   updateLastTime()
