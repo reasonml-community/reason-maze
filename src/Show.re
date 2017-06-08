@@ -128,19 +128,17 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     inner state;
   };
 
-  let init {canvas_size, min_margin, size_hint} => {
-
-    /*let canvas_size = (1000.0, 1000.0);*/
+  let init_state {canvas_size, min_margin, size_hint} => {
     let (width, height) = canvas_size;
-    /*let min_margin = 50.0;*/
+    let with_margins = (width -. (min_margin *. 2.0), height -. (min_margin *. 2.0));
+    Man.init with_margins size_hint;
+  };
 
+  let init options => {
+    let (width, height) = options.canvas_size;
     let canvas = Canvas.createOnBody (iof width) (iof height);
     let ctx = Canvas.getContext canvas;
-
-    let with_margins = (width -. (min_margin *. 2.0), height -. (min_margin *. 2.0));
-    let state = Man.init with_margins size_hint;
-
-    (canvas, ctx, state)
+    (canvas, ctx, init_state options)
   };
 
   let loop options ctx state => {

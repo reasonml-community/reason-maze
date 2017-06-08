@@ -1,5 +1,6 @@
 
 
+/*
 module Board = (Shared.Board Rect);
 
 let choose l => l.(Random.int (Array.length l));
@@ -62,4 +63,17 @@ let main () => {
   NodeCanvas.saveAs "./out.png" (NodeCanvas.toBuffer canvas);
 };
 
+main();
+*/
+
+let main () => {
+  let csize = (1000.0, 1000.0);
+  let canvas = NodeCanvas.canvas 1000 1000;
+  let ctx = NodeCanvas.getContext canvas "2d";
+
+  /*main();*/
+  RandomMaze.run ctx (1000.0, 1000.0);
+
+  NodeCanvas.saveAs "./out.png" (NodeCanvas.toBuffer canvas);
+};
 main();
