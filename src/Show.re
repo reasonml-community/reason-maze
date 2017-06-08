@@ -24,8 +24,8 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     /*Js.log state;*/
     /*Canvas.Ctx.setStrokeWidth ctx options.line_width;*/
     Canvas.Ctx.setLineCap ctx "round";
-    /*Canvas.Ctx.setFillStyle ctx "white";*/
-    Canvas.Ctx.clearRect ctx 0.0 0.0 width height;
+    Canvas.Ctx.setFillStyle ctx "white";
+    Canvas.Ctx.fillRect ctx 0.0 0.0 width height;
     /* TODO might be nice to do something sophisticated with corners... */
 
     let (w, h) = state.Manager.State.outsize;

@@ -65,4 +65,5 @@ let run ctx canvas_size => {
   Canvas.Ctx.setFillStyle ctx "black";
   Canvas.Ctx.fillText ctx [%bs.raw "seed.toString(16)"] 5.0 30.0;
 
+  seed;
 };

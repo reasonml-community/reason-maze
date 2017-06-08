@@ -1,7 +1,9 @@
 {
   "dependencies": {
     "canvas": "^1.6.5",
-    "gifencoder": "^1.0.6"
+    "express": "^4.15.3",
+    "gifencoder": "^1.0.6",
+    "twit": "^2.2.5"
   },
   "devDependencies": {
     "bs-platform": "^1.7.4",
