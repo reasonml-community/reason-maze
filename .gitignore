@@ -5,3 +5,4 @@ bundledOutputs
 shots/*.mov
 .env
 lastPostTime
+lib/js
