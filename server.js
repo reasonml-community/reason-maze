@@ -21,9 +21,33 @@ const hasBeenLongEnough = () => {
 };
 const updateLastTime = () => fs.writeFileSync(TIME_FILE, Date.now() + '');
 
-var randomMaze = require('./bundledOutputs/node.js');
+var randomMaze = require('random-maze');
 
 app.get('/', (req, res) => {
+  
+  res.send(`
+<!doctype html>
+<title>Reason Maze Bot</title>
+<style>
+body {
+font-family: Helvetica, arial, sans-serif;
+padding: 50px;
+text-align: center;
+}
+</style>
+<body>
+<h1>Reason Maze Bot</h1>
+<a href="https://github.com/jaredly/reason-maze">https://github.com/jaredly/reason-maze</a><br/>
+<a href="https://twitter.com/reasonmazebot">https://twitter.com/reasonmazebot</a><br/>
+<br/>
+<img src="/img" width=500 />
+<img src="/img?1" width=500 />
+<img src="/img?2" width=500 />
+`)
+  res.end();
+})
+
+app.get('/img', (req, res) => {
   const Canvas = require('canvas')
   const canvas = new Canvas(1000, 1000)
   const ctx = canvas.getContext('2d')
