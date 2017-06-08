@@ -14,18 +14,30 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
       | Border.Line ((x, y), (a, b)) => {
         Canvas.Ctx.line ctx (x +. xm, y +. ym) (a +. xm, b +. ym)
       }
+      | Border.Arc (x, y, r, t1, t2) => {
+        Ctx.beginPath ctx;
+        Ctx.arc ctx (x +. xm) (y +. ym) r t1 t2;
+        Ctx.stroke ctx;
+      }
     }
   };
 
   let draw_walli ctx (xm, ym) i wall => {
     draw_wall ctx (xm, ym) wall;
+    let txt = string_of_int i;
     switch (wall)  {
       | Border.Line ((x, y), (a, b)) => {
         let cx = (a +. x) *. 0.5 +. xm;
         let cy = (b +. y) *. 0.5 +. ym;
-        let txt = string_of_int i;
         Ctx.setFillStyle ctx "black";
         Ctx.fillText ctx txt cx cy;
+      }
+      | Border.Arc (x, y, r, t1, t2) => {
+        let ct = (t1 +. t2) /. 2.0;
+        let dx = r *. cos ct;
+        let dy = r *. sin ct;
+        Ctx.setFillStyle ctx "black";
+        Ctx.fillText ctx txt (x +. dx +. xm) (y +. dy +. ym);
       }
     }
   };
@@ -41,6 +53,11 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     }) pts;
     (!tx /. (float_of_int !c), !ty /. (float_of_int !c))
   };
+
+  let (||>) (x, y) b => b x y;
+
+  let polar r t => (r *. cos t, r *. sin t);
+  let offset (x, y) a b => (x +. a, y +. b);
 
   let draw_shape ctx (xm, ym) get_color max_age (shape, age) => {
     if (age === 0) {
@@ -71,18 +88,40 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     | Shape.Circle ((x, y), r) => {
       Ctx.circle ctx (x +. xm) (y +. ym) r;
     }
+    | Shape.Arc ((cx, cy), y1, y2, t1, t2) => {
+      Ctx.beginPath ctx;
+      (polar y1 t1) ||> offset (cx +. xm, cy +. ym) ||> Ctx.moveTo ctx ;
+      Ctx.arc ctx (cx +. xm) (cy +. ym) y1 t1 t2;
+      (polar y2 t2) ||> offset (cx +. xm, cy +. ym) ||> Ctx.lineTo ctx ;
+      Ctx.arc_rev ctx (cx +. xm) (cy +. ym) y2 t2 t1;
+      Ctx.fill ctx;
+    }
     }
   };
 
   let draw_shapei ctx (xm, ym) get_color max_age i (shape, age) => {
     draw_shape ctx (xm, ym) get_color max_age (shape, age);
+    Ctx.setFillStyle ctx "black";
+    let txt = (string_of_int i);
     switch shape {
     | Shape.Polyline pts => {
       let (cx, cy) = center pts;
-      Ctx.setFillStyle ctx "black";
-      Ctx.fillText ctx (string_of_int i) (cx +. xm) (cy +. ym);
+      Ctx.fillText ctx txt (cx +. xm) (cy +. ym);
     }
-    | _ => ()
+    | Shape.Rect (x, y, w, h) => {
+      Ctx.fillText ctx txt (x +. xm +. w /. 2.0) (y +. ym +. h /. 2.0);
+    }
+    | Shape.Circle ((x, y), r) => {
+      Ctx.fillText ctx txt (x +. xm) (y +. ym);
+    }
+    | Shape.Arc ((cx, cy), y1, y2, t1, t2) => {
+      let r = (y1 +. y2) /. 2.0;
+      let ct = (t1 +. t2) /. 2.0;
+      let dx = r *. cos ct;
+      let dy = r *. sin ct;
+      Ctx.setFillStyle ctx "black";
+      Ctx.fillText ctx txt (cx +. dx +. xm) (cy +. dy +. ym);
+    }
     }
   };
 

@@ -35,6 +35,8 @@ module Ctx = {
     "" [@@bs.send];
   let circle ctx x y r => ellipse ctx x y r r 0.0 0.0 (2.0 *. [%bs.raw "Math.PI"]);
   external moveTo : ctx => float => float => unit = "" [@@bs.send];
+  external arc : ctx => float => float => float => float => float => unit = "" [@@bs.send];
+  external arc_rev : ctx => float => float => float => float => float => _ [@bs.as {json|true|json}] => unit = "arc" [@@bs.send];
   let moveToPos ctx (x, y) => moveTo ctx x y;
   external lineTo : ctx => float => float => unit = "" [@@bs.send];
   let lineToPos ctx (x, y) => lineTo ctx x y;

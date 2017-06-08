@@ -25,11 +25,26 @@ let offset shape scale (x, y) => {
   open Utils.Float;
   let (fx, fy) = ((fi x), (fi y));
   (
-    (fx - fy) / 2.0 * scale + ((fi shape) / 2.0) * scale,
+    (fx - fy + (fi shape)) / 2.0 * scale,
     (fy + 0.5) * hsq3 * scale,
   )
-  /*(
-    (-. fx / 2.0 + fy / 2.0) * scale + scale * ((fi shape) / 2.0),
-    (fy * hsq3 + fx * hsq3) * scale + scale / 2.0 * hsq3,
-  )*/
+};
+
+let from_point shape scale (x, y) => {
+  /*x = (fx - fy) / 2.0 * scale + ((fi shape) / 2.0) * scale,
+  x = ((fx - fy) + shape) / 2.0 * scale;
+  x * 2.0 / scale = fx - fy + shape;
+  x * 2.0 / scale - shape + fy = fx
+  fx = x * 2.0 / scale - shape + fy
+  y = (fy + 0.5) * hsq3 * scale
+  fy = y / hsq3 / scale - 0.5;*/
+  let fshape = fi shape;
+
+  open Utils.Float;
+  let fy = y / hsq3 / scale - 0.5;
+  let fx = x * 2.0 / scale - fshape + fy;
+  (
+    (int_of_float fx),
+    (int_of_float fy),
+  )
 };

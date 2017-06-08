@@ -32,11 +32,12 @@ let run () => {
   };
 
   let random_board () => choose [|
+    (module Circle: SimpleBoard.T),
     (module HexBox: SimpleBoard.T),
     (module HexHex: SimpleBoard.T),
+    (module TriangleBoard),
     (module NewHexTriangle),
     (module NewRect),
-    /* TODO circle */
   |];
 
   let random_alg () => choose [|
