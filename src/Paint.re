@@ -3,7 +3,7 @@ let iof = int_of_float;
 
 let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let module Man = PaintingManager.F Board Gen;
-  let module Presenter = Presenter.F Board Gen;
+  let module Pres = Presenter.F Board Gen;
   let module Show' = Show.F Board Gen;
 
   let show_paint ctx (width, height) state => {
@@ -17,7 +17,7 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     let ym = (height -. h) /. 2.0;
     /*let (xm, ym) = (0.0, 0.0);*/
 
-    /*Array.iter (Presenter.draw_shape ctx (xm, ym) 10) (Man.paint_shapes state);*/
+    Array.iter (Pres.draw_shape ctx (xm, ym) (Presenter.hsl 0 100) 10) (Man.paint_shapes state);
     /*Canvas.Ctx.setStrokeStyle ctx "#aaa";*/
     /*List.iter (Presenter.draw_wall ctx (xm, ym)) (Man.paint_walls state);*/
   };
