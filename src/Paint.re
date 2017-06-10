@@ -17,9 +17,9 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     let ym = (height -. h) /. 2.0;
     /*let (xm, ym) = (0.0, 0.0);*/
 
-    Array.iter (Pres.draw_shape ctx (xm, ym) (Presenter.hsl 0 100) 10) (Man.paint_shapes state);
-    /*Canvas.Ctx.setStrokeStyle ctx "#aaa";*/
-    /*List.iter (Presenter.draw_wall ctx (xm, ym)) (Man.paint_walls state);*/
+    /*Array.iter (Pres.draw_shape ctx (xm, ym) (Presenter.hsl 0 100) 10) (Man.paint_shapes state);*/
+    Canvas.Ctx.setStrokeStyle ctx "#aaa";
+    List.iter (Pres.draw_wall ctx (xm, ym)) (Man.paint_walls state);
   };
 
   let listen_to_canvas = [%bs.raw {|function(canvas, fn) {
@@ -62,9 +62,11 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
       show_paint ctx options.canvas_size !pstate;
     });
     make_button "Go" (fun () => {
-      let state = Man.realize_state !pstate;
+      switch (Man.realize_state !pstate) {
+      | Some state => Show'.animate ctx 5 options state;
+      | None => ()
+      }
       /* TODO need to make it work with unconnected sections */
-      Show'.animate ctx 5 options state;
     });
   };
 };

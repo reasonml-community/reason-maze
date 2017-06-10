@@ -60,16 +60,23 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     (fun coord => CoordMap.find coord enabled)
     (Array.to_list coords) |> Array.of_list;
 
-    let coord_map = create_index_map coords;
-    let count = Array.length coords;
-    let gen_state = Gen.init count;
-    let get_adjacent = get_adjacent shape coords coord_map;
+    if (coords == [||]) {
+      None
+    } else {
+      let coord_map = create_index_map coords;
+      let count = Array.length coords;
+      let gen_state = Gen.init count;
+      let get_adjacent = get_adjacent shape coords coord_map;
 
-    Manager.State.{count, shape, scale, outsize, gen_state, get_adjacent, coords, coord_map};
+      Some Manager.State.{count, shape, scale, outsize, gen_state, get_adjacent, coords, coord_map};
+    }
   };
 
   let paint_walls state => {
-    all_walls (realize_state state)
+    switch (realize_state state) {
+    | None => []
+    | Some mstate => all_walls mstate
+    }
   };
 
   let paint_shapes {State.coords, scale, shape, enabled} => {
