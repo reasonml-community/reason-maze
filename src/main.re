@@ -26,8 +26,8 @@ let main () => {
    /*ctx state;*/
 };
 
-/*let canvas = Canvas.createOnBody 1000 1000;*/
-/*let ctx = Canvas.getContext canvas;*/
+let canvas = Canvas.createOnBody 1000 1000;
+let ctx = Canvas.getContext canvas;
 
-main();
-/*RandomMaze.run ctx (1000.0, 1000.0);*/
+/*main();*/
+RandomMaze.run ctx (1000.0, 1000.0);

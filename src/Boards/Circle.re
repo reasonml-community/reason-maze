@@ -131,6 +131,8 @@ let direction_to_border size (x, y) direction => switch direction {
 }
 };
 
+let str_pos (a, b) => "(" ^ (string_of_int a) ^ ", " ^ (string_of_int b) ^ ")";
+
 let coordinates size => {
   let v = ref [];
   for y in 0 to (size - 1) {
@@ -140,7 +142,12 @@ let coordinates size => {
     }
   };
   !v;
-};
+}
+[@@test [
+  (1, [(1, 0), (0, 0)]),
+  (1, [(3, 1), (2, 1), (1, 1), (0, 1), (1, 0), (0, 0)])
+]]
+[@@test.show fun arr => String.concat "," (List.map str_pos arr)];
 
 let auto_size (width, height) size => {
   let dim = min width height;
@@ -156,7 +163,11 @@ let offset size scale (x, y) => {
   let rad = dim /. 2.0;
   (ax +. rad, ay +. rad)
   /*(ax *. scale +. rad, ay *. scale +. rad)*/
-};
+}
+[@@test [
+  ((2, 1.0, (0, 0)), (0.0, 0.0))
+]]
+;
 
 let tile_at_coord size (x, y) => {
   let count = Array.get counts y |> fi;
