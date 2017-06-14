@@ -30,6 +30,27 @@ let show ctx settings => {
   Show'.loop options ctx state;
 };
 
+let animate ctx settings => {
+  Js.log "animate";
+  open Types;
+  open Settings.T;
+
+  Random.init 0;
+
+  let canvas_size = (1000.0, 1000.0);
+  let options = Settings.to_options canvas_size settings;
+
+  let module Board = (val (Board.tomod settings.board));
+  let module Gen = (val (Alg.tomod settings.algorithm));
+  let module Paint' = Paint.F Board Gen;
+
+  let module Show' = Show.F Board Gen;
+
+  let state = Show'.init_state options;
+
+  Show'.animate ctx 10 options state;
+};
+
 module Page = {
   type state = {
     settings: Settings.T.t,
@@ -37,7 +58,8 @@ module Page = {
   };
   let component = ReasonReact.statefulComponent "Page";
 
-  let updateCtx ref state _ => ReasonReact.SilentUpdate {...state, ctx: refToContext ref};
+  let updateCtx ref state _ => state.ctx === None ? ReasonReact.Update {...state, ctx: refToContext ref}
+  : ReasonReact.NoUpdate;
 
   let styles = Aphrodite.create {
     "container": {
@@ -60,10 +82,10 @@ module Page = {
     ...component,
     didMount: fun state _ => {
       switch (state.ctx) {
-      | Some ctx => show ctx state.settings
-      | None => ()
-    };
-    ReasonReact.NoUpdate
+        | Some ctx => show ctx state.settings
+        | None => ()
+      };
+      ReasonReact.NoUpdate
     },
     initialState: fun () => {
       settings: Settings.initial,
@@ -75,10 +97,20 @@ module Page = {
       };
       <div className=(Aphrodite.css styles "container")>
         <canvas width="1000px" height="1000px" className="canvas" ref=(self.update updateCtx)/>
+        <div>
         <Settings.Settings
           state=state.settings
           updater=updater
         />
+        <button
+          onClick=(fun _ => switch (state.ctx) {
+          | Some ctx => animate ctx state.settings
+          | None => ()
+          })
+        >
+          (se "Animate")
+        </button>
+        </div>
       </div>
     },
   };

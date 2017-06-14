@@ -117,11 +117,11 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
 
   let rec batch state n => if (n === 0) { state } else { batch (Man.step state) (n - 1) };
 
-  let animate ctx batch_size canvas_size state => {
+  let animate ctx batch_size options state => {
     Js.log "animate";
     let rec inner state => {
       let state = batch state batch_size;
-      show ctx canvas_size state;
+      show ctx options state;
       Man.finished state
         ? (Js.log "done")
         : Window.setTimeout (fun () => inner state) 40 |> ignore
