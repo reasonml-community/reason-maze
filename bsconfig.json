@@ -1,5 +1,7 @@
 {
   "name": "maze",
+  "bs-dependencies": ["reason-react"],
+  "reason": {"react-jsx": 2},
   "sources": [
     "src",
     "src/Algorithms",
@@ -8,6 +10,8 @@
     "src/Coords",
     "src/Types",
     "src/FFI",
+    "src/UI",
+    "src/Maze",
     "src/Presenters"
   ]
 }

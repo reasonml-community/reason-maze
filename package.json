@@ -1,8 +1,11 @@
 {
   "dependencies": {
+    "aphrodite": "^1.2.1",
     "canvas": "^1.6.5",
     "express": "^4.15.3",
     "gifencoder": "^1.0.6",
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
     "twit": "^2.2.5"
   },
   "devDependencies": {
