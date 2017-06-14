@@ -3,11 +3,18 @@ let se = ReasonReact.stringToElement;
 
 external refToCanvas: Dom.element => Canvas.canvasElement = "%identity";
 
+let refToContext canv => {
+  switch (Js.Null.to_opt canv) {
+  | Some canv => Some (Canvas.getContext (refToCanvas canv))
+  | None => None
+  }
+};
+
 let show ctx settings => {
   open Types;
   open Settings.T;
 
-  /*Random.init 0;*/
+  Random.init 0;
 
   let canvas_size = (1000.0, 1000.0);
   let options = Settings.to_options canvas_size settings;
@@ -21,13 +28,6 @@ let show ctx settings => {
   let state = Show'.init_state options;
 
   Show'.loop options ctx state;
-};
-
-let refToContext canv => {
-  switch (Js.Null.to_opt canv) {
-  | Some canv => Some (Canvas.getContext (refToCanvas canv))
-  | None => None
-  }
 };
 
 module Page = {

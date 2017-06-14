@@ -170,7 +170,7 @@ module Settings = {
           min=3
           max=30
           value=(state.size_hint)
-          step=1
+          step=1.0
           onChange=(updater.update set_size_hint true)
         />
         (se "Fill color:")
