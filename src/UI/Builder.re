@@ -8,7 +8,8 @@ let show ctx settings => {
   open Settings.T;
 
   let canvas_size = (1000.0, 1000.0);
-  let options = RandomMaze.random_options canvas_size;
+  let options = Settings.to_options canvas_size settings;
+  /*RandomMaze.random_options canvas_size;*/
 
   let module Board = (val (Board.tomod settings.board));
   let module Gen = (val (Alg.tomod settings.algorithm));
@@ -43,6 +44,15 @@ module Page = {
     }
   };
 
+  let update = fun update_settings payload state _ => {
+      let settings = update_settings payload state.settings;
+      switch (state.ctx) {
+      | Some ctx => show ctx settings
+      | None => ()
+      };
+      ReasonReact.Update {...state, settings}
+  };
+
   let make _children => {
     ...component,
     initialState: fun () => {
@@ -51,14 +61,7 @@ module Page = {
     },
     render: fun state self => {
       let updater = Settings.{
-        update: fun f => self.update (fun x state _ => {
-          let settings = f x state.settings;
-          switch (state.ctx) {
-          | Some ctx => show ctx settings
-          | None => ()
-          };
-          ReasonReact.Update {...state, settings}
-        })
+        update: fun update_settings => self.update (update update_settings)
       };
       <div className=(Aphrodite.css styles "container")>
         <canvas width="1000px" height="1000px" className="canvas" ref=(self.update updateCtx)/>
