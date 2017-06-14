@@ -1,5 +1,41 @@
 
 let se = ReasonReact.stringToElement;
+let si = string_of_int;
+
+module Range = {
+  let component = ReasonReact.statelessComponent "Range";
+  let styles = Aphrodite.create{
+    "container": {
+    }
+  };
+
+  let px m => (si m) ^ "px";
+  let mkstyle width height vertical => {
+    let style = ReactDOMRe.Style.make width::(px width) height::(px height);
+    vertical
+      ? style
+        transformOrigin::((px (width / 2)) ^ " " ^ (px (width / 2)))
+        transform::"rotate(-90deg)" ()
+      : style ();
+  };
+
+  let getValue evt => (int_of_string (ReactDOMRe.domElementToObj(ReactEventRe.Form.target evt))##value);
+
+  let make ::min ::max ::value ::step ::width ::height ::vertical ::onChange _ => {
+    ...component,
+    render: fun () _ => {
+      <input
+        _type="range"
+        style=(mkstyle width height vertical)
+        min=min
+        max=(si max)
+        value=(si value)
+        step=step
+        onChange=(fun evt => onChange (getValue evt))
+      />
+    }
+  }
+};
 
 module Buttons = {
   let component = ReasonReact.statelessComponent "Buttons";
@@ -93,9 +129,8 @@ let to_options canvas_size (settings: T.t) => {
   };
 };
 
-
 type updater = {
-  update: 'a .('a => T.t => T.t) => ReasonReact.Callback.t 'a
+  update: 'a .('a => T.t => T.t) => bool => ReasonReact.Callback.t 'a
 };
 
 module Settings = {
@@ -105,23 +140,45 @@ module Settings = {
   open Types;
   let set_board board state => {...state, board};
   let set_alg algorithm state => {...state, algorithm};
+  let set_size_hint size_hint state => {...state, size_hint};
+  let set_fill fill state => {...state, fill: Some fill};
 
   let make ::state ::updater _children => {
     ...component,
     render: fun () _ => {
       <div className="settings">
+        (se "Shape")
         <Buttons
           get_title=(Board.name)
           options=(Board.all)
           current=(state.board)
-          on_change=(updater.update set_board)
+          on_change=(updater.update set_board false)
         />
 
+        (se "Algorithm")
         <Buttons
           get_title=(Alg.name)
           options=(Alg.all)
           current=(state.algorithm)
-          on_change=(updater.update set_alg)
+          on_change=(updater.update set_alg false)
+        />
+        (se "Width: ") (se (si state.size_hint))
+        <Range
+          width=150
+          height=20
+          vertical=false
+          min=3
+          max=30
+          value=(state.size_hint)
+          step=1
+          onChange=(updater.update set_size_hint true)
+        />
+        (se "Fill color:")
+        <ColorSlider
+          width=150
+          height=100
+          value=state.fill
+          onChange=(updater.update set_fill true)
         />
       </div>
     },
