@@ -7,6 +7,12 @@ let hsl h s l => (
   "%, " ^ (string_of_int l) ^
   "%)");
 
+let hslf h s l => (
+  "hsl(" ^ (Js.String.make h) ^
+  ", " ^ (Js.String.make s) ^
+  "%, " ^ (Js.String.make l) ^
+  "%)");
+
 module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
 
   let draw_wall ctx (xm, ym) wall => {
@@ -59,13 +65,16 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
   let polar r t => (r *. cos t, r *. sin t);
   let offset (x, y) a b => (x +. a, y +. b);
 
-  let draw_shape ctx (xm, ym) get_color max_age (shape, age) => {
+  let draw_shape ctx (xm, ym) get_color current_age max_age (shape, age) => {
     if (age === 0) {
       Ctx.setFillStyle ctx "white";
     } else {
-      let a = 100 - age * 50 / max_age;
+      let a = 100.0 -. (float_of_int age) *. 50.0 /. (float_of_int max_age);
       /*Ctx.setFillStyle ctx ("hsl(80, 100%, " ^ (string_of_int a) ^ "%)");*/
-      Ctx.setFillStyle ctx (get_color a);
+      Ctx.setFillStyle ctx
+        (get_color
+          (float_of_int age /. float_of_int current_age)
+          (float_of_int age /. float_of_int max_age));
     };
 
     switch shape {
@@ -99,8 +108,8 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     }
   };
 
-  let draw_shapei ctx (xm, ym) get_color max_age i (shape, age) => {
-    draw_shape ctx (xm, ym) get_color max_age (shape, age);
+  let draw_shapei ctx (xm, ym) get_color current_age max_age i (shape, age) => {
+    draw_shape ctx (xm, ym) get_color current_age max_age (shape, age);
     Ctx.setFillStyle ctx "black";
     let txt = (string_of_int i);
     switch shape {

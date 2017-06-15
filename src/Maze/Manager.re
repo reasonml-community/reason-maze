@@ -52,7 +52,8 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let finished {State.gen_state} => Gen.finished gen_state;
   let edges {State.gen_state} => Gen.edges gen_state;
 
-  let max_age {State.gen_state} => Gen.max_age gen_state;
+  let max_age {State.count} => count;
+  let current_age {State.gen_state} => Gen.max_age gen_state;
 
   let all_edges {State.shape, scale, coords, gen_state} => {
     let to_points (a, b) => (

@@ -37,22 +37,14 @@ module Range = {
   }
 };
 
-module Buttons = {
-  let component = ReasonReact.statelessComponent "Buttons";
+module SelectableButton = {
+  let component = ReasonReact.statelessComponent "SelectableButton";
 
   let styles = Aphrodite.create {
-    "container": {
-      "display": "flex",
-      "align-items": "stretch",
-      "border": "1px solid #aaa",
-      "margin": 5,
-      "align-self": "stretch",
-    },
     "button": {
       "background-color": "white",
       "border": "none",
       "padding": "10px 20px",
-      "flex": 1,
       "cursor": "pointer",
       "outline": "none",
       ":hover": {
@@ -69,19 +61,61 @@ module Buttons = {
     is_current ? "selected" : "nonselected"
   |]);
 
+  let make ::title ::selected ::onClick _children => {
+    {
+      ...component,
+      render: fun () _self =>
+        <button
+          onClick=(fun _ => onClick ())
+          className=(className selected)
+        >
+          (se title)
+        </button>
+    }
+  };
+};
+
+module Buttons = {
+  let component = ReasonReact.statelessComponent "Buttons";
+
+  let styles = Aphrodite.create {
+    "container": {
+      "display": "flex",
+      "align-items": "stretch",
+      "border": "1px solid #aaa",
+      "margin": 5,
+      "align-self": "stretch",
+    }
+  };
+
+  let className is_current => Aphrodite.(csss styles [|
+    "button",
+    is_current ? "selected" : "nonselected"
+  |]);
+
   let make ::options ::get_title ::current ::on_change _children => {
     {
       ...component,
       render: fun () _self =>
         <div className=Aphrodite.(css styles "container")>
           (ReasonReact.arrayToElement (Array.map
-            (fun option => <button
+            (fun option => 
+            <SelectableButton
+              key=(get_title option)
+              title=(get_title option)
+              onClick=(fun () => on_change option)
+              selected=(current === option)
+            />
+            /*
+            <button
               key=(get_title option)
               onClick=(fun _ => on_change option)
               className=(className (current === option))
             >
               (se (get_title option))
-            </button>)
+            </button>
+            */
+            )
             options
           ))
         </div>
@@ -90,10 +124,14 @@ module Buttons = {
 };
 
 module T = {
+  type fill =
+    | NoFill
+    | Rainbow
+    | HueSat (int, int);
   type t = {
     board: Types.Board.t,
     algorithm: Types.Alg.t,
-    fill: option (int, int),
+    fill: fill,
     wall: option (int, int),
     edge: option (int, int),
     batch_size: int,
@@ -104,7 +142,7 @@ module T = {
 let initial = T.{
   board: Types.Board.Hexagon,
   algorithm: Types.Alg.Random,
-  fill: Some (0, 90),
+  fill: HueSat (0, 90),
   size_hint: 10,
   batch_size: 1,
   wall: Some (5, 30),
@@ -121,8 +159,9 @@ let to_options canvas_size (settings: T.t) => {
     | None => None
     },
     draw_shapes: switch (settings.fill) {
-    | Some (hue, saturation) => Some (Presenter.hsl hue saturation)
-    | None => None
+    | HueSat (hue, saturation) => Some (fun current max => Presenter.hslf (float_of_int hue) (float_of_int saturation) (100.0 -. current *. 50.0))
+    | Rainbow => Some (fun current max => Presenter.hslf (max *. 360.0) 70.0 50.0)
+    | NoFill => None
     },
     draw_walls: switch (settings.wall) {
     | Some (width, lightness) => Some (float_of_int width, Presenter.hsl 0 0 lightness)
@@ -181,7 +220,7 @@ module Settings = {
   let set_board board state => {...state, board};
   let set_alg algorithm state => {...state, algorithm};
   let set_size_hint size_hint state => {...state, size_hint};
-  let set_fill fill state => {...state, fill: Some fill};
+  let set_fill fill state => {...state, fill: HueSat fill};
 
   let make ::state ::updater _children => {
     ...component,
@@ -216,10 +255,22 @@ module Settings = {
         />
 
         (se "Fill color: ")
+        <div style=(ReactDOMRe.Style.make flexDirection::"row" ())>
+          <SelectableButton
+            title="No fill"
+            selected=(state.fill === NoFill)
+            onClick=(updater.update (fun _ state => {...state, fill: NoFill}) true)
+          />
+          <SelectableButton
+            title="Rainbow"
+            selected=(state.fill === Rainbow)
+            onClick=(updater.update (fun _ state => {...state, fill: Rainbow}) true)
+          />
+        </div>
         <ColorSlider
           width=150
           height=100
-          value=state.fill
+          value=(switch (state.fill) { |HueSat fill => Some fill | _ => None})
           onChange=(updater.update set_fill true)
         />
         (se "Wall")

@@ -10,7 +10,7 @@ let main () => {
     /*draw_edges: Some (1.0, "#aaa"),*/
     /*draw_walls: None,*/
     /*draw_shapes: None,*/
-    draw_shapes: Some (Presenter.hsl 0 100),
+    draw_shapes: Some (fun current max => Presenter.hslf 0.0 100.0 (current *. 100.0)),
     draw_walls: Some (1.0, "#ccc"),
   };
 

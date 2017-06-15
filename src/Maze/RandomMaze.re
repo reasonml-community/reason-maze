@@ -11,9 +11,9 @@ let random_options canvas_size => {
     size_hint: 6 + Random.int 10,
     draw_edges: Random.bool () ? Some (random_line ()) : None,
     draw_shapes: Random.bool () ? Some {
-      let hue = (Random.int 360);
-      let saturation = (70 + Random.int 30);
-      Presenter.hsl hue saturation
+      let hue = (Random.float 360.0);
+      let saturation = (70.0 +. Random.float 30.0);
+      (fun current max => Presenter.hslf hue saturation (current *. 100.0))
     } : None,
     draw_walls: Random.bool () ? Some (random_line ()) : None,
   };

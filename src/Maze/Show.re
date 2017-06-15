@@ -9,7 +9,7 @@ let module Options = {
     /*line_width: float,*/
     draw_edges: option (float, string),
     draw_walls: option (float, string),
-    draw_shapes: option (int => string),
+    draw_shapes: option (float => float => string),
   };
 };
 open Options;
@@ -37,7 +37,7 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     switch (options.draw_shapes) {
       | Some get_color => {
         /*Canvas.Ctx.setFillStyle ctx color;*/
-        Array.iter (Presenter.draw_shape ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);
+        Array.iter (Presenter.draw_shape ctx (xm, ym) get_color (Man.current_age state) (Man.max_age state)) (Man.all_shapes state);
       }
       | None => ()
     };
@@ -88,7 +88,7 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
       | Some get_color => {
         /*Canvas.Ctx.setFillStyle ctx color;*/
         /*Array.iter (Presenter.draw_shape ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);*/
-        Array.iteri (Presenter.draw_shapei ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);
+        Array.iteri (Presenter.draw_shapei ctx (xm, ym) get_color (Man.current_age state) (Man.max_age state)) (Man.all_shapes state);
       }
       | None => ()
     };
