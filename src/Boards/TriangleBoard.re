@@ -29,7 +29,19 @@ let offset shape scale (x, y) => {
     (fy + 0.5) * hsq3 * scale,
   )
 };
-let tile_center = offset;
+
+let offcenter = 0.5 -. 0.5 /. (sqrt 3.0);
+let tile_center shape scale (x, y) => {
+  let (ax, ay) = offset shape scale (x, y);
+  let dy = if (TriangleTile.is_flipped (x, y)) {
+    -. scale *. offcenter /. 1.5
+    /*-.scale *. hsq3 /. 4.0*/
+  } else {
+    scale *. offcenter /. 1.5
+    /*scale *. hsq3 /. 4.0*/
+  };
+  (ax, ay +. dy)
+};
 
 let from_point shape scale (x, y) => {
   /*x = (fx - fy) / 2.0 * scale + ((fi shape) / 2.0) * scale,

@@ -112,7 +112,7 @@ let initial = T.{
 let to_options (settings: T.t) => {
   Show.Options.{
     canvas_size: (float_of_int settings.canvas_size, float_of_int settings.canvas_size),
-    min_margin: 50.0,
+    min_margin: 10.0,
     size_hint: settings.size_hint,
     draw_edges: switch (settings.edge) {
     | Some (width, lightness) => Some (float_of_int width, Presenter.hsl 0 0 lightness)
