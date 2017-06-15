@@ -102,10 +102,10 @@ module Page = {
 
   let set_hash = [%bs.raw {|
     function (val) {
-      window.location.hash = val
+      window.location.hash = btoa(val)
     }
   |}];
-  let get_hash = [%bs.raw {| function () { return window.location.hash.slice(1); } |}];
+  let get_hash = [%bs.raw {| function () { try {return atob(window.location.hash.slice(1));}catch (e) {return ''} } |}];
   external now: unit => int = "Date.now" [@@bs.val];
   let throttle fn time => {
     let last = ref None;
