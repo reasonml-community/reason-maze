@@ -11656,12 +11656,17 @@
 
 	function make() {
 	  var newrecord = component.slice();
-	  newrecord[/* didMount */4] = (function (state, _) {
+	  newrecord[/* didMount */4] = (function (state, self) {
 	      var match = state[/* ctx */1];
 	      if (match) {
-	        show(match[0], state[/* settings */0]);
+	        return /* Update */Block.__(0, [/* record */[
+	                    /* settings */state[/* settings */0],
+	                    /* ctx */state[/* ctx */1],
+	                    /* animation : Some */[animate(match[0], state[/* settings */0], Curry._1(self[/* update */2], clearAnimation))]
+	                  ]]);
+	      } else {
+	        return /* NoUpdate */0;
 	      }
-	      return /* NoUpdate */0;
 	    });
 	  newrecord[/* didUpdate */5] = (function (_, currentState, _$1) {
 	      return Curry._1(update_hash, currentState[/* settings */0]);
