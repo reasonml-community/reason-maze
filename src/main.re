@@ -1,5 +1,5 @@
 
-let main () => {
+let free_hand () => {
   /*Random.init seed;*/
 
   let options = Show.Options.{
@@ -7,10 +7,7 @@ let main () => {
     min_margin: 50.0,
     size_hint: 40,
     draw_edges: None,
-    /*draw_edges: Some (1.0, "#aaa"),*/
-    /*draw_walls: None,*/
-    /*draw_shapes: None,*/
-    draw_shapes: Some (fun current max => Presenter.hslf 0.0 100.0 (current *. 100.0)),
+    draw_shapes: Some (fun current _ => Presenter.hslf 0.0 100.0 (current *. 100.0)),
     draw_walls: Some (1.0, "#ccc"),
   };
 
@@ -20,19 +17,16 @@ let main () => {
   let module Paint' = Paint.F Board Gen;
   let module Show' = Show.F Board Gen;
 
-  /*let (canvas, ctx, state) = Show'.init options;*/
-
   Paint'.paint options;
-   /*ctx state;*/
 };
 
-let rand () => {
+let generate_random () => {
   let canvas = Canvas.createOnBody 1000 1000;
   let ctx = Canvas.getContext canvas;
 
   RandomMaze.run ctx (1000.0, 1000.0);
 };
 
-/*main();*/
-/*rand ();*/
+/*free_hand();*/
+/*generate_random();*/
 Builder.run();

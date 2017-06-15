@@ -21,6 +21,7 @@ external getContext : canvasElement => _ [@bs.as "2d"] => canvasRenderingContext
 
 /* canvas api methods */
 module Ctx = {
+  external canvas: ctx => canvasElement = ""[@@bs.get];
   external setFillStyle : ctx => string => unit = "fillStyle" [@@bs.set];
   external setStrokeStyle : ctx => string => unit = "strokeStyle" [@@bs.set];
   external setStrokeWidth : ctx => float => unit = "lineWidth" [@@bs.set];

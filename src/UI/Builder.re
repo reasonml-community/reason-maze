@@ -50,11 +50,50 @@ let animate ctx settings onStop => {
   r
 };
 
+let record settings ctx onDone _ => {
+  let capturer = CCapture.init 25 "animation.webm";
+  /*let encoder = Whammy.init 25;*/
+
+  open Types;
+  open Settings.T;
+
+  Random.init 0;
+
+  let options = Settings.to_options settings;
+
+  let module Board = (val (Board.tomod settings.board));
+  let module Gen = (val (Alg.tomod settings.algorithm));
+  let module Paint' = Paint.F Board Gen;
+
+  let module Show' = Show.F Board Gen;
+
+  let state = Show'.init_state options;
+
+  let rec step state => {
+    let state = Show'.batch state settings.batch_size;
+    Show'.show ctx options state;
+    CCapture.capture capturer (Canvas.Ctx.canvas ctx);
+    Show'.Man.finished state
+    ? CCapture.save capturer (fun blob => onDone (CCapture.objUrl blob))
+    : step state
+  };
+
+  CCapture.start capturer;
+  step state;
+};
+
+let now_date: unit => string = [%bs.raw {|
+  function () {
+    return new Date().toLocaleString().replace(/[^\w]/g, '-')
+  }
+|}];
+
 module Page = {
   type state = {
     settings: Settings.T.t,
     ctx: option Canvas.ctx,
     animation: option (ref int),
+    downloadUrl: option string,
   };
   let component = ReasonReact.statefulComponent "Page";
 
@@ -63,23 +102,19 @@ module Page = {
 
   let styles = Aphrodite.create {
     "container": {
-      "flex-direction": "row"
+      "flex-direction": "row",
+      "align-self": "stretch",
+      "flex": 1
     }
+  };
+
+  let process_new_settings settings state suppress_equal => {
+      ReasonReact.Update {...state, settings, animation: None}
   };
 
   let update = fun update_settings suppress_equal payload state _ => {
       let settings = update_settings payload state.settings;
-      if (not suppress_equal || settings != state.settings) {
-        switch (state.animation) {
-        | Some id => Window.clearTimeout !id
-        | _ => ()
-        };
-        switch (state.ctx) {
-        | Some ctx => show ctx settings
-        | None => ()
-        };
-      };
-      ReasonReact.Update {...state, settings, animation: None}
+      process_new_settings settings state suppress_equal;
   };
 
   let clearAnimation _ state _ => ReasonReact.Update {...state, animation: None};
@@ -100,12 +135,26 @@ module Page = {
     };
   };
 
-  let set_hash = [%bs.raw {|
+  let listen_for_hash: (string => unit) => unit = [%bs.raw {|
+    function (fn) {
+      window.addEventListener('hashchange', function(evt) {
+        var string;
+        try {
+          string = atob(window.location.hash.slice(1))
+        } catch (e) {
+          return null
+        }
+        fn(string)
+      })
+    }
+  |}];
+
+  let set_hash: string => unit = [%bs.raw {|
     function (val) {
       window.location.hash = btoa(val)
     }
   |}];
-  let get_hash = [%bs.raw {| function () { try {return atob(window.location.hash.slice(1));}catch (e) {return ''} } |}];
+  let get_hash: unit => string = [%bs.raw {| function () { try {return atob(window.location.hash.slice(1));}catch (e) {return ''} } |}];
   external now: unit => int = "Date.now" [@@bs.val];
   let throttle fn time => {
     let last = ref None;
@@ -117,14 +166,41 @@ module Page = {
       last := Some (Js.Global.setTimeout (fun () => fn v) time);
     };
   };
-  let update_hash = throttle (fun settings => set_hash (Settings.to_json settings)) 500;
+  let update_hash = throttle (fun settings => {
+    switch (Settings.to_json settings) {
+    | None => ()
+    | Some str => {
+      set_hash str;
+      }
+    }
+  }) 500;
 
   let make _children => {
     ...component,
-    didUpdate: fun ::previousState ::currentState self => {
-      update_hash currentState.settings
+    didUpdate: fun ::previousState ::currentState _ => {
+      update_hash currentState.settings;
+      if (currentState.settings != previousState.settings) {
+        switch (previousState.animation) {
+        | Some id => Window.clearTimeout !id
+        | _ => ()
+        };
+        switch (currentState.ctx) {
+        | Some ctx => show ctx currentState.settings
+        | None => ()
+        };
+      };
     },
     didMount: fun state self => {
+      listen_for_hash (self.update (fun str state _ => {
+        switch (Settings.from_json str) {
+        | None => ReasonReact.NoUpdate
+        | Some settings => if (state.settings == settings) {
+            ReasonReact.NoUpdate
+          } else {
+            process_new_settings settings state false;
+          }
+        }
+      }));
       switch (state.ctx) {
         | Some ctx => ReasonReact.Update {...state, animation: Some (animate ctx state.settings (self.update clearAnimation))}
         | None => ReasonReact.NoUpdate
@@ -136,6 +212,7 @@ module Page = {
       | None => Settings.initial
       }),
       animation: None,
+      downloadUrl: None,
       ctx: None,
     },
     render: fun state self => {
@@ -143,7 +220,14 @@ module Page = {
         update: fun update_settings suppress_equal => self.update (update update_settings suppress_equal)
       };
       <div className=(Aphrodite.css styles "container")>
-        <canvas width="1000px" height="1000px" className="canvas" ref=(self.update updateCtx)/>
+        <div style=(ReactDOMRe.Style.make flex::"1" ())>
+        <canvas
+          width=(string_of_int state.settings.Settings.T.canvas_size ^ "px")
+          height=(string_of_int state.settings.Settings.T.canvas_size ^ "px")
+          className="canvas"
+          ref=(self.update updateCtx)
+        />
+        </div>
         <div>
         <button
           onClick=(self.update toggle_animating)
@@ -163,6 +247,35 @@ module Page = {
           state=state.settings
           updater=updater
         />
+        <button
+          onClick=?(switch (state.ctx) {
+          | None => None
+          | Some ctx => Some (record state.settings ctx (self.update (fun blobUrl state _ => {
+            ReasonReact.Update {...state, downloadUrl: Some blobUrl}
+          })))})
+          style=(ReactDOMRe.Style.make
+          cursor::"pointer"
+          backgroundColor::"#aef"
+          outline::"none"
+          alignSelf::"stretch"
+          padding::"10px 20px"
+          border::"none"
+          boxShadow::"0 0 4px #aaa"
+          ())
+        >
+          (se "Record animation")
+        </button>
+        (switch state.downloadUrl {
+        | None => ReasonReact.nullElement
+        | Some url =>
+            /* TODO make a nice name */
+            <a
+              download=("animation-" ^ (now_date ()) ^ ".webm")
+              href={url}
+            >
+              (se "Download animation")
+            </a>
+        })
         </div>
       </div>
     },
