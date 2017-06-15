@@ -16,8 +16,7 @@ let show ctx settings => {
 
   Random.init 0;
 
-  let canvas_size = (1000.0, 1000.0);
-  let options = Settings.to_options canvas_size settings;
+  let options = Settings.to_options settings;
 
   let module Board = (val (Board.tomod settings.board));
   let module Gen = (val (Alg.tomod settings.algorithm));
@@ -37,8 +36,7 @@ let animate ctx settings onStop => {
 
   Random.init 0;
 
-  let canvas_size = (1000.0, 1000.0);
-  let options = Settings.to_options canvas_size settings;
+  let options = Settings.to_options settings;
 
   let module Board = (val (Board.tomod settings.board));
   let module Gen = (val (Alg.tomod settings.algorithm));

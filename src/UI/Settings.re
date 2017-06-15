@@ -2,127 +2,6 @@
 let se = ReasonReact.stringToElement;
 let si = string_of_int;
 
-module Range = {
-  let component = ReasonReact.statelessComponent "Range";
-  let styles = Aphrodite.create{
-    "container": {
-    }
-  };
-
-  let px m => (si m) ^ "px";
-  let mkstyle width height vertical => {
-    let style = ReactDOMRe.Style.make width::(px width) height::(px height);
-    vertical
-      ? style
-        transformOrigin::((px (width / 2)) ^ " " ^ (px (width / 2)))
-        transform::"rotate(-90deg)" ()
-      : style ();
-  };
-
-  let getValue evt => (int_of_string (ReactDOMRe.domElementToObj(ReactEventRe.Form.target evt))##value);
-
-  let make ::min ::max ::value ::step ::width ::height ::vertical ::onChange _ => {
-    ...component,
-    render: fun () _ => {
-      <input
-        _type="range"
-        style=(mkstyle width height vertical)
-        min=min
-        max=(si max)
-        value=(si value)
-        step=step
-        onChange=(fun evt => onChange (getValue evt))
-      />
-    }
-  }
-};
-
-module SelectableButton = {
-  let component = ReasonReact.statelessComponent "SelectableButton";
-
-  let styles = Aphrodite.create {
-    "button": {
-      "background-color": "white",
-      "border": "none",
-      "padding": "10px 20px",
-      "cursor": "pointer",
-      "outline": "none",
-      ":hover": {
-        "background-color": "#eee"
-      }
-    },
-    "selected": {
-      "background-color": "#aaa"
-    },
-  };
-
-  let className is_current => Aphrodite.(csss styles [|
-    "button",
-    is_current ? "selected" : "nonselected"
-  |]);
-
-  let make ::title ::selected ::onClick _children => {
-    {
-      ...component,
-      render: fun () _self =>
-        <button
-          onClick=(fun _ => onClick ())
-          className=(className selected)
-        >
-          (se title)
-        </button>
-    }
-  };
-};
-
-module Buttons = {
-  let component = ReasonReact.statelessComponent "Buttons";
-
-  let styles = Aphrodite.create {
-    "container": {
-      "display": "flex",
-      "align-items": "stretch",
-      "border": "1px solid #aaa",
-      "margin": 5,
-      "align-self": "stretch",
-    }
-  };
-
-  let className is_current => Aphrodite.(csss styles [|
-    "button",
-    is_current ? "selected" : "nonselected"
-  |]);
-
-  let make ::options ::get_title ::current ::on_change _children => {
-    {
-      ...component,
-      render: fun () _self =>
-        <div className=Aphrodite.(css styles "container")>
-          (ReasonReact.arrayToElement (Array.map
-            (fun option => 
-            <SelectableButton
-              key=(get_title option)
-              title=(get_title option)
-              onClick=(fun () => on_change option)
-              selected=(current === option)
-            />
-            /*
-            <button
-              key=(get_title option)
-              onClick=(fun _ => on_change option)
-              className=(className (current === option))
-            >
-              (se (get_title option))
-            </button>
-            */
-            )
-            options
-          ))
-        </div>
-    }
-  };
-};
-
 module T = {
   type fill =
     | NoFill
@@ -136,6 +15,7 @@ module T = {
     edge: option (int, int),
     batch_size: int,
     size_hint: int,
+    canvas_size: int,
   }
 };
 
@@ -145,13 +25,14 @@ let initial = T.{
   fill: HueSat (0, 90),
   size_hint: 10,
   batch_size: 1,
+  canvas_size: 1000,
   wall: Some (5, 30),
   edge: None,
 };
 
-let to_options canvas_size (settings: T.t) => {
+let to_options (settings: T.t) => {
   Show.Options.{
-    canvas_size,
+    canvas_size: (float_of_int settings.canvas_size, float_of_int settings.canvas_size),
     min_margin: 50.0,
     size_hint: settings.size_hint,
     draw_edges: switch (settings.edge) {
@@ -174,41 +55,18 @@ type updater = {
   update: 'a .('a => T.t => T.t) => bool => ReasonReact.Callback.t 'a
 };
 
-module LineSetting = {
-  let component = ReasonReact.statelessComponent "LineSetting";
-  let make ::value ::onChange _ => {
+module Title = {
+  let component = ReasonReact.statelessComponent "Title";
+  let make children => {
     ...component,
-    render: fun _ _ => {
-      let (width, color) = switch value {
-        | Some x => x
-        | None => (0, 20)
-      };
-
-      <div>
-          (se "Width: ") (se (si width))
-          <Range
-            width=150
-            height=20
-            vertical=false
-            min=0
-            max=30
-            value=(width)
-            step=1.0
-            onChange=(fun x => onChange (x === 0 ? None : Some (x, color)))
-          />
-          (se "Brightness: ") (se (si color))
-          <Range
-            width=150
-            height=20
-            vertical=false
-            min=0
-            max=100
-            value=(color)
-            step=1.0
-            onChange=(fun x => onChange (Some (width, x)))
-          />
-      </div>
-    }
+    render: fun () _ => <div style=(ReactDOMRe.Style.make
+      fontWeight::"bold"
+      alignSelf::"flex-start"
+      padding::"15px 0px 5px"
+      ()
+    )>
+      (ReasonReact.arrayToElement children)
+    </div>
   }
 };
 
@@ -226,20 +84,32 @@ module Settings = {
     ...component,
     render: fun () _ => {
       <div className="settings">
-        (se "Shape")
-        <Buttons
+        <Title>(se "Shape")</Title>
+        <Options
           get_title=(Board.name)
           options=(Board.all)
           current=(state.board)
           on_change=(updater.update set_board false)
         />
 
-        (se "Algorithm")
-        <Buttons
+        <Title>(se "Algorithm")</Title>
+        <Options
           get_title=(Alg.name)
           options=(Alg.all)
           current=(state.algorithm)
           on_change=(updater.update set_alg false)
+        />
+
+        (se "Canvas Size: ") (se (si state.size_hint))
+        <Range
+          width=150
+          height=20
+          vertical=false
+          min=300
+          max=1000
+          value=(state.canvas_size)
+          step=10.0
+          onChange=(updater.update (fun canvas_size state => {...state, canvas_size}) true)
         />
 
         (se "Size: ") (se (si state.size_hint))
@@ -254,7 +124,7 @@ module Settings = {
           onChange=(updater.update set_size_hint true)
         />
 
-        (se "Fill color: ")
+        <Title>(se "Fill color")</Title>
         <div style=(ReactDOMRe.Style.make flexDirection::"row" ())>
           <SelectableButton
             title="No fill"
@@ -273,17 +143,17 @@ module Settings = {
           value=(switch (state.fill) { |HueSat fill => Some fill | _ => None})
           onChange=(updater.update set_fill true)
         />
-        (se "Wall")
+        <Title>(se "Wall")</Title>
         <LineSetting
           value=(state.wall)
           onChange=(updater.update (fun wall state => {...state, wall}) true)
         />
-        (se "Path")
+        <Title>(se "Path")</Title>
         <LineSetting
           value=(state.edge)
           onChange=(updater.update (fun edge state => {...state, edge}) true)
         />
-        (se "Animation Speed")
+        <Title>(se "Animation Speed")</Title>
         <Range
           width=150
           height=20
