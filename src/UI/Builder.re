@@ -100,8 +100,30 @@ module Page = {
     };
   };
 
+  let set_hash = [%bs.raw {|
+    function (val) {
+      window.location.hash = val
+    }
+  |}];
+  let get_hash = [%bs.raw {| function () { return window.location.hash.slice(1); } |}];
+  external now: unit => int = "Date.now" [@@bs.val];
+  let throttle fn time => {
+    let last = ref None;
+    fun v => {
+      switch !last {
+      | Some t => Js.Global.clearTimeout t
+      | None => ()
+      };
+      last := Some (Js.Global.setTimeout (fun () => fn v) time);
+    };
+  };
+  let update_hash = throttle (fun settings => set_hash (Settings.to_json settings)) 500;
+
   let make _children => {
     ...component,
+    didUpdate: fun ::previousState ::currentState self => {
+      update_hash currentState.settings
+    },
     didMount: fun state _ => {
       switch (state.ctx) {
         | Some ctx => show ctx state.settings
@@ -110,7 +132,10 @@ module Page = {
       ReasonReact.NoUpdate
     },
     initialState: fun () => {
-      settings: Settings.initial,
+      settings: (switch (Settings.from_json (get_hash ())) {
+      | Some settings => settings
+      | None => Settings.initial
+      }),
       animation: None,
       ctx: None,
     },

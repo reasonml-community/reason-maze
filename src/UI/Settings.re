@@ -16,18 +16,97 @@ module T = {
     batch_size: int,
     size_hint: int,
     canvas_size: int,
+  };
+
+  let fill_json fill => switch fill {
+  | NoFill => Js.Json.string "none"
+  | Rainbow => Js.Json.string "rainbow"
+  | HueSat (hue, sat) => Js.Json.numberArray [|float_of_int hue, float_of_int sat|]
+  };
+  let parse_fill fill => Js.Json.(switch (classify fill) {
+  | JSONString "none" => Some NoFill
+  | JSONString "rainbow" => Some Rainbow
+  | JSONArray [|hue, sat|] => switch (classify hue, classify sat) {
+    | (JSONNumber hue, JSONNumber sat) => Some (HueSat (int_of_float hue, int_of_float sat))
+    | _ => None
   }
+  | _ => None
+  })
+};
+
+let to_jsonable t => {
+  T.(
+  Types.Board.name t.board,
+  Types.Alg.name t.algorithm,
+  T.fill_json t.fill,
+  Js.Null.from_opt t.wall,
+  Js.Null.from_opt t.edge,
+  t.batch_size,
+  t.size_hint,
+  t.canvas_size
+  )
+};
+
+let to_json t => Js.Json.stringifyAny (to_jsonable t);
+
+let (>>==) a b => switch a { |Some a => (b a) | None => None};
+let (>>=) a b => switch a { |Some a => Some (b a) | None => None};
+let (>?) a b => switch a { |Some a => a | None => b};
+
+let parse_line value => Js.Json.(switch (classify value) {
+| JSONArray [|width, light|] => switch (classify width, classify light) {
+  | (JSONNumber width, JSONNumber light) => Some (int_of_float width, int_of_float light)
+  | _ => None
+  }
+| _ => None
+});
+
+let from_json str => {
+  open Js.Json;
+  let parsed = try (Some (parseExn str)) {
+  | _ => None
+  };
+
+  switch parsed {
+  | Some arr => {
+    switch (decodeArray arr) {
+    | Some [|
+      board,
+      alg,
+      fill,
+      wall,
+      edge,
+      batch_size,
+      size_hint,
+      canvas_size
+    |] => {
+        Some T.{
+          board: decodeString board >>== Types.Board.by_name >? HexBox,
+          algorithm: decodeString alg >>== Types.Alg.by_name >? Random,
+          fill: T.parse_fill fill >? HueSat (0, 80),
+          wall: parse_line wall,
+          edge: parse_line edge,
+          batch_size: decodeNumber batch_size >>= int_of_float >? 1,
+          size_hint: decodeNumber size_hint >>= int_of_float >? 5,
+          canvas_size: decodeNumber canvas_size >>= int_of_float >? 1000
+        }
+      }
+    | _ => None
+    }
+  };
+  | None => None
+  };
 };
 
 let initial = T.{
-  board: Types.Board.Circle,
-  algorithm: Types.Alg.BFS,
-  fill: HueSat (0, 90),
-  size_hint: 4,
+  board: Types.Board.Hexagon,
+  algorithm: Types.Alg.DFS,
+  fill: HueSat (30, 90),
+  size_hint: 10,
   batch_size: 1,
   canvas_size: 1000,
-  wall: Some (5, 80),
-  edge: Some (2, 80),
+  wall: Some (1, 20),
+  edge: None,
 };
 
 let to_options (settings: T.t) => {

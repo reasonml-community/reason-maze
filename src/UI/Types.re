@@ -26,7 +26,17 @@ module Board = {
   | Triangle => "Triangle"
   | HexTriangle => "HexTriangle"
   | Rect => "Rect"
-  };
+};
+
+  let by_name name => switch name {
+  | "Circle" => Some Circle
+  | "HexBox" => Some HexBox
+  | "Hexagon" => Some Hexagon
+  | "Triangle" => Some Triangle
+  | "HexTriangle" => Some HexTriangle
+  | "Rect" => Some Rect
+  | _ => None
+  }
 };
 
 module Alg = {
@@ -47,5 +57,11 @@ module Alg = {
   | DFS => "DFS"
   | BFS => "BFS"
   | Random => "Random"
+};
+
+  let by_name name => switch name {
+  | "DFS" => Some DFS
+  | "BFS" => Some BFS
+  | "Random" => Some Random
   };
 };
