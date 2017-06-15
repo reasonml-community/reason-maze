@@ -124,12 +124,11 @@ module Page = {
     didUpdate: fun ::previousState ::currentState self => {
       update_hash currentState.settings
     },
-    didMount: fun state _ => {
+    didMount: fun state self => {
       switch (state.ctx) {
-        | Some ctx => show ctx state.settings
-        | None => ()
+        | Some ctx => ReasonReact.Update {...state, animation: Some (animate ctx state.settings (self.update clearAnimation))}
+        | None => ReasonReact.NoUpdate
       };
-      ReasonReact.NoUpdate
     },
     initialState: fun () => {
       settings: (switch (Settings.from_json (get_hash ())) {
