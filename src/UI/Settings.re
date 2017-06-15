@@ -106,7 +106,7 @@ let initial = T.{
   algorithm: Types.Alg.Random,
   fill: Some (0, 90),
   size_hint: 10,
-  batch_size: 5,
+  batch_size: 1,
   wall: Some (5, 30),
   edge: None,
 };
@@ -146,6 +146,7 @@ module LineSetting = {
       };
 
       <div>
+          (se "Width: ") (se (si width))
           <Range
             width=150
             height=20
@@ -155,6 +156,17 @@ module LineSetting = {
             value=(width)
             step=1.0
             onChange=(fun x => onChange (x === 0 ? None : Some (x, color)))
+          />
+          (se "Brightness: ") (se (si color))
+          <Range
+            width=150
+            height=20
+            vertical=false
+            min=0
+            max=100
+            value=(color)
+            step=1.0
+            onChange=(fun x => onChange (Some (width, x)))
           />
       </div>
     }
@@ -210,12 +222,12 @@ module Settings = {
           value=state.fill
           onChange=(updater.update set_fill true)
         />
-        (se "Wall Width")
+        (se "Wall")
         <LineSetting
           value=(state.wall)
           onChange=(updater.update (fun wall state => {...state, wall}) true)
         />
-        (se "Edge Width")
+        (se "Path")
         <LineSetting
           value=(state.edge)
           onChange=(updater.update (fun edge state => {...state, edge}) true)

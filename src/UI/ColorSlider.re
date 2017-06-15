@@ -85,6 +85,7 @@ let make ::width ::height ::value ::onChange _ => {
           marginTop::"-5px"
           top::(px (scale saturation 100 height))
           left::(px (scale hue 360 width))
+          backgroundColor::(Presenter.hsl hue saturation 50)
           ());
         let style = ReactDOMRe.Style.unsafeAddProp style "pointerEvents" "none";
         <div style />
