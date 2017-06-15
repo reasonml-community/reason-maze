@@ -11680,9 +11680,18 @@
 	                      className: "canvas",
 	                      height: "1000px",
 	                      width: "1000px"
-	                    }), React.createElement("div", undefined, ReasonReact.element(/* None */0, /* None */0, Curry._3(Settings.Settings[/* make */5], state[/* settings */0], updater, /* array */[])), React.createElement("button", {
+	                    }), React.createElement("div", undefined, React.createElement("button", {
+	                          style: {
+	                            backgroundColor: "#aef",
+	                            border: "none",
+	                            cursor: "pointer",
+	                            outline: "none",
+	                            padding: "10px 20px",
+	                            boxShadow: "0 0 4px #aaa",
+	                            alignSelf: "stretch"
+	                          },
 	                          onClick: Curry._1(self[/* update */2], toggle_animating)
-	                        }, match !== 0 ? "Animate" : "Stop")));
+	                        }, match !== 0 ? "Animate" : "Stop"), ReasonReact.element(/* None */0, /* None */0, Curry._3(Settings.Settings[/* make */5], state[/* settings */0], updater, /* array */[]))));
 	    });
 	  newrecord[/* initialState */10] = (function () {
 	      var match = Settings.from_json(Curry._1(get_hash, /* () */0));
@@ -18243,7 +18252,11 @@
 	      var match = state[/* fill */2];
 	      return React.createElement("div", {
 	                  className: "settings"
-	                }, ReasonReact.element(/* None */0, /* None */0, make(/* array */["Shape"])), ReasonReact.element(/* None */0, /* None */0, Options.make(Types.Board[/* all */0], Types.Board[/* name */2], state[/* board */0], Curry._2(updater[/* update */0], set_board, /* false */0), /* array */[])), ReasonReact.element(/* None */0, /* None */0, make(/* array */["Algorithm"])), ReasonReact.element(/* None */0, /* None */0, Options.make(Types.Alg[/* all */0], Types.Alg[/* name */2], state[/* algorithm */1], Curry._2(updater[/* update */0], set_alg, /* false */0), /* array */[])), "Canvas Size: ", Pervasives.string_of_int(state[/* canvas_size */7]), ReasonReact.element(/* None */0, /* None */0, Range.make(300, 1000, state[/* canvas_size */7], 10.0, 150, 20, /* false */0, Curry._2(updater[/* update */0], (function (canvas_size, state) {
+	                }, ReasonReact.element(/* None */0, /* None */0, make(/* array */["Animation Speed"])), ReasonReact.element(/* None */0, /* None */0, Range.make(1, 20, state[/* batch_size */5], 1.0, 150, 20, /* false */0, Curry._2(updater[/* update */0], (function (batch_size, state) {
+	                                var newrecord = state.slice();
+	                                newrecord[/* batch_size */5] = batch_size;
+	                                return newrecord;
+	                              }), /* true */1), /* array */[])), "Canvas Size: ", Pervasives.string_of_int(state[/* canvas_size */7]), ReasonReact.element(/* None */0, /* None */0, Range.make(300, 1000, state[/* canvas_size */7], 10.0, 150, 20, /* false */0, Curry._2(updater[/* update */0], (function (canvas_size, state) {
 	                                var newrecord = state.slice();
 	                                newrecord[/* canvas_size */7] = canvas_size;
 	                                return newrecord;
@@ -18267,11 +18280,7 @@
 	                                var newrecord = state.slice();
 	                                newrecord[/* edge */4] = edge;
 	                                return newrecord;
-	                              }), /* true */1), /* array */[])), ReasonReact.element(/* None */0, /* None */0, make(/* array */["Animation Speed"])), ReasonReact.element(/* None */0, /* None */0, Range.make(1, 20, state[/* batch_size */5], 1.0, 150, 20, /* false */0, Curry._2(updater[/* update */0], (function (batch_size, state) {
-	                                var newrecord = state.slice();
-	                                newrecord[/* batch_size */5] = batch_size;
-	                                return newrecord;
-	                              }), /* true */1), /* array */[])));
+	                              }), /* true */1), /* array */[])), ReasonReact.element(/* None */0, /* None */0, make(/* array */["Shape"])), ReasonReact.element(/* None */0, /* None */0, Options.make(Types.Board[/* all */0], Types.Board[/* name */2], state[/* board */0], Curry._2(updater[/* update */0], set_board, /* false */0), /* array */[])), ReasonReact.element(/* None */0, /* None */0, make(/* array */["Algorithm"])), ReasonReact.element(/* None */0, /* None */0, Options.make(Types.Alg[/* all */0], Types.Alg[/* name */2], state[/* algorithm */1], Curry._2(updater[/* update */0], set_alg, /* false */0), /* array */[])));
 	    });
 	  return newrecord;
 	}
