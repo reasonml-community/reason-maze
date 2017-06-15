@@ -50,19 +50,19 @@ let adjacents size (x, y) => {
 };
 
 let adjacent_coord size (x, y) direction => switch direction {
-| Left => x > 0 ? (x - 1, y) : ((Array.get counts y) - 1, y)
-| Right => (x + 1 < Array.get counts y ? x + 1 : 0, y)
-| Down => {
-  y === 0 ? ((x + 1) mod 2, y) :
-  (
-  Array.get counts y === Array.get counts (y - 1)
-  ? (x, y - 1)
-  : (x / 2, y -1)
-  )
-}
-| Up => (x, y + 1)
-| UpLeft => (x * 2, y + 1)
-| UpRight => (x * 2 + 1, y + 1)
+  | Left => x > 0 ? (x - 1, y) : ((Array.get counts y) - 1, y)
+  | Right => (x + 1 < Array.get counts y ? x + 1 : 0, y)
+  | Down => {
+    y === 0 ? ((x + 1) mod 2, y) :
+    (
+    Array.get counts y === Array.get counts (y - 1)
+    ? (x, y - 1)
+    : (x / 2, y -1)
+    )
+  }
+  | Up => (x, y + 1)
+  | UpLeft => (x * 2, y + 1)
+  | UpRight => (x * 2 + 1, y + 1)
 };
 
 let polar x y count => {
@@ -70,6 +70,14 @@ let polar x y count => {
   (
     (fi y) *. (cos theta),
     (fi y) *. (sin theta)
+  );
+};
+
+let polarf x y count => {
+  let theta = x /. (fi count) *. tau;
+  (
+    y *. (cos theta),
+    y *. (sin theta)
   );
 };
 
@@ -157,17 +165,27 @@ let auto_size (width, height) size => {
   (rad, scale, (dim, dim))
 };
 
-let offset size scale (x, y) => {
-  let (ax, ay) = polar (x + 0) y (Array.get counts y);
+let offset size scale _ => {
   let dim = (fi (size * 2)) *. scale;
   let rad = dim /. 2.0;
-  (ax +. rad, ay +. rad)
-  /*(ax *. scale +. rad, ay *. scale +. rad)*/
-}
-[@@test [
-  ((2, 1.0, (0, 0)), (0.0, 0.0))
-]]
-;
+  (rad, rad)
+};
+
+let tile_center size scale (x, y) => {
+  let (cx, cy) = offset size scale ();
+  let (ax, ay) = if (y === 0) {
+    polarf ((fi x) +. 0.5) (scale *. 0.5) 2;
+  } else {
+    polarf ((fi x) +. 0.5) (scale *. ((fi y) +. 0.5)) (Array.get counts y);
+  };
+  (ax +. cx, ay +. cy)
+};
+
+/* TODO allow board to define a path edge, e.g. so I can have arc edges between nodes on the same level
+let path_edge size scale (a, b) (c, d) => {
+
+};
+ */
 
 let tile_at_coord size (x, y) => {
   let count = Array.get counts y |> fi;

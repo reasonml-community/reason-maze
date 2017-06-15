@@ -29,6 +29,7 @@ let offset shape scale (x, y) => {
     (fy + 0.5) * hsq3 * scale,
   )
 };
+let tile_center = offset;
 
 let from_point shape scale (x, y) => {
   /*x = (fx - fy) / 2.0 * scale + ((fi shape) / 2.0) * scale,

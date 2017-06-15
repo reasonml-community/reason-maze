@@ -20,14 +20,14 @@ module T = {
 };
 
 let initial = T.{
-  board: Types.Board.Hexagon,
-  algorithm: Types.Alg.Random,
+  board: Types.Board.Circle,
+  algorithm: Types.Alg.BFS,
   fill: HueSat (0, 90),
-  size_hint: 10,
+  size_hint: 4,
   batch_size: 1,
   canvas_size: 1000,
-  wall: Some (5, 30),
-  edge: None,
+  wall: Some (5, 80),
+  edge: Some (2, 80),
 };
 
 let to_options (settings: T.t) => {
@@ -100,7 +100,7 @@ module Settings = {
           on_change=(updater.update set_alg false)
         />
 
-        (se "Canvas Size: ") (se (si state.size_hint))
+        (se "Canvas Size: ") (se (si state.canvas_size))
         <Range
           width=150
           height=20

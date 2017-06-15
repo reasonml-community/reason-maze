@@ -25,5 +25,6 @@ let auto_size (cwidth, cheight) hint_num => {
 };
 
 let offset shape scale (x, y) => (((fi x) +. 0.5) *. scale, ((fi y) +. 0.5) *. scale);
+let tile_center = offset;
 
 let from_point _ _ _ => (0, 0);

@@ -57,8 +57,8 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
 
   let all_edges {State.shape, scale, coords, gen_state} => {
     let to_points (a, b) => (
-      (Board.offset shape scale (Array.get coords a)),
-      (Board.offset shape scale (Array.get coords b))
+      (Board.tile_center shape scale (Array.get coords a)),
+      (Board.tile_center shape scale (Array.get coords b))
     );
 
     Generator.PairSet.fold

@@ -49,5 +49,6 @@ let offset shape scale (x, y) => {
     
   )
 };
+let tile_center = offset;
 
 let from_point _ _ _ => (0, 0);
