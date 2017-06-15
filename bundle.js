@@ -11630,11 +11630,11 @@
 
 	var set_hash = (
 	    function (val) {
-	      window.location.hash = val
+	      window.location.hash = btoa(val)
 	    }
 	  );
 
-	var get_hash = ( function () { return window.location.hash.slice(1); } );
+	var get_hash = ( function () { try {return atob(window.location.hash.slice(1));}catch (e) {return ''} } );
 
 	function throttle(fn, time) {
 	  var last = [/* None */0];
