@@ -30,7 +30,7 @@ let show ctx settings => {
   Show'.loop options ctx state;
 };
 
-let animate ctx settings => {
+let animate ctx settings onStop => {
   Js.log "animate";
   open Types;
   open Settings.T;
@@ -48,13 +48,15 @@ let animate ctx settings => {
 
   let state = Show'.init_state options;
 
-  Show'.animate ctx 10 options state;
+  let r: ref int = Show'.animate ctx settings.batch_size options state onStop;
+  r
 };
 
 module Page = {
   type state = {
     settings: Settings.T.t,
     ctx: option Canvas.ctx,
+    animation: option (ref int),
   };
   let component = ReasonReact.statefulComponent "Page";
 
@@ -70,12 +72,34 @@ module Page = {
   let update = fun update_settings suppress_equal payload state _ => {
       let settings = update_settings payload state.settings;
       if (not suppress_equal || settings != state.settings) {
+        switch (state.animation) {
+        | Some id => Window.clearTimeout !id
+        | _ => ()
+        };
         switch (state.ctx) {
         | Some ctx => show ctx settings
         | None => ()
         };
       };
-      ReasonReact.Update {...state, settings}
+      ReasonReact.Update {...state, settings, animation: None}
+  };
+
+  let clearAnimation _ state _ => ReasonReact.Update {...state, animation: None};
+
+  let toggle_animating _ state self => {
+    switch (state.animation) {
+      | Some id => {
+        Window.clearTimeout !id;
+        ReasonReact.Update {...state, animation: None}
+      }
+      | None => switch (state.ctx) {
+        | Some ctx => {
+          let id = (animate ctx state.settings (self.ReasonReact.update clearAnimation));
+          ReasonReact.Update {...state, animation: Some id}
+        }
+        | None => ReasonReact.NoUpdate
+      }
+    };
   };
 
   let make _children => {
@@ -89,6 +113,7 @@ module Page = {
     },
     initialState: fun () => {
       settings: Settings.initial,
+      animation: None,
       ctx: None,
     },
     render: fun state self => {
@@ -103,12 +128,9 @@ module Page = {
           updater=updater
         />
         <button
-          onClick=(fun _ => switch (state.ctx) {
-          | Some ctx => animate ctx state.settings
-          | None => ()
-          })
+          onClick=(self.update toggle_animating)
         >
-          (se "Animate")
+          (se (state.animation === None ? "Animate" : "Stop"))
         </button>
         </div>
       </div>

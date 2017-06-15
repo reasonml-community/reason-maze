@@ -96,6 +96,7 @@ module T = {
     fill: option (int, int),
     wall: option (int, int),
     edge: option (int, int),
+    batch_size: int,
     size_hint: int,
   }
 };
@@ -105,6 +106,7 @@ let initial = T.{
   algorithm: Types.Alg.Random,
   fill: Some (0, 90),
   size_hint: 10,
+  batch_size: 5,
   wall: Some (5, 30),
   edge: None,
 };
@@ -131,6 +133,32 @@ let to_options canvas_size (settings: T.t) => {
 
 type updater = {
   update: 'a .('a => T.t => T.t) => bool => ReasonReact.Callback.t 'a
+};
+
+module LineSetting = {
+  let component = ReasonReact.statelessComponent "LineSetting";
+  let make ::value ::onChange _ => {
+    ...component,
+    render: fun _ _ => {
+      let (width, color) = switch value {
+        | Some x => x
+        | None => (0, 20)
+      };
+
+      <div>
+          <Range
+            width=150
+            height=20
+            vertical=false
+            min=0
+            max=30
+            value=(width)
+            step=1.0
+            onChange=(fun x => onChange (x === 0 ? None : Some (x, color)))
+          />
+      </div>
+    }
+  }
 };
 
 module Settings = {
@@ -162,23 +190,46 @@ module Settings = {
           current=(state.algorithm)
           on_change=(updater.update set_alg false)
         />
-        (se "Width: ") (se (si state.size_hint))
+
+        (se "Size: ") (se (si state.size_hint))
         <Range
           width=150
           height=20
           vertical=false
           min=3
-          max=30
+          max=50
           value=(state.size_hint)
           step=1.0
           onChange=(updater.update set_size_hint true)
         />
-        (se "Fill color:")
+
+        (se "Fill color: ")
         <ColorSlider
           width=150
           height=100
           value=state.fill
           onChange=(updater.update set_fill true)
+        />
+        (se "Wall Width")
+        <LineSetting
+          value=(state.wall)
+          onChange=(updater.update (fun wall state => {...state, wall}) true)
+        />
+        (se "Edge Width")
+        <LineSetting
+          value=(state.edge)
+          onChange=(updater.update (fun edge state => {...state, edge}) true)
+        />
+        (se "Animation Speed")
+        <Range
+          width=150
+          height=20
+          vertical=false
+          min=1
+          max=20
+          value=(state.batch_size)
+          step=1.0
+          onChange=(updater.update (fun batch_size state => {...state, batch_size}) true)
         />
       </div>
     },
