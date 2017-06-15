@@ -163,20 +163,16 @@ module Settings = {
     ...component,
     render: fun () _ => {
       <div className="settings">
-        <Title>(se "Shape")</Title>
-        <Options
-          get_title=(Board.name)
-          options=(Board.all)
-          current=(state.board)
-          on_change=(updater.update set_board false)
-        />
-
-        <Title>(se "Algorithm")</Title>
-        <Options
-          get_title=(Alg.name)
-          options=(Alg.all)
-          current=(state.algorithm)
-          on_change=(updater.update set_alg false)
+        <Title>(se "Animation Speed")</Title>
+        <Range
+          width=150
+          height=20
+          vertical=false
+          min=1
+          max=20
+          value=(state.batch_size)
+          step=1.0
+          onChange=(updater.update (fun batch_size state => {...state, batch_size}) true)
         />
 
         (se "Canvas Size: ") (se (si state.canvas_size))
@@ -232,16 +228,21 @@ module Settings = {
           value=(state.edge)
           onChange=(updater.update (fun edge state => {...state, edge}) true)
         />
-        <Title>(se "Animation Speed")</Title>
-        <Range
-          width=150
-          height=20
-          vertical=false
-          min=1
-          max=20
-          value=(state.batch_size)
-          step=1.0
-          onChange=(updater.update (fun batch_size state => {...state, batch_size}) true)
+
+        <Title>(se "Shape")</Title>
+        <Options
+          get_title=(Board.name)
+          options=(Board.all)
+          current=(state.board)
+          on_change=(updater.update set_board false)
+        />
+
+        <Title>(se "Algorithm")</Title>
+        <Options
+          get_title=(Alg.name)
+          options=(Alg.all)
+          current=(state.algorithm)
+          on_change=(updater.update set_alg false)
         />
       </div>
     },

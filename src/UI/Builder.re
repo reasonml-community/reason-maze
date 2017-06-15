@@ -146,15 +146,24 @@ module Page = {
       <div className=(Aphrodite.css styles "container")>
         <canvas width="1000px" height="1000px" className="canvas" ref=(self.update updateCtx)/>
         <div>
+        <button
+          onClick=(self.update toggle_animating)
+          style=(ReactDOMRe.Style.make
+          cursor::"pointer"
+          backgroundColor::"#aef"
+          outline::"none"
+          alignSelf::"stretch"
+          padding::"10px 20px"
+          border::"none"
+          boxShadow::"0 0 4px #aaa"
+          ())
+        >
+          (se (state.animation === None ? "Animate" : "Stop"))
+        </button>
         <Settings.Settings
           state=state.settings
           updater=updater
         />
-        <button
-          onClick=(self.update toggle_animating)
-        >
-          (se (state.animation === None ? "Animate" : "Stop"))
-        </button>
         </div>
       </div>
     },
