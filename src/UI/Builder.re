@@ -14,7 +14,7 @@ let show ctx settings => {
   open Types;
   open Settings.T;
 
-  Random.init 0;
+  Random.init settings.seed;
 
   let options = Settings.to_options settings;
 
@@ -34,7 +34,7 @@ let animate ctx settings onStop => {
   open Types;
   open Settings.T;
 
-  Random.init 0;
+  Random.init settings.seed;
 
   let options = Settings.to_options settings;
 
@@ -52,12 +52,18 @@ let animate ctx settings onStop => {
 
 let record settings ctx onDone _ => {
   let capturer = CCapture.init 25 "animation.webm";
+
+  CCapture.start capturer;
+
+  show ctx settings;
+
+  CCapture.capture capturer (Canvas.Ctx.canvas ctx);
   /*let encoder = Whammy.init 25;*/
 
   open Types;
   open Settings.T;
 
-  Random.init 0;
+  Random.init settings.seed;
 
   let options = Settings.to_options settings;
 
@@ -78,7 +84,6 @@ let record settings ctx onDone _ => {
     : step state
   };
 
-  CCapture.start capturer;
   step state;
 };
 
@@ -215,8 +220,9 @@ module Page = {
       downloadUrl: None,
       ctx: None,
     },
+
     render: fun state self => {
-      let updater = Settings.{
+      let updater = SettingsPage.{
         update: fun update_settings suppress_equal => self.update (update update_settings suppress_equal)
       };
       <div className=(Aphrodite.css styles "container")>
@@ -231,19 +237,11 @@ module Page = {
         <div>
         <button
           onClick=(self.update toggle_animating)
-          style=(ReactDOMRe.Style.make
-          cursor::"pointer"
-          backgroundColor::"#aef"
-          outline::"none"
-          alignSelf::"stretch"
-          padding::"10px 20px"
-          border::"none"
-          boxShadow::"0 0 4px #aaa"
-          ())
+          style=(Styles.button)
         >
           (se (state.animation === None ? "Animate" : "Stop"))
         </button>
-        <Settings.Settings
+        <SettingsPage
           state=state.settings
           updater=updater
         />
@@ -253,15 +251,7 @@ module Page = {
           | Some ctx => Some (record state.settings ctx (self.update (fun blobUrl state _ => {
             ReasonReact.Update {...state, downloadUrl: Some blobUrl}
           })))})
-          style=(ReactDOMRe.Style.make
-          cursor::"pointer"
-          backgroundColor::"#aef"
-          outline::"none"
-          alignSelf::"stretch"
-          padding::"10px 20px"
-          border::"none"
-          boxShadow::"0 0 4px #aaa"
-          ())
+          style=(Styles.button)
         >
           (se "Record animation")
         </button>

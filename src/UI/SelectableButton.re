@@ -8,7 +8,7 @@ let styles = Aphrodite.create {
   "button": {
     "background-color": "white",
     "border": "none",
-    "padding": "10px 20px",
+    "padding": "5px 20px",
     "cursor": "pointer",
     "outline": "none",
     ":hover": {
