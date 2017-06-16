@@ -1,5 +1,5 @@
 
-include SimpleBoard.FromTile TriangleTile;
+include SimpleBoard.FromTile EquilateralTriangle;
 
 type shape = int;
 
@@ -33,7 +33,7 @@ let offset shape scale (x, y) => {
 let offcenter = 0.5 -. 0.5 /. (sqrt 3.0);
 let tile_center shape scale (x, y) => {
   let (ax, ay) = offset shape scale (x, y);
-  let dy = if (TriangleTile.is_flipped (x, y)) {
+  let dy = if (EquilateralTriangle.is_flipped (x, y)) {
     -. scale *. offcenter /. 1.5
     /*-.scale *. hsq3 /. 4.0*/
   } else {

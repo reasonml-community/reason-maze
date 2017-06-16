@@ -6,9 +6,10 @@ module Board = {
     | Hexagon
     | Triangle
     | HexTriangle
+    | SquareTriangle
     | Rect;
   
-  let all = [|Circle, HexBox, Hexagon, Triangle, HexTriangle, Rect|];
+  let all = [|Circle, HexBox, Hexagon, Triangle, HexTriangle, Rect, SquareTriangle|];
 
   let tomod board => switch board {
   | Circle => (module Circle: SimpleBoard.T)
@@ -17,6 +18,7 @@ module Board = {
   | Triangle => (module TriangleBoard)
   | HexTriangle => (module NewHexTriangle)
   | Rect => (module NewRect)
+  | SquareTriangle => (module SquareTriangle)
   };
 
   let name board => switch board {
@@ -25,6 +27,7 @@ module Board = {
   | Hexagon => "Hexagon"
   | Triangle => "Triangle"
   | HexTriangle => "HexTriangle"
+  | SquareTriangle => "SquareTriangle"
   | Rect => "Rect"
 };
 
@@ -34,6 +37,7 @@ module Board = {
   | "Hexagon" => Some Hexagon
   | "Triangle" => Some Triangle
   | "HexTriangle" => Some HexTriangle
+  | "SquareTriangle" => Some SquareTriangle
   | "Rect" => Some Rect
   | _ => None
   }
