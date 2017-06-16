@@ -117,7 +117,7 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
 
   let rec batch state n => if (n === 0) { state } else { batch (Man.step state) (n - 1) };
 
-  let animate ctx batch_size options state onStop => {
+  let animate ctx batch_size interval options state onStop => {
     Js.log "animate";
     let id = ref 0;
     let rec inner state => {
@@ -125,7 +125,7 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
       show ctx options state;
       Man.finished state
         ? onStop ()
-        : id := Window.setTimeout (fun () => inner state) 40
+        : id := Window.setTimeout (fun () => inner state) interval
     };
     inner state;
     id

@@ -63,7 +63,7 @@ let module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
     });
     make_button "Go" (fun () => {
       switch (Man.realize_state !pstate) {
-      | Some state => Show'.animate ctx 5 options state |> ignore;
+      | Some state => Show'.animate ctx 5 40 options state |> ignore;
       | None => ()
       }
       /* TODO need to make it work with unconnected sections */

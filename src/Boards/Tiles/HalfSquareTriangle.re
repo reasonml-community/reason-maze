@@ -28,18 +28,6 @@ let adjacents_simple is_flipped => is_flipped
   ? [Right, Down, TopHalf]
   : [Up, Left, BottomHalf];
 
-/* Hmmm could optimize things around a tiling
-type tile =
-  | Top
-  | Bottom;
-
-type direction =
-
-module type Tile = {
-
-}
-*/
-
 let adjacent_coord_simple direction => switch direction {
 | Up => (1, -1)
 | Down => (-1, +1)
@@ -57,8 +45,6 @@ let direction_to_border _ direction => switch direction {
 | BottomHalf
 | TopHalf => Border.Line (topright, bottomleft)
 };
-
-let is_flipped (x, y) => x mod 2 === 1;
 
 let to_shape_simple is_flipped => is_flipped ? flipped_shape : shape;
 

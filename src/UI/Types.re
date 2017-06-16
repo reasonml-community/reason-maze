@@ -7,9 +7,14 @@ module Board = {
     | Triangle
     | HexTriangle
     | SquareTriangle
+    | FourSquare
     | Rect;
-  
-  let all = [|Circle, HexBox, Hexagon, Triangle, HexTriangle, Rect, SquareTriangle|];
+
+  let all = [|
+    Circle, HexBox, Hexagon, Triangle,
+    HexTriangle, Rect, SquareTriangle,
+    FourSquare
+  |];
 
   let tomod board => switch board {
   | Circle => (module Circle: SimpleBoard.T)
@@ -18,6 +23,7 @@ module Board = {
   | Triangle => (module TriangleBoard)
   | HexTriangle => (module NewHexTriangle)
   | Rect => (module NewRect)
+  | FourSquare => (module FourSquare)
   | SquareTriangle => (module SquareTriangle)
   };
 
@@ -28,6 +34,7 @@ module Board = {
   | Triangle => "Triangle"
   | HexTriangle => "HexTriangle"
   | SquareTriangle => "SquareTriangle"
+  | FourSquare => "FourSquare"
   | Rect => "Rect"
 };
 
@@ -38,6 +45,7 @@ module Board = {
   | "Triangle" => Some Triangle
   | "HexTriangle" => Some HexTriangle
   | "SquareTriangle" => Some SquareTriangle
+  | "FourSquare" => Some FourSquare
   | "Rect" => Some Rect
   | _ => None
   }
@@ -61,7 +69,7 @@ module Alg = {
   | DFS => "DFS"
   | BFS => "BFS"
   | Random => "Random"
-};
+  };
 
   let by_name name => switch name {
   | "DFS" => Some DFS
