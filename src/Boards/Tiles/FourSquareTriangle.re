@@ -59,7 +59,7 @@ let direction_to_border _ direction => switch direction {
 
 exception Unreachable;
 
-let tile (x, y) => switch (x mod 2, y mod 2) {
+let tile (x, y) => switch (x mod 2, (y + x / 2) mod 2) {
 | (0, 0) => TL
 | (1, 0) => BR
 | (0, 1) => BL

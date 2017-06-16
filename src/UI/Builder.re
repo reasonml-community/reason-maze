@@ -46,7 +46,7 @@ let animate ctx settings onStop => {
 
   let state = Show'.init_state options;
 
-  let r: ref int = Show'.animate ctx settings.batch_size 200 options state onStop;
+  let r: ref int = Show'.animate ctx settings.batch_size 40 options state onStop;
   r
 };
 
