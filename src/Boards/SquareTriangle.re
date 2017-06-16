@@ -24,7 +24,21 @@ let auto_size (cwidth, cheight) hint_num => {
   ((width * 2, height), size, ((fi width) *. size, (fi height) *. size))
 };
 
+let tau: float = [%bs.raw "Math.PI * 2"];
+let theta = tau /. 8.0 -. (atan 0.5);
+let n = (tan theta) *. (sqrt 2.0) /. 2.0;
+let offcenter = n /. (sqrt 2.0);
+
 let offset shape scale (x, y) => (((fi (x / 2)) +. 0.5) *. scale, ((fi y) +. 0.5) *. scale);
-let tile_center = offset;
+
+let tile_center shape scale (x, y) => {
+  let (cx, cy) = offset shape scale (x, y);
+  let d = offcenter *. scale;
+  if (HalfSquareTriangle.is_flipped (x, y)) {
+    (cx +. d, cy +. d)
+  } else {
+    (cx -. d, cy -. d)
+  }
+};
 
 let from_point _ _ _ => (0, 0);
