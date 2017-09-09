@@ -2,9 +2,7 @@ let si = string_of_int;
 
 let se = ReasonReact.stringToElement;
 
-module T = Settings.T;
-
-type updater = {update: 'a .('a => T.t => T.t) => ReasonReact.Callback.t 'a};
+type updater = {update: 'a .('a => Settings.T.t => Settings.T.t) => ReasonReact.Callback.t 'a};
 
 module Title = {
   let component = ReasonReact.statelessComponent "Title";
@@ -23,7 +21,7 @@ module Title = {
 
 let component = ReasonReact.statelessComponent "Settings";
 
-open T;
+open Settings.T;
 
 open Types;
 
@@ -45,7 +43,7 @@ let newSeed: unit => int = [%bs.raw
 
 let make ::state ::updater _children => {
   ...component,
-  render: fun _ =>
+  render: fun _self =>
     <div className="settings">
       <Title> (se "Animation Speed") </Title>
       <Range
