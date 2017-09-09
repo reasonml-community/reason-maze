@@ -20,7 +20,7 @@ let className is_current =>
 
 let make ::options ::get_title ::current ::on_change _children => {
   ...component,
-  render: fun () _self =>
+  render: fun _self =>
     <div className=Aphrodite.(css styles "container")>
       (
         ReasonReact.arrayToElement (

@@ -73,5 +73,6 @@ module Alg = {
     | "DFS" => Some DFS
     | "BFS" => Some BFS
     | "Random" => Some Random
+    | _ => None
     };
 };

@@ -22,6 +22,6 @@ let className is_current =>
 
 let make ::title ::selected ::onClick _children => {
   ...component,
-  render: fun () _self =>
+  render: fun _self =>
     <button onClick=(fun _ => onClick ()) className=(className selected)> (se title) </button>
 };

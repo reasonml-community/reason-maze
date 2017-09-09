@@ -35,7 +35,7 @@ let rec ring_counts n =>
 
 let counts = Array.of_list (List.rev (ring_counts 1000));
 
-let adjacents size (x, y) =>
+let adjacents _size (_x, y) =>
   if (y == 0) {
     [Down, UpLeft, UpRight]
   } else {
@@ -48,7 +48,7 @@ let adjacents size (x, y) =>
     }
   };
 
-let adjacent_coord size (x, y) direction =>
+let adjacent_coord _size (x, y) direction =>
   switch direction {
   | Left => x > 0 ? (x - 1, y) : (counts.(y) - 1, y)
   | Right => (x + 1 < counts.(y) ? x + 1 : 0, y)
@@ -69,7 +69,7 @@ let polarf x y count => {
   (y *. cos theta, y *. sin theta)
 };
 
-let direction_to_border size (x, y) direction =>
+let direction_to_border _size (x, y) direction =>
   switch direction {
   | Left =>
     let count = counts.(y);
@@ -138,7 +138,7 @@ let tile_center size scale (x, y) => {
 
    };
     */
-let tile_at_coord size (x, y) => {
+let tile_at_coord _size (x, y) => {
   let count = counts.(y) |> fi;
   Shape.Arc ((0.0, 0.0), fi y, fi (y + 1), tau *. fi x /. count, tau *. fi (x + 1) /. count)
 };

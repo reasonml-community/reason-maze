@@ -12,7 +12,7 @@ let coordinates (size: shape) => {
   !v
 };
 
-let auto_size (cwidth, cheight) hint_num => {
+let auto_size (cwidth, _cheight) hint_num => {
   let size = cwidth /. float_of_int hint_num;
   (hint_num, size, (cwidth, cwidth *. sqrt 3.0 /. 2.0))
 };

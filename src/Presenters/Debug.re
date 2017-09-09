@@ -20,7 +20,7 @@ module Draw (Board: Shared.Board) (Generator: Shared.Generator) (DrawConfig: Dra
     Draw.draw_walls ctx bsize csize (all_walls full)
   };
   let dots ctx bsize csize => {
-    let full = Board.adjacency_list bsize;
+    /*let full = Board.adjacency_list bsize;*/
     let vertices = Board.Shape.vertex_count bsize;
     Draw.vertex_dots ctx bsize csize (range 0 vertices) 10.0
   };

@@ -12,7 +12,7 @@ let random_options canvas_size => {
           Some {
             let hue = Random.float 360.0;
             let saturation = 70.0 +. Random.float 30.0;
-            fun current max => Presenter.hslf hue saturation (current *. 100.0)
+            fun current _max => Presenter.hslf hue saturation (current *. 100.0)
           } :
           None,
       draw_walls: Random.bool () ? Some (random_line ()) : None
@@ -22,7 +22,7 @@ let random_options canvas_size => {
 };
 
 let run ctx canvas_size => {
-  let seed = [%bs.raw "parseInt(Math.random() * Number.MAX_SAFE_INTEGER)"];
+  let seed: int = [%bs.raw "parseInt(Math.random() * Number.MAX_SAFE_INTEGER)"];
   /*let seed = [%bs.raw "6572995174978857"];*/
   /*let seed = [%bs.raw "5246800480144799"];*/
   Random.init seed;

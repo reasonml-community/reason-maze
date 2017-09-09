@@ -23,9 +23,9 @@ let render width height canvas => {
   }
 };
 
-type state = {canvas: option Dom.element};
+type state = {canvas: ref (option Dom.element)};
 
-let component = ReasonReact.statefulComponent "ColorSlider";
+let component = ReasonReact.reducerComponent "ColorSlider";
 
 let isPressed evt => ReactEventRe.Mouse.buttons evt == 1;
 
@@ -54,33 +54,30 @@ let (>>=) a b =>
   | None => None
   };
 
-let make ::width ::height ::value ::onChange _ => {
+let setCanvasRef r {ReasonReact.state: state} => state.canvas := Js.Null.to_opt r;
+
+let make ::width ::height ::value ::onChange _children => {
   ...component,
-  initialState: fun () => {canvas: None},
-  didMount: fun state _ => {
-    switch state.canvas {
+  reducer: fun () _state => ReasonReact.NoUpdate,
+  initialState: fun () => {canvas: ref None},
+  didMount: fun {state} => {
+    switch !state.canvas {
     | Some canvas => render width height canvas
     | None => ()
     };
     ReasonReact.NoUpdate
   },
-  render: fun state self =>
+  render: fun ({state} as self) =>
     <div style=(ReactDOMRe.Style.make position::"relative" ())>
       <canvas
         width=(si width)
         height=(si height)
-        onMouseDown=(fun evt => state.canvas >>= toValue width height evt >>= onChange |> ignore)
+        onMouseDown=(fun evt => !state.canvas >>= toValue width height evt >>= onChange |> ignore)
         onMouseMove=(
           fun evt =>
-            isPressed evt ? state.canvas >>= toValue width height evt >>= onChange |> ignore : ()
+            isPressed evt ? !state.canvas >>= toValue width height evt >>= onChange |> ignore : ()
         )
-        ref=(
-          self.update (
-            fun ref state _ =>
-              state.canvas === None ?
-                ReasonReact.Update {...state, canvas: Js.Null.to_opt ref} : ReasonReact.NoUpdate
-          )
-        )
+        ref=(self.handle setCanvasRef)
       />
       (
         switch value {

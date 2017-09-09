@@ -10,7 +10,7 @@ module Title = {
   let component = ReasonReact.statelessComponent "Title";
   let make children => {
     ...component,
-    render: fun () _ =>
+    render: fun _ =>
       <div
         style=(
           ReactDOMRe.Style.make
@@ -45,7 +45,7 @@ let newSeed: unit => int = [%bs.raw
 
 let make ::state ::updater _children => {
   ...component,
-  render: fun () _ =>
+  render: fun _ =>
     <div className="settings">
       <Title> (se "Animation Speed") </Title>
       <Range

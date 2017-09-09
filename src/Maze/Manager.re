@@ -14,18 +14,16 @@ module State = {
 module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   module CoordMap = Map.Make Board.Coord;
   let create_index_map coords =>
-    Array.fold_left (fun (i, map) c => (i + 1, CoordMap.add c i map)) (0, CoordMap.empty) coords
-    |> snd;
+    Array.fold_left (fun (i, map) c => (i + 1, CoordMap.add c i map)) (0, CoordMap.empty) coords |> snd;
   let get_adjacent shape clist cmap i => {
     let coord = clist.(i);
-    Board.adjacents shape coord
-    |> List.map (Board.adjacent_coord shape coord)
-    |> List.fold_left
-         (
-           fun adjacents coord =>
-             CoordMap.mem coord cmap ? [CoordMap.find coord cmap, ...adjacents] : adjacents
-         )
-         []
+    Board.adjacents shape coord |> List.map (Board.adjacent_coord shape coord) |>
+    List.fold_left
+      (
+        fun adjacents coord =>
+          CoordMap.mem coord cmap ? [CoordMap.find coord cmap, ...adjacents] : adjacents
+      )
+      []
   };
   let init (width, height) hint_size => {
     let (shape, scale, outsize) = Board.auto_size (width, height) hint_size;
@@ -61,13 +59,13 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
         }
       )
       coords;
-  let all_walls {State.shape: shape, scale, coords, coord_map, gen_state, get_adjacent} => {
+  let all_walls {State.shape: shape, scale, coords, coord_map, gen_state} => {
     let edges = Gen.edges gen_state;
     Array.fold_left
       (
-        fun (i, walls) coord => {
+        fun (i, walls) _coord => {
           let coord = coords.(i);
-          let make_border = Board.direction_to_border shape coord;
+          /*let make_border = Board.direction_to_border shape coord;*/
           let borders =
             List.filter
               (
@@ -87,19 +85,18 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
                   }
                 }
               )
-              (Board.adjacents shape coord)
-            |> List.map (
-                 fun direction =>
-                   Border.transform
-                     scale
-                     (Board.offset shape scale coord)
-                     (Board.direction_to_border shape coord direction)
-               );
+              (Board.adjacents shape coord) |>
+            List.map (
+              fun direction =>
+                Border.transform
+                  scale
+                  (Board.offset shape scale coord)
+                  (Board.direction_to_border shape coord direction)
+            );
           (i + 1, borders @ walls)
         }
       )
       (0, [])
-      coords
-    |> snd
+      coords |> snd
   };
 };

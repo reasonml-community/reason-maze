@@ -160,10 +160,10 @@ let to_options (settings: T.t) =>
       switch settings.fill {
       | HueSat (hue, saturation) =>
         Some (
-          fun current max =>
+          fun current _max =>
             Presenter.hslf (float_of_int hue) (float_of_int saturation) (100.0 -. current *. 50.0)
         )
-      | Rainbow => Some (fun current max => Presenter.hslf (max *. 360.0) 70.0 50.0)
+      | Rainbow => Some (fun _current max => Presenter.hslf (max *. 360.0) 70.0 50.0)
       | NoFill => None
       },
     draw_walls:

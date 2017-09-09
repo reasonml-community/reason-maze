@@ -6,7 +6,7 @@ let component = ReasonReact.statelessComponent "LineSetting";
 
 let make ::value ::onChange _ => {
   ...component,
-  render: fun _ _ => {
+  render: fun _ => {
     let (width, color) =
       switch value {
       | Some x => x

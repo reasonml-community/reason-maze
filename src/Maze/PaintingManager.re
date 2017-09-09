@@ -21,19 +21,18 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let toggle_all state coord => {
     open State;
     let enabled =
-      Board.adjacents state.shape coord
-      |> List.map (Board.adjacent_coord state.shape coord)
-      |> List.fold_left
-           (
-             fun enabled coord =>
-               CoordMap.mem coord enabled ? CoordMap.add coord true enabled : enabled
-           )
-           state.State.enabled;
+      Board.adjacents state.shape coord |> List.map (Board.adjacent_coord state.shape coord) |>
+      List.fold_left
+        (
+          fun enabled coord =>
+            CoordMap.mem coord enabled ? CoordMap.add coord true enabled : enabled
+        )
+        state.State.enabled;
     {...state, State.enabled: enabled}
   };
   let toggle_point state (x, y) => {
     open State;
-    let {shape, scale, coords, enabled} = state;
+    let {shape, scale, enabled} = state;
     let coord = Board.from_point shape scale (x, y);
     if (CoordMap.mem coord enabled) {
       let state = toggle_all state coord;
@@ -45,8 +44,7 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   };
   let realize_state {State.shape: shape, scale, outsize, coords, enabled} => {
     let coords =
-      List.filter (fun coord => CoordMap.find coord enabled) (Array.to_list coords)
-      |> Array.of_list;
+      List.filter (fun coord => CoordMap.find coord enabled) (Array.to_list coords) |> Array.of_list;
     if (coords == [||]) {
       None
     } else {
@@ -65,14 +63,13 @@ module F (Board: SimpleBoard.T) (Gen: Generator.T) => {
   let paint_shapes {State.coords: coords, scale, shape, enabled} =>
     /*all_shapes (realize_state state)*/
     /*List.map*/
-    List.filter (fun coord => CoordMap.find coord enabled) (Array.to_list coords)
-    |> List.map (
-         fun coord => {
-           let offset = Board.offset shape scale coord;
-           let shape = Board.tile_at_coord shape coord;
-           /*let visited = Array.get (Gen.visited gen_state) i;*/
-           (Shape.transform offset scale shape, CoordMap.find coord enabled ? 8 : 2)
-         }
-       )
-    |> Array.of_list;
+    List.filter (fun coord => CoordMap.find coord enabled) (Array.to_list coords) |>
+    List.map (
+      fun coord => {
+        let offset = Board.offset shape scale coord;
+        let shape = Board.tile_at_coord shape coord;
+        /*let visited = Array.get (Gen.visited gen_state) i;*/
+        (Shape.transform offset scale shape, CoordMap.find coord enabled ? 8 : 2)
+      }
+    ) |> Array.of_list;
 };

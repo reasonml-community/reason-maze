@@ -58,7 +58,7 @@ let offset shape scale (x, y) => {
 
 let tile_center = offset;
 
-let from_point shape scale (x, y) => {
+let from_point _shape scale (x, y) => {
   open Utils.Float;
   let vsize = scale * 2.0 / sqrt 3.0;
   let vertical = vsize * 0.75;

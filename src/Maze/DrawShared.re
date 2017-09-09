@@ -63,14 +63,14 @@ module Draw (Board: Shared.Board) (Config: Config) => {
   let dots ctx bsize csize traveled total_age dot_color size =>
     List.iter
       (
-        fun {Shared.Edge.dest: dest, src, age} =>
+        fun {Shared.Edge.dest: dest, age} =>
           Board.vertex_pos dest bsize csize |> draw_point ctx total_age age dot_color size
       )
       traveled;
   let paths ctx bsize csize traveled =>
     List.iter
       (
-        fun {Shared.Edge.dest: dest, src, age} => {
+        fun {Shared.Edge.dest: dest, src} => {
           let a = Board.vertex_pos src bsize csize;
           let b = Board.vertex_pos dest bsize csize;
           Canvas.Ctx.line ctx a b

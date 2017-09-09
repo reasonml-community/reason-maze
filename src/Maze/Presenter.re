@@ -54,7 +54,7 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
     if (age === 0) {
       Ctx.setFillStyle ctx "white"
     } else {
-      let a = 100.0 -. float_of_int age *. 50.0 /. float_of_int max_age;
+      /*let a = 100.0 -. float_of_int age *. 50.0 /. float_of_int max_age;*/
       /*Ctx.setFillStyle ctx ("hsl(80, 100%, " ^ (string_of_int a) ^ "%)");*/
       Ctx.setFillStyle
         ctx
@@ -94,7 +94,7 @@ module F (Board: SimpleBoard.T) (Generator: Generator.T) => {
       let (cx, cy) = center pts;
       Ctx.fillText ctx txt (cx +. xm) (cy +. ym)
     | Shape.Rect (x, y, w, h) => Ctx.fillText ctx txt (x +. xm +. w /. 2.0) (y +. ym +. h /. 2.0)
-    | Shape.Circle ((x, y), r) => Ctx.fillText ctx txt (x +. xm) (y +. ym)
+    | Shape.Circle ((x, y), _r) => Ctx.fillText ctx txt (x +. xm) (y +. ym)
     | Shape.Arc ((cx, cy), y1, y2, t1, t2) =>
       let r = (y1 +. y2) /. 2.0;
       let ct = (t1 +. t2) /. 2.0;

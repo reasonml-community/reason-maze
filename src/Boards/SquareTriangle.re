@@ -32,7 +32,7 @@ let n = tan theta *. sqrt 2.0 /. 2.0;
 
 let offcenter = n /. sqrt 2.0;
 
-let offset shape scale (x, y) => ((fi (x / 2) +. 0.5) *. scale, (fi y +. 0.5) *. scale);
+let offset _shape scale (x, y) => ((fi (x / 2) +. 0.5) *. scale, (fi y +. 0.5) *. scale);
 
 let tile_center shape scale (x, y) => {
   let (cx, cy) = offset shape scale (x, y);
