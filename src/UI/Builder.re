@@ -36,7 +36,7 @@ let animate ctx settings onStop => {
   r
 };
 
-let record settings ctx onDone _ => {
+let record settings ctx onDone => {
   let capturer = CCapture.init 25 "animation.webm";
   CCapture.start capturer;
   show ctx settings;
@@ -72,36 +72,31 @@ let now_date: unit => string = [%bs.raw
 module Page = {
   type state = {
     settings: Settings.T.t,
-    ctx: option Canvas.ctx,
     animation: option (ref int),
-    downloadUrl: option string
+    downloadUrl: option string,
+    ctx: ref (option Canvas.ctx)
   };
-  let component = ReasonReact.statefulComponent "Page";
-  let updateCtx ref state _ =>
-    state.ctx === None ?
-      ReasonReact.Update {...state, ctx: refToContext ref} : ReasonReact.NoUpdate;
+  type action =
+    | ClearAnimation
+    | ToggleAnimating
+    | ProcessNewSettings Settings.T.t
+    | HashChange string
+    | DidMount (option (ref int))
+    | SaveBlob string
+    /*| UpdateSomething (int => Settings.T.t => Settings.T.t)*/
+    | SetAnimating (option (ref int))
+    | Click
+    | Noop;
+  let component = ReasonReact.reducerComponent "Page";
+  let setCtxRef r {ReasonReact.state: state} => state.ctx := refToContext r;
   let styles =
     Aphrodite.create {"container": {"flex-direction": "row", "align-self": "stretch", "flex": 1}};
-  let process_new_settings settings state suppress_equal =>
+  let process_new_settings settings state =>
     ReasonReact.Update {...state, settings, animation: None};
-  let update update_settings suppress_equal payload state _ => {
+  let update update_settings payload {ReasonReact.state: state} => {
     let settings = update_settings payload state.settings;
-    process_new_settings settings state suppress_equal
+    process_new_settings settings state
   };
-  let clearAnimation _ state _ => ReasonReact.Update {...state, animation: None};
-  let toggle_animating _ state self =>
-    switch state.animation {
-    | Some id =>
-      Window.clearTimeout !id;
-      ReasonReact.Update {...state, animation: None}
-    | None =>
-      switch state.ctx {
-      | Some ctx =>
-        let id = animate ctx state.settings (self.ReasonReact.update clearAnimation);
-        ReasonReact.Update {...state, animation: Some id}
-      | None => ReasonReact.NoUpdate
-      }
-    };
   let listen_for_hash: (string => unit) => unit = [%bs.raw
     {|
     function (fn) {
@@ -127,7 +122,6 @@ module Page = {
   let get_hash: unit => string = [%bs.raw
     {| function () { try {return atob(window.location.hash.slice(1));}catch (e) {return ''} } |}
   ];
-  external now : unit => int = "Date.now" [@@bs.val];
   let throttle fn time => {
     let last = ref None;
     fun v => {
@@ -150,43 +144,6 @@ module Page = {
       500;
   let make _children => {
     ...component,
-    didUpdate: fun ::previousState ::currentState _ => {
-      update_hash currentState.settings;
-      if (currentState.settings != previousState.settings) {
-        switch previousState.animation {
-        | Some id => Window.clearTimeout !id
-        | _ => ()
-        };
-        switch currentState.ctx {
-        | Some ctx => show ctx currentState.settings
-        | None => ()
-        }
-      }
-    },
-    didMount: fun state self => {
-      listen_for_hash (
-        self.update (
-          fun str state _ =>
-            switch (Settings.from_json str) {
-            | None => ReasonReact.NoUpdate
-            | Some settings =>
-              if (state.settings == settings) {
-                ReasonReact.NoUpdate
-              } else {
-                process_new_settings settings state false
-              }
-            }
-        )
-      );
-      switch state.ctx {
-      | Some ctx =>
-        ReasonReact.Update {
-          ...state,
-          animation: Some (animate ctx state.settings (self.update clearAnimation))
-        }
-      | None => ReasonReact.NoUpdate
-      }
-    },
     initialState: fun () => {
       settings:
         switch (Settings.from_json (get_hash ())) {
@@ -195,47 +152,109 @@ module Page = {
         },
       animation: None,
       downloadUrl: None,
-      ctx: None
+      ctx: ref None
     },
-    render: fun state self => {
-      let updater =
-        SettingsPage.{
-          update: fun update_settings suppress_equal =>
-            self.update (update update_settings suppress_equal)
+    reducer: fun action state =>
+      switch action {
+      | ClearAnimation => ReasonReact.Update {...state, animation: None}
+      | Noop => ReasonReact.NoUpdate
+      | ToggleAnimating =>
+        switch state.animation {
+        | Some id =>
+          ReasonReact.UpdateWithSideEffects {...state, animation: None} (fun _self => Window.clearTimeout !id)
+        | None =>
+          switch !state.ctx {
+          | Some ctx =>
+            ReasonReact.SideEffects (
+              fun self => {
+                let id = animate ctx state.settings (self.reduce (fun _ => ClearAnimation));
+                self.reduce (fun () => SetAnimating (Some id)) ()
+              }
+            )
+          | None => ReasonReact.NoUpdate
+          }
+        }
+      | SetAnimating id => ReasonReact.Update {...state, animation: id}
+      | ProcessNewSettings settings => ReasonReact.Update {...state, settings, animation: None}
+      | DidMount animation => ReasonReact.Update {...state, animation}
+      | Click =>
+        switch !state.ctx {
+        | None => ReasonReact.NoUpdate
+        | Some ctx =>
+          ReasonReact.SideEffects (
+            fun self => record state.settings ctx (self.reduce (fun blobUrl => SaveBlob blobUrl))
+          )
+        }
+      | SaveBlob blobUrl =>
+        ReasonReact.Update {
+          ...state,
+          downloadUrl: Some blobUrl
+        } /*      | UpdateSomething update_settings =>
+        let settings = update_settings payload state.settings;
+        ReasonReact.Update {...state, settings, animation: None}
+*/
+      | HashChange str =>
+        switch (Settings.from_json str) {
+        | None => ReasonReact.NoUpdate
+        | Some settings =>
+          if (state.settings == settings) {
+            ReasonReact.NoUpdate
+          } else {
+            ReasonReact.Update {...state, settings, animation: None}
+          }
+        }
+      },
+    didUpdate: fun {oldSelf, newSelf} => {
+      update_hash newSelf.state.settings;
+      if (newSelf.state.settings != oldSelf.state.settings) {
+        switch oldSelf.state.animation {
+        | Some id => Window.clearTimeout !id
+        | _ => ()
         };
+        switch !newSelf.state.ctx {
+        | Some ctx => show ctx newSelf.state.settings
+        | None => ()
+        }
+      }
+    },
+    didMount: fun ({state} as self) => {
+      listen_for_hash (self.reduce (fun str => HashChange str));
+      switch !state.ctx {
+      | Some ctx =>
+        self.reduce
+          (
+            fun () =>
+              DidMount (Some (animate ctx state.settings (self.reduce (fun _ => ClearAnimation))))
+          )
+          ()
+      | None => ()
+      };
+      ReasonReact.NoUpdate
+    },
+    render: fun ({state} as self) => {
+      let updater =
+        SettingsPage.{update: fun update_settings => self.update (update update_settings)};
       <div className=(Aphrodite.css styles "container")>
         <div style=(ReactDOMRe.Style.make flex::"1" ())>
           <canvas
             width=(string_of_int state.settings.Settings.T.canvas_size ^ "px")
             height=(string_of_int state.settings.Settings.T.canvas_size ^ "px")
             className="canvas"
-            ref=(self.update updateCtx)
+            ref=(self.handle setCtxRef)
           />
         </div>
         <div>
-          <button onClick=(self.update toggle_animating) style=Styles.button>
+          <button onClick=(self.reduce (fun _ => ToggleAnimating)) style=Styles.button>
             (se (state.animation === None ? "Animate" : "Stop"))
           </button>
           <SettingsPage state=state.settings updater />
-          <button
-            onClick=?(
-                       switch state.ctx {
-                       | None => None
-                       | Some ctx =>
-                         Some (
-                           record
-                             state.settings
-                             ctx
-                             (
-                               self.update (
-                                 fun blobUrl state _ =>
-                                   ReasonReact.Update {...state, downloadUrl: Some blobUrl}
-                               )
-                             )
-                         )
-                       }
-                     )
-            style=Styles.button>
+          /*          <SettingsPage
+                                  state=state.settings
+                                  updater=(self.reduce (fun settings => UpdateSomething settings))
+                                />
+
+                      */
+          <button onClick=(self.reduce (fun _ => Click)) style=Styles.button>
             (se "Record animation")
           </button>
           (
