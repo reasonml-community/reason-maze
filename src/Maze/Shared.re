@@ -1,15 +1,24 @@
-
 module Edge = {
-  type edge = {src: int, dest: int, age: int};
+  type edge = {
+    src: int,
+    dest: int,
+    age: int
+  };
 };
 
 type adjacency_list = array (list int);
 
-let optmap fn lst => List.fold_left
-  (fun res v => switch (fn v) {
-    | None => res
-    | Some x => [x, ...res]
-  }) [] lst;
+let optmap fn lst =>
+  List.fold_left
+    (
+      fun res v =>
+        switch (fn v) {
+        | None => res
+        | Some x => [x, ...res]
+        }
+    )
+    []
+    lst;
 
 module type Generator = {
   module State: {
@@ -31,15 +40,13 @@ type canvas_size = (float, float);
 type drawable_wall =
   | Line ((float, float), (float, float));
 
-let transform_wall wall scale (dx, dy) => {
-  open Utils.Float;
-  switch (wall) {
-    | Line ((x, y), (a, b)) => {
-      Line ((x * scale + dx, y * scale + dy),
-            (a * scale + dx, b * scale + dy))
+let transform_wall wall scale (dx, dy) =>
+  Utils.Float.(
+    switch wall {
+    | Line ((x, y), (a, b)) =>
+      Line ((x * scale + dx, y * scale + dy), (a * scale + dx, b * scale + dy))
     }
-  }
-};
+  );
 
 module type Tile = {
   type direction;
@@ -49,9 +56,7 @@ module type Tile = {
   let adjacent: (int, int) => list (int, int);
 };
 
-module type Draw = {
-  let draw: Canvas.ctx => 'a => (float, float) => unit;
-};
+module type Draw = {let draw: Canvas.ctx => 'a => (float, float) => unit;};
 
 module type BoardShape = {
   type shape;
@@ -67,7 +72,6 @@ module type BoardShape = {
 
 module type Board = {
   module Shape: BoardShape;
-
   let adjacency_list: Shape.shape => adjacency_list;
   let vertex_pos: int => Shape.shape => canvas_size => (float, float);
   let drawable_wall: (int, int) => Shape.shape => canvas_size => option drawable_wall;
@@ -76,64 +80,56 @@ module type Board = {
 
 module Board (Shape: BoardShape) => {
   module Shape = Shape;
-
-  let border_walls shape size => {
+  let border_walls shape size =>
     List.map
-    (fun ((x, y), direction) => {
-      let wall = Shape.Tile.wall_in_direction direction;
-      let scale = Shape.scale shape size;
-      let offset = Shape.coord_to_board shape size (x, y) ;
-      (transform_wall wall scale offset);
-    })
-    (Shape.border_walls shape)
-  };
-
+      (
+        fun ((x, y), direction) => {
+          let wall = Shape.Tile.wall_in_direction direction;
+          let scale = Shape.scale shape size;
+          let offset = Shape.coord_to_board shape size (x, y);
+          transform_wall wall scale offset
+        }
+      )
+      (Shape.border_walls shape);
   let adjacency_list shape => {
     let res = Array.make (Shape.vertex_count shape) [];
-    Shape.all_coordinates shape |> Array.iteri
-    (fun i (x, y) => {
-      Array.set res i (
-        (Shape.Tile.adjacent (x, y))
-        |> optmap
-        (fun (a, b) => (Shape.to_vertex shape (x + a, y + b)))
-      )
-    });
-    res;
+    Shape.all_coordinates shape
+    |> Array.iteri (
+         fun i (x, y) =>
+           res.(i) =
+             Shape.Tile.adjacent (x, y)
+             |> optmap (fun (a, b) => Shape.to_vertex shape (x + a, y + b))
+       );
+    res
   };
-
-  let (|?<) a b => switch b {
-  | Some x => Some (a x)
-  | None => None
-  };
-
+  let (|?<) a b =>
+    switch b {
+    | Some x => Some (a x)
+    | None => None
+    };
   let vertex_pos v shape size => Shape.coord_to_board shape size (Shape.from_vertex shape v);
-
   let drawable_wall (src, dest) shape size => {
     let (x, y) = Shape.from_vertex shape src;
     let (a, b) = Shape.from_vertex shape dest;
-    switch (Shape.Tile.to_direction ((a - x), (b - y))) {
-      | None => {
-        /*Js.log ("Bad direction", a-x, b-y, x, y, a, b);*/
-        None
-        }
-      | Some direction => {
-        let wall = Shape.Tile.wall_in_direction direction;
-        let scale = Shape.scale shape size;
-        let offset = Shape.coord_to_board shape size (x, y) ;
-        Some (transform_wall wall scale offset);
-      }
+    switch (Shape.Tile.to_direction (a - x, b - y)) {
+    | None =>
+      /*Js.log ("Bad direction", a-x, b-y, x, y, a, b);*/
+      None
+    | Some direction =>
+      let wall = Shape.Tile.wall_in_direction direction;
+      let scale = Shape.scale shape size;
+      let offset = Shape.coord_to_board shape size (x, y);
+      Some (transform_wall wall scale offset)
     }
   };
 };
-
 /*
-module type Board = {
-  type shape;
-  let vertex_count: shape => int;
-  let adjacency_list: shape => adjacency_list;
-  let vertex_pos: int => shape => canvas_size => (float, float);
-  let drawable_wall: (int, int) => shape => canvas_size => drawable_wall;
-  let border_walls: shape => canvas_size => list drawable_wall;
-};
-*/
-
+ module type Board = {
+   type shape;
+   let vertex_count: shape => int;
+   let adjacency_list: shape => adjacency_list;
+   let vertex_pos: int => shape => canvas_size => (float, float);
+   let drawable_wall: (int, int) => shape => canvas_size => drawable_wall;
+   let border_walls: shape => canvas_size => list drawable_wall;
+ };
+ */

@@ -1,16 +1,16 @@
+external refToCanvas : Dom.element => Canvas.canvasElement = "%identity";
 
-external refToCanvas: Dom.element => Canvas.canvasElement = "%identity";
-
-let refToContext canv => {
-  (Canvas.getContext (refToCanvas canv))
-};
+let refToContext canv => Canvas.getContext (refToCanvas canv);
 
 let si = string_of_int;
-let fi = float_of_int;
-let iof = int_of_float;
-let px m => (si m) ^ "px";
 
-let scale n max range => iof ((fi n) /. (fi max) *. (fi range));
+let fi = float_of_int;
+
+let iof = int_of_float;
+
+let px m => si m ^ "px";
+
+let scale n max range => iof (fi n /. fi max *. fi range);
 
 let render width height canvas => {
   let ctx = refToContext canvas;
@@ -18,80 +18,90 @@ let render width height canvas => {
     for y in 0 to height {
       let color = Presenter.hsl (scale x width 360) (scale y height 100) 50;
       Canvas.Ctx.setFillStyle ctx color;
-      Canvas.Ctx.fillRect ctx (fi x) (fi y) 1.0 1.0;
+      Canvas.Ctx.fillRect ctx (fi x) (fi y) 1.0 1.0
     }
   }
 };
 
-type state = {
-  canvas: option Dom.element,
-};
+type state = {canvas: option Dom.element};
+
 let component = ReasonReact.statefulComponent "ColorSlider";
 
-let isPressed evt => (ReactEventRe.Mouse.buttons evt) == 1;
-let getValue evt => (int_of_string (ReactDOMRe.domElementToObj(ReactEventRe.Form.target evt))##value);
+let isPressed evt => ReactEventRe.Mouse.buttons evt == 1;
+
+let getValue evt =>
+  int_of_string (ReactDOMRe.domElementToObj (ReactEventRe.Form.target evt))##value;
+
 let elementPos element => {
-  let element = (ReactDOMRe.domElementToObj element);
-  let box = element##getBoundingClientRect();
+  let element = ReactDOMRe.domElementToObj element;
+  let box = element##getBoundingClientRect ();
   let top: int = box##top;
   let left: int = box##left;
   (top, left)
 };
+
 let toValue width height evt canvas => {
   ReactEventRe.Mouse.preventDefault evt;
   let (top, left) = elementPos canvas;
-  let x = (ReactEventRe.Mouse.clientX evt) - left;
-  let y = (ReactEventRe.Mouse.clientY evt) - top;
+  let x = ReactEventRe.Mouse.clientX evt - left;
+  let y = ReactEventRe.Mouse.clientY evt - top;
   (scale x width 360, scale y height 100)
 };
 
-let (>>=) a b => switch a {
-| Some a => Some (b a)
-| None => None
-};
+let (>>=) a b =>
+  switch a {
+  | Some a => Some (b a)
+  | None => None
+  };
 
 let make ::width ::height ::value ::onChange _ => {
   ...component,
   initialState: fun () => {canvas: None},
   didMount: fun state _ => {
-    switch (state.canvas) {
+    switch state.canvas {
     | Some canvas => render width height canvas
     | None => ()
     };
     ReasonReact.NoUpdate
   },
-  render: fun state self => {
+  render: fun state self =>
     <div style=(ReactDOMRe.Style.make position::"relative" ())>
       <canvas
         width=(si width)
         height=(si height)
-        onMouseDown=(fun evt => (state.canvas >>= toValue width height evt) >>= onChange |> ignore)
-        onMouseMove=(fun evt => isPressed evt ? (state.canvas >>= (toValue width height evt) >>= onChange |> ignore) : ())
-        ref=(self.update (fun ref state _ => state.canvas === None ? ReasonReact.Update {
-          ...state,
-          canvas: Js.Null.to_opt ref,
-        } : ReasonReact.NoUpdate))
+        onMouseDown=(fun evt => state.canvas >>= toValue width height evt >>= onChange |> ignore)
+        onMouseMove=(
+          fun evt =>
+            isPressed evt ? state.canvas >>= toValue width height evt >>= onChange |> ignore : ()
+        )
+        ref=(
+          self.update (
+            fun ref state _ =>
+              state.canvas === None ?
+                ReasonReact.Update {...state, canvas: Js.Null.to_opt ref} : ReasonReact.NoUpdate
+          )
+        )
       />
-      (switch value {
-      | None => ReasonReact.nullElement
-      | Some (hue, saturation) => {
-        let style = (ReactDOMRe.Style.make
-          position::"absolute"
-          width::"10px"
-          height::"10px"
-          border::"2px solid black"
-          borderRadius::"5px"
-          marginLeft::"-5px"
-          marginTop::"-5px"
-          top::(px (scale saturation 100 height))
-          left::(px (scale hue 360 width))
-          backgroundColor::(Presenter.hsl hue saturation 50)
-          ());
-        let style = ReactDOMRe.Style.unsafeAddProp style "pointerEvents" "none";
-        <div style />
-      }
-      })
+      (
+        switch value {
+        | None => ReasonReact.nullElement
+        | Some (hue, saturation) =>
+          let style =
+            ReactDOMRe.Style.make
+              position::"absolute"
+              width::"10px"
+              height::"10px"
+              border::"2px solid black"
+              borderRadius::"5px"
+              marginLeft::"-5px"
+              marginTop::"-5px"
+              top::(px (scale saturation 100 height))
+              left::(px (scale hue 360 width))
+              backgroundColor::(Presenter.hsl hue saturation 50)
+              ();
+          let style = ReactDOMRe.Style.unsafeAddProp style "pointerEvents" "none";
+          <div style />
+        }
+      )
     </div>
-  }
 };
-

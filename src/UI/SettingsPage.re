@@ -1,96 +1,95 @@
-
 let si = string_of_int;
+
 let se = ReasonReact.stringToElement;
+
 module T = Settings.T;
 
-type updater = {
-  update: 'a .('a => T.t => T.t) => bool => ReasonReact.Callback.t 'a
-};
+type updater = {update: 'a .('a => T.t => T.t) => bool => ReasonReact.Callback.t 'a};
 
 module Title = {
   let component = ReasonReact.statelessComponent "Title";
   let make children => {
     ...component,
-    render: fun () _ => <div style=(ReactDOMRe.Style.make
-      fontWeight::"bold"
-      alignSelf::"flex-start"
-      padding::"15px 0px 5px"
-      ()
-    )>
-      (ReasonReact.arrayToElement children)
-    </div>
-  }
+    render: fun () _ =>
+      <div
+        style=(
+          ReactDOMRe.Style.make
+            fontWeight::"bold" alignSelf::"flex-start" padding::"15px 0px 5px" ()
+        )>
+        (ReasonReact.arrayToElement children)
+      </div>
+  };
 };
 
 let component = ReasonReact.statelessComponent "Settings";
 
 open T;
+
 open Types;
+
 let set_board board state => {...state, board};
+
 let set_alg algorithm state => {...state, algorithm};
+
 let set_size_hint size_hint state => {...state, size_hint};
+
 let set_fill fill state => {...state, fill: HueSat fill};
 
-let newSeed: unit => int = [%bs.raw {|
+let newSeed: unit => int = [%bs.raw
+  {|
   function () {
     return Math.floor(Math.random() * (1 << 30))
   }
-|}];
+|}
+];
 
 let make ::state ::updater _children => {
   ...component,
-  render: fun () _ => {
+  render: fun () _ =>
     <div className="settings">
-      <Title>(se "Animation Speed")</Title>
+      <Title> (se "Animation Speed") </Title>
       <Range
         width=150
         height=20
         vertical=false
         min=1
         max=20
-        value=(state.batch_size)
+        value=state.batch_size
         step=1.0
         onChange=(updater.update (fun batch_size state => {...state, batch_size}) true)
       />
-
-      (se "Canvas Size: ") (se (si state.canvas_size))
+      (se "Canvas Size: ")
+      (se (si state.canvas_size))
       <Range
         width=150
         height=20
         vertical=false
         min=300
         max=1000
-        value=(state.canvas_size)
+        value=state.canvas_size
         step=10.0
         onChange=(updater.update (fun canvas_size state => {...state, canvas_size}) true)
       />
-
-      (se "Size: ") (se (si state.size_hint))
+      (se "Size: ")
+      (se (si state.size_hint))
       <Range
         width=150
         height=20
         vertical=false
         min=3
         max=50
-        value=(state.size_hint)
+        value=state.size_hint
         step=1.0
         onChange=(updater.update set_size_hint true)
       />
-
-      <Title>(se "Seed")</Title>
-      <input
-        value=(si state.seed)  
-      />
+      <Title> (se "Seed") </Title>
+      <input value=(si state.seed) />
       <button
-        onClick=(updater.update (fun _ state => {
-          {...state, seed: newSeed ()}
-        }) true)
-        style=(Styles.button)
-      >
+        onClick=(updater.update (fun _ state => {...state, seed: newSeed ()}) true)
+        style=Styles.button>
         (se "New Seed")
       </button>
-
-      <Title>(se "Fill color")</Title>
+      <Title> (se "Fill color") </Title>
       <div style=(ReactDOMRe.Style.make flexDirection::"row" ())>
         <SelectableButton
           title="No fill"
@@ -106,37 +105,37 @@ let make ::state ::updater _children => {
       <ColorSlider
         width=150
         height=100
-        value=(switch (state.fill) { |HueSat fill => Some fill | _ => None})
+        value=(
+          switch state.fill {
+          | HueSat fill => Some fill
+          | _ => None
+          }
+        )
         onChange=(updater.update set_fill true)
       />
-
-      <Title>(se "Wall")</Title>
+      <Title> (se "Wall") </Title>
       <LineSetting
-        value=(state.wall)
+        value=state.wall
         onChange=(updater.update (fun wall state => {...state, wall}) true)
       />
-      <Title>(se "Path")</Title>
+      <Title> (se "Path") </Title>
       <LineSetting
-        value=(state.edge)
+        value=state.edge
         onChange=(updater.update (fun edge state => {...state, edge}) true)
       />
-
-      <Title>(se "Shape")</Title>
+      <Title> (se "Shape") </Title>
       <Options
-        get_title=(Board.name)
-        options=(Board.all)
-        current=(state.board)
+        get_title=Board.name
+        options=Board.all
+        current=state.board
         on_change=(updater.update set_board false)
       />
-
-      <Title>(se "Algorithm")</Title>
+      <Title> (se "Algorithm") </Title>
       <Options
-        get_title=(Alg.name)
-        options=(Alg.all)
-        current=(state.algorithm)
+        get_title=Alg.name
+        options=Alg.all
+        current=state.algorithm
         on_change=(updater.update set_alg false)
       />
-
     </div>
-  },
 };

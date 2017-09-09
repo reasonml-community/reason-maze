@@ -4,24 +4,28 @@ type ctx = canvasRenderingContext2D;
 
 type canvasElement;
 
-let getById: string => canvasElement = [%bs.raw {|function(arg) {
+let getById: string => canvasElement = [%bs.raw
+  {|function(arg) {
   return document.getElementById(arg)
- }|}];
+ }|}
+];
 
-let createOnBody: int => int => canvasElement = [%bs.raw {|function(width, height) {
+let createOnBody: int => int => canvasElement = [%bs.raw
+  {|function(width, height) {
   var node = document.createElement('canvas')
   node.width = width
   node.height = height
   document.body.appendChild(node)
   return node
-}|}];
+}|}
+];
 
 external getContext : canvasElement => _ [@bs.as "2d"] => canvasRenderingContext2D =
   "getContext" [@@bs.send];
 
 /* canvas api methods */
 module Ctx = {
-  external canvas: ctx => canvasElement = ""[@@bs.get];
+  external canvas : ctx => canvasElement = "" [@@bs.get];
   external setFillStyle : ctx => string => unit = "fillStyle" [@@bs.set];
   external setStrokeStyle : ctx => string => unit = "strokeStyle" [@@bs.set];
   external setStrokeWidth : ctx => float => unit = "lineWidth" [@@bs.set];
@@ -37,7 +41,9 @@ module Ctx = {
   let circle ctx x y r => ellipse ctx x y r r 0.0 0.0 (2.0 *. [%bs.raw "Math.PI"]);
   external moveTo : ctx => float => float => unit = "" [@@bs.send];
   external arc : ctx => float => float => float => float => float => unit = "" [@@bs.send];
-  external arc_rev : ctx => float => float => float => float => float => _ [@bs.as {json|true|json}] => unit = "arc" [@@bs.send];
+  external arc_rev :
+    ctx => float => float => float => float => float => _ [@bs.as {json|true|json}] => unit =
+    "arc" [@@bs.send];
   let moveToPos ctx (x, y) => moveTo ctx x y;
   external lineTo : ctx => float => float => unit = "" [@@bs.send];
   let lineToPos ctx (x, y) => lineTo ctx x y;
@@ -48,22 +54,21 @@ module Ctx = {
     beginPath ctx;
     moveTo ctx x y;
     lineTo ctx a b;
-    stroke ctx;
+    stroke ctx
   };
 };
-
 /*
-let createCanvas doc (width: int) (height: int) => {
-  let elem = createCanvasElement doc;
-  let jscanv = canvasElementToJsObj elem;
-  jscanv##width#=width;
-  jscanv##height#=height;
-  elem
-};
+ let createCanvas doc (width: int) (height: int) => {
+   let elem = createCanvasElement doc;
+   let jscanv = canvasElementToJsObj elem;
+   jscanv##width#=width;
+   jscanv##height#=height;
+   elem
+ };
 
-let createCtx (doc: document) => {
-  let canv = createCanvas doc 1000 500;
-  addCanvasToBody doc canv;
-  getContext canv
-};
-*/
+ let createCtx (doc: document) => {
+   let canv = createCanvas doc 1000 500;
+   addCanvasToBody doc canv;
+   getContext canv
+ };
+ */

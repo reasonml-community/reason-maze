@@ -3,7 +3,7 @@ type state = {
   edges: Generator.PairSet.t,
   frontier: list int,
   next: list int,
-  step: int,
+  step: int
 };
 
 let init size => {
@@ -11,52 +11,51 @@ let init size => {
   edges: Generator.PairSet.empty,
   frontier: [Random.int size],
   next: [],
-  step: 0,
+  step: 0
 };
 
 let edges state => state.edges;
+
 let visited state => state.visited;
+
 let max_age state => state.step;
 
 let sortpair a b => a > b ? (b, a) : (a, b);
 
-let add_edges adjacents state src => {
+let add_edges adjacents state src =>
   List.fold_left
-  (fun (next, edges, step) dest => {
-    if (Array.get state.visited dest > 0) {
-      (next, edges, step)
-    } else {
-      Array.set state.visited dest (step + 1);
-      ([dest, ...next], Generator.PairSet.add (sortpair src dest) edges, step + 1)
-    }
-  })
-  (state.next, state.edges, state.step)
-  adjacents
-};
+    (
+      fun (next, edges, step) dest =>
+        if (state.visited.(dest) > 0) {
+          (next, edges, step)
+        } else {
+          state.visited.(dest) = step + 1;
+          ([dest, ...next], Generator.PairSet.add (sortpair src dest) edges, step + 1)
+        }
+    )
+    (state.next, state.edges, state.step)
+    adjacents;
 
-let step get_adjacent state => {
-  switch (state.frontier) {
+let step get_adjacent state =>
+  switch state.frontier {
   | [] => state
-  | [src] => {
+  | [src] =>
     let (frontier, edges, step) = add_edges (get_adjacent src) state src;
     /* TODO add option to shuffle or not */
     {...state, frontier: Utils.shuffle frontier, next: [], edges, step}
-  }
-  | [src, ...rest] => {
+  | [src, ...rest] =>
     let (next, edges, step) = add_edges (get_adjacent src) state src;
     {...state, frontier: rest, next, edges, step}
-  }
-  }
-};
+  };
 
 let finished state => state.frontier === [];
 
 /* hmm these can be shared */
-let rec loop_to_end get_adjacent state => {
+let rec loop_to_end get_adjacent state =>
   if (not (finished state)) {
     loop_to_end get_adjacent (step get_adjacent state)
   } else {
     state
-  }
-};
-let run size get_adjacent => loop_to_end get_adjacent (init size)
+  };
+
+let run size get_adjacent => loop_to_end get_adjacent (init size);

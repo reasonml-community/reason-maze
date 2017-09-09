@@ -59,8 +59,10 @@ module F (Config: Config) => {
         step get_adjacent (get_new state)
       } else {
         let others =
-          get_adjacent dest |> Utils.shuffle |> List.filter (fun x => x !== src) |>
-          List.map (fun x => (dest, x));
+          get_adjacent dest
+          |> Utils.shuffle
+          |> List.filter (fun x => x !== src)
+          |> List.map (fun x => (dest, x));
         let step_count = step_count + 1;
         state.visited.(dest) = step_count;
         let edges = add_edge edges src dest;
@@ -104,8 +106,9 @@ module F (Config: Config) => {
         } else {
           state.visited.(dest) = state.step + 1;
           let others =
-            get_adjacent dest |> List.filter (fun x => state.visited.(x) === 0) |>
-            List.map (fun x => (dest, x));
+            get_adjacent dest
+            |> List.filter (fun x => state.visited.(x) === 0)
+            |> List.map (fun x => (dest, x));
           {
             ...state,
             step: state.step + 1,

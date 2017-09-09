@@ -3,7 +3,6 @@ let si = string_of_int;
 let component = ReasonReact.statelessComponent "Range";
 
 /*let styles = Aphrodite.create {"container": {}};*/
-
 let px m => si m ^ "px";
 
 let mkstyle width height vertical => {
