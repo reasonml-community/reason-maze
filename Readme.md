@@ -2,13 +2,17 @@
 
 ## Getting started
 
+The repo's dependency on `canvas` requires Cairo & Pango installed. [Instructions here](https://github.com/Automattic/node-canvas#installation).
+
+(If somehow node/npm stops working afterward, make sure you do `brew update && brew upgrade`)
+
 Clone the repository.
 
 ```bash
 npm install
 npm start
 # open a new terminal, and run
-npm run build
+npm run webpack
 ```
 
 Then open the `public/index.html` file in your favorite browser.

@@ -6,18 +6,18 @@
     "gifencoder": "^1.0.6",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
-    "reason-react": "git+https://github.com/reasonml/reason-react.git",
+    "reason-react": "^0.2.4",
     "twit": "^2.2.5"
   },
   "devDependencies": {
-    "bs-platform": "^1.7.4",
+    "bs-platform": "^1.9.1",
     "webpack": "^1.14.0"
   },
   "scripts": {
+    "build": "bsb -make-world",
     "start": "bsb -make-world -w",
-    "make": "bsb -clean && bsb -make-world",
+    "clean": "bsb -clean-world",
     "pages": "rsync -r public/ pages",
-    "build": "webpack -w",
-    "clean": "bsb -clean-world"
+    "webpack": "webpack -w"
   }
 }

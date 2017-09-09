@@ -1,24 +1,18 @@
+module type Config = {let maxHits: int; let joinOnHit: float;};
 
-module type Config = {
-  let maxHits: int;
-  let joinOnHit: float;
-};
-
-let module RandomConfig () => {
+module RandomConfig () => {
   let maxHits = 1 + Random.int 20;
   let joinOnHit = Random.float 1.0;
 };
 
-let module F (Config: Config) => {
-
+module F (Config: Config) => {
   type state = {
     visited: array int,
     edges: Generator.PairSet.t,
     frontier: array (int, int),
     step: int,
-    active: option ((int, int), int),
+    active: option ((int, int), int)
   };
-
   let init size => {
     let start = Random.int size;
     {
@@ -29,120 +23,105 @@ let module F (Config: Config) => {
       active: Some ((start, start), 0)
     }
   };
-
   let edges state => state.edges;
   let visited state => state.visited;
   let max_age state => state.step;
-
   let finished state => state.active == None;
-
   let sortpair a b => a > b ? (b, a) : (a, b);
-
-  let add_edge edges src dest => 
-    Generator.PairSet.add (sortpair src dest) edges;
-
-  let shouldHit prob => {
+  let add_edge edges src dest => Generator.PairSet.add (sortpair src dest) edges;
+  let shouldHit prob =>
     switch prob {
     | 0.0 => false
     | 1.0 => true
     | _ => Random.float 1.0 < prob
-    }
-  };
-
+    };
   let get_new state => {
     let frontier = state.frontier;
     if (Array.length frontier === 0) {
       {...state, active: None}
     } else {
-      switch (Js.Array.spliceInPlace pos::(Random.int (Array.length frontier)) remove::1 add::[||] frontier) {
-        | [|item|] => {...state, frontier, active: Some (item, 0)}
-        | _ => {...state, frontier}
+      switch (
+        Js.Array.spliceInPlace
+          pos::(Random.int (Array.length frontier)) remove::1 add::[||] frontier
+      ) {
+      | [|item|] => {...state, frontier, active: Some (item, 0)}
+      | _ => {...state, frontier}
       }
     }
   };
-
   let rec step get_adjacent state => {
     let step_count = state.step;
     let {edges} = state;
-    switch (state.active) {
+    switch state.active {
     | None => state
-    | Some ((src, dest), hits) => {
-      if (Array.get state.visited dest > 0) {
+    | Some ((src, dest), hits) =>
+      if (state.visited.(dest) > 0) {
         step get_adjacent (get_new state)
       } else {
-        let others = get_adjacent dest
-          |> Utils.shuffle
-          |> List.filter (fun x => x !== src)
-          |> List.map (fun x => (dest, x));
+        let others =
+          get_adjacent dest |> Utils.shuffle |> List.filter (fun x => x !== src) |>
+          List.map (fun x => (dest, x));
         let step_count = step_count + 1;
-        Array.set state.visited dest step_count;
+        state.visited.(dest) = step_count;
         let edges = add_edge edges src dest;
-
-        let rec loop adjacents hit => {
+        let rec loop adjacents hit =>
           switch adjacents {
-          | [(esrc, edest), ...rest] => {
-            if (Array.get state.visited edest > 0) {
+          | [(esrc, edest), ...rest] =>
+            if (state.visited.(edest) > 0) {
               if (hits > Config.maxHits) {
-                let edges = (shouldHit Config.joinOnHit)
-                ? add_edge edges esrc edest
-                : edges;
+                let edges = shouldHit Config.joinOnHit ? add_edge edges esrc edest : edges;
                 get_new {...state, edges, step: step_count}
               } else {
                 loop rest true
               }
             } else {
               let frontier = Array.append (Array.of_list rest) state.frontier;
-              {...state, frontier, edges, step: step_count,
+              {
+                ...state,
+                frontier,
+                edges,
+                step: step_count,
                 active: Some ((esrc, edest), hit ? hits + 1 : hits)
               }
             }
-          }
           | _ => get_new {...state, edges, step: step_count}
-          }
-        };
-        loop others false;
+          };
+        loop others false
       }
     }
-    }
   };
-
-  let rec step__ get_adjacent state => {
-    switch (state.frontier) {
+  let step__ get_adjacent state =>
+    switch state.frontier {
     | [||] => state
-    | _ => {
-      switch (Js.Array.spliceInPlace pos::(Random.int (Array.length state.frontier)) remove::1 add::[||] state.frontier) {
-      | [|(src, dest)|] => {
-        if (Array.get state.visited dest > 0) {
+    | nonEmptyArray =>
+      switch (
+        Js.Array.spliceInPlace
+          pos::(Random.int (Array.length nonEmptyArray)) remove::1 add::[||] nonEmptyArray
+      ) {
+      | [|(src, dest)|] =>
+        if (state.visited.(dest) > 0) {
           step get_adjacent state
         } else {
-          Array.set state.visited dest (state.step + 1);
-          let others = get_adjacent dest
-            |> List.filter (fun x => Array.get state.visited x === 0)
-            |> List.map (fun x => (dest, x));
+          state.visited.(dest) = state.step + 1;
+          let others =
+            get_adjacent dest |> List.filter (fun x => state.visited.(x) === 0) |>
+            List.map (fun x => (dest, x));
           {
             ...state,
             step: state.step + 1,
             edges: Generator.PairSet.add (sortpair src dest) state.edges,
-            frontier: Array.append
-              (Array.of_list others)
-              state.frontier,
+            frontier: Array.append (Array.of_list others) nonEmptyArray
           }
         }
+      | _ => assert false
       }
-      }
-    }
-    }
-  };
-
+    };
   /* hmm these can be shared */
-  let rec loop_to_end get_adjacent state => {
+  let rec loop_to_end get_adjacent state =>
     if (not (finished state)) {
       loop_to_end get_adjacent (step get_adjacent state)
     } else {
       state
-    }
-  };
-
-  let run size get_adjacent => loop_to_end get_adjacent (init size)
-
+    };
+  let run size get_adjacent => loop_to_end get_adjacent (init size);
 };
