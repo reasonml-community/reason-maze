@@ -83,6 +83,7 @@ module Page = {
     | HashChange string
     | DidMount (option (ref int))
     | SaveBlob string
+    | SettingsUpdate Settings.T.t
     /*| UpdateSomething (int => Settings.T.t => Settings.T.t)*/
     | SetAnimating (option (ref int))
     | Click
@@ -185,6 +186,7 @@ module Page = {
             fun self => record state.settings ctx (self.reduce (fun blobUrl => SaveBlob blobUrl))
           )
         }
+      | SettingsUpdate settings => ReasonReact.Update {...state, settings}
       | SaveBlob blobUrl =>
         ReasonReact.Update {
           ...state,
@@ -231,9 +233,9 @@ module Page = {
       };
       ReasonReact.NoUpdate
     },
-    render: fun ({state} as self) => {
-      let updater =
-        SettingsPage.{update: fun update_settings => self.update (update update_settings)};
+    render: fun ({state, reduce} as self) => {
+      /* let updater =
+        SettingsPage.{update: fun update_settings => self.update (update update_settings)}; */
       <div className=(Aphrodite.css styles "container")>
         <div style=(ReactDOMRe.Style.make flex::"1" ())>
           <canvas
@@ -247,7 +249,10 @@ module Page = {
           <button onClick=(self.reduce (fun _ => ToggleAnimating)) style=Styles.button>
             (se (state.animation === None ? "Animate" : "Stop"))
           </button>
-          <SettingsPage state=state.settings updater />
+          <SettingsPage
+            settings=state.settings
+            update=(reduce(fun (settings) => SettingsUpdate(settings)))
+          />
           /*          <SettingsPage
                                   state=state.settings
                                   updater=(self.reduce (fun settings => UpdateSomething settings))

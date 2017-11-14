@@ -2,8 +2,6 @@ let si = string_of_int;
 
 let se = ReasonReact.stringToElement;
 
-type updater = {update: 'a .('a => Settings.T.t => Settings.T.t) => ReasonReact.Callback.t 'a};
-
 module Title = {
   let component = ReasonReact.statelessComponent "Title";
   let make children => {
@@ -25,13 +23,15 @@ open Settings.T;
 
 open Types;
 
-let set_board board state => {...state, board};
+let compose fn1 fn2 arg => fn1 (fn2 arg);
 
-let set_alg algorithm state => {...state, algorithm};
+let set_board settings board => {...settings, board};
 
-let set_size_hint size_hint state => {...state, size_hint};
+let set_alg settings algorithm => {...settings, algorithm};
 
-let set_fill fill state => {...state, fill: HueSat fill};
+let set_size_hint settings size_hint => {...settings, size_hint};
+
+let set_fill settings fill => {...settings, fill: HueSat fill};
 
 let newSeed: unit => int = [%bs.raw
   {|
@@ -41,7 +41,7 @@ let newSeed: unit => int = [%bs.raw
 |}
 ];
 
-let make ::state ::updater _children => {
+let make ::settings ::update _children => {
   ...component,
   render: fun _self =>
     <div className="settings">
@@ -52,87 +52,87 @@ let make ::state ::updater _children => {
         vertical=false
         min=1
         max=20
-        value=state.batch_size
+        value=settings.batch_size
         step=1.0
-        onChange=(updater.update (fun batch_size state => {...state, batch_size}))
+        onChange=(fun batch_size => update {...settings, batch_size})
       />
       (se "Canvas Size: ")
-      (se (si state.canvas_size))
+      (se (si settings.canvas_size))
       <Range
         width=150
         height=20
         vertical=false
         min=300
         max=1000
-        value=state.canvas_size
+        value=settings.canvas_size
         step=10.0
-        onChange=(updater.update (fun canvas_size state => {...state, canvas_size}))
+        onChange=(fun canvas_size => update {...settings, canvas_size})
       />
       (se "Size: ")
-      (se (si state.size_hint))
+      (se (si settings.size_hint))
       <Range
         width=150
         height=20
         vertical=false
         min=3
         max=50
-        value=state.size_hint
+        value=settings.size_hint
         step=1.0
-        onChange=(updater.update set_size_hint)
+        onChange=(compose update (set_size_hint settings))
       />
       <Title> (se "Seed") </Title>
-      <input value=(si state.seed) />
+      <input value=(si settings.seed) />
       <button
-        onClick=(updater.update (fun _ state => {...state, seed: newSeed ()})) style=Styles.button>
+        onClick=(fun _ => update {...settings, seed: newSeed ()}) style=Styles.button>
         (se "New Seed")
       </button>
       <Title> (se "Fill color") </Title>
       <div style=(ReactDOMRe.Style.make flexDirection::"row" ())>
         <SelectableButton
           title="No fill"
-          selected=(state.fill === NoFill)
-          onClick=(updater.update (fun _ state => {...state, fill: NoFill}))
+          selected=(settings.fill === NoFill)
+          onClick=(fun _ => update {...settings, fill: NoFill})
         />
         <SelectableButton
           title="Rainbow"
-          selected=(state.fill === Rainbow)
-          onClick=(updater.update (fun _ state => {...state, fill: Rainbow}))
+          selected=(settings.fill === Rainbow)
+          onClick=(fun _ => update {...settings, fill: Rainbow})
         />
       </div>
       <ColorSlider
         width=150
         height=100
         value=(
-          switch state.fill {
+          switch settings.fill {
           | HueSat fill => Some fill
           | _ => None
           }
         )
-        onChange=(updater.update set_fill)
+        onChange=(compose update (set_fill settings))
       />
       <Title> (se "Wall") </Title>
       <LineSetting
-        value=state.wall
-        onChange=(updater.update (fun wall state => {...state, wall}))
+        value=settings.wall
+        onChange=(fun wall => update {...settings, wall})
       />
       <Title> (se "Path") </Title>
       <LineSetting
-        value=state.edge
-        onChange=(updater.update (fun edge state => {...state, edge}))
+        value=settings.edge
+        onChange=(fun edge => update {...settings, edge})
       />
       <Title> (se "Shape") </Title>
       <Options
         get_title=Board.name
         options=Board.all
-        current=state.board
-        on_change=(updater.update set_board)
+        current=settings.board
+        on_change=(compose update (set_board settings))
       />
       <Title> (se "Algorithm") </Title>
       <Options
         get_title=Alg.name
         options=Alg.all
-        current=state.algorithm
-        on_change=(updater.update set_alg)
+        current=settings.algorithm
+        on_change=(compose update (set_alg settings))
       />
     </div>
 };
