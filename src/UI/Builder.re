@@ -3,7 +3,7 @@ let se = ReasonReact.stringToElement;
 external refToCanvas : Dom.element => Canvas.canvasElement = "%identity";
 
 let refToContext canv =>
-  switch (Js.Null.to_opt canv) {
+  switch (Js.Nullable.to_opt canv) {
   | Some canv => Some (Canvas.getContext (refToCanvas canv))
   | None => None
   };

@@ -54,7 +54,7 @@ let (>>=) a b =>
   | None => None
   };
 
-let setCanvasRef r {ReasonReact.state: state} => state.canvas := Js.Null.to_opt r;
+let setCanvasRef r {ReasonReact.state: state} => state.canvas := Js.Nullable.to_opt r;
 
 let make ::width ::height ::value ::onChange _children => {
   ...component,

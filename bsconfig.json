@@ -9,4 +9,5 @@
       "subdirs": true,
     },
   ],
+  "refmt": 2,
 }
