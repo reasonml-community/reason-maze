@@ -45,9 +45,9 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   let realize_state = ({State.shape, scale, outsize, coords, enabled}) => {
     let coords =
       List.filter((coord) => CoordMap.find(coord, enabled), Array.to_list(coords)) |> Array.of_list;
-    if (coords == [||]) {
-      None
-    } else {
+    switch coords {
+    | [||] => None
+    | coords =>
       let coord_map = create_index_map(coords);
       let count = Array.length(coords);
       let gen_state = Gen.init(count);

@@ -86,7 +86,11 @@ let rec step = (get_adjacent, state) =>
     }
   };
 
-let finished = (state) => state.frontier == [||];
+let finished = (state) =>
+  switch state.frontier {
+  | [||] => true
+  | _ => false
+  };
 
 /* hmm these can be shared */
 let rec loop_to_end = (get_adjacent, state) =>

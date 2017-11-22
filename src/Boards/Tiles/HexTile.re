@@ -37,17 +37,15 @@ let bl = ((-0.5), hsq3 -. isq3);
 let br = (0.5, hsq3 -. isq3);
 
 let direction_to_border = (direction) =>
-  Utils.Float.(
-    Border.Line(
-      switch direction {
-      | UpRight => (top, tr)
-      | UpLeft => (top, tl)
-      | DownRight => (bottom, br)
-      | DownLeft => (bottom, bl)
-      | Left => (tl, bl)
-      | Right => (tr, br)
-      }
-    )
+  Border.Line(
+    switch direction {
+    | UpRight => (top, tr)
+    | UpLeft => (top, tl)
+    | DownRight => (bottom, br)
+    | DownLeft => (bottom, bl)
+    | Left => (tl, bl)
+    | Right => (tr, br)
+    }
   );
 
 let shape = Shape.Polyline([top, tr, br, bottom, bl, tl]);

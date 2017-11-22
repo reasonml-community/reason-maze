@@ -40,9 +40,8 @@ let auto_size = ((cwidth, cheight), hint_num) => {
   )
 };
 
-let offset = (shape, scale, (x, y)) => {
+let offset = (_shape, scale, (x, y)) => {
   let (fx, fy) = (fi(x), fi(y));
-  let across = fi(shape * 2);
   open Utils.Float;
   let vsize = scale * 2.0 / sqrt(3.0);
   let vertical = vsize * 0.75;
