@@ -2,12 +2,12 @@ type window;
 
 let window: window = [%bs.raw "window"];
 
-external setTimeout : (unit => unit) => int => int = "" [@@bs.val];
+[@bs.val] external setTimeout : (unit => unit, int) => int = "";
 
-external clearTimeout : int => unit = "" [@@bs.val];
+[@bs.val] external clearTimeout : int => unit = "";
 
-external requestAnimationFrame : (float => unit) => int = "" [@@bs.val];
+[@bs.val] external requestAnimationFrame : (float => unit) => int = "";
 
-external cancelAnimationFrame : int => unit = "" [@@bs.val];
+[@bs.val] external cancelAnimationFrame : int => unit = "";
 
-external windowToJsObj : window => Js.t {..} = "%identity";
+external windowToJsObj : window => Js.t({..}) = "%identity";

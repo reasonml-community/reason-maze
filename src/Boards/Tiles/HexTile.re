@@ -10,7 +10,7 @@ type direction =
 
 let adjacents = [UpRight, UpLeft, DownRight, DownLeft, Left, Right];
 
-let adjacent_coord direction =>
+let adjacent_coord = (direction) =>
   switch direction {
   | UpRight => (0, (-1))
   | UpLeft => ((-1), 0)
@@ -20,9 +20,9 @@ let adjacent_coord direction =>
   | Right => (1, (-1))
   };
 
-let hsq3 = sqrt 3.0 /. 2.0;
+let hsq3 = sqrt(3.0) /. 2.0;
 
-let isq3 = 1.0 /. sqrt 3.0;
+let isq3 = 1.0 /. sqrt(3.0);
 
 let top = (0.0, -. isq3);
 
@@ -36,9 +36,9 @@ let bl = ((-0.5), hsq3 -. isq3);
 
 let br = (0.5, hsq3 -. isq3);
 
-let direction_to_border direction =>
+let direction_to_border = (direction) =>
   Utils.Float.(
-    Border.Line (
+    Border.Line(
       switch direction {
       | UpRight => (top, tr)
       | UpLeft => (top, tl)
@@ -50,4 +50,4 @@ let direction_to_border direction =>
     )
   );
 
-let shape = Shape.Polyline [top, tr, br, bottom, bl, tl];
+let shape = Shape.Polyline([top, tr, br, bottom, bl, tl]);

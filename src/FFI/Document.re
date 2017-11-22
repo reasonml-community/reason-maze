@@ -4,27 +4,27 @@ type document;
 
 type keyboardEvent;
 
-external createElement : string => element = "document.createElement" [@@bs.val];
+[@bs.val] external createElement : string => element = "document.createElement";
 
-external appendChild : element => element = "document.body.appendChild" [@@bs.val];
+[@bs.val] external appendChild : element => element = "document.body.appendChild";
 
-external addEventListener : element => string => (unit => unit) => unit =
-  "addEventListener" [@@bs.send];
+[@bs.send]
+external addEventListener : (element, string, unit => unit) => unit = "addEventListener";
 
-external getWidth : element => int = "innerWidth" [@@bs.get];
+[@bs.get] external getWidth : element => int = "innerWidth";
 
-external getHeight : element => int = "innerHeight" [@@bs.get];
+[@bs.get] external getHeight : element => int = "innerHeight";
 
-external setWidth : element => int => unit = "width" [@@bs.set];
+[@bs.set] external setWidth : (element, int) => unit = "width";
 
-external setHeight : element => int => unit = "height" [@@bs.set];
+[@bs.set] external setHeight : (element, int) => unit = "height";
 
-external getElementById : document => string => option element =
-  "" [@@bs.return null_to_opt] [@@bs.send];
+[@bs.return null_to_opt] [@bs.send]
+external getElementById : (document, string) => option(element) = "";
 
 /*
  external addEventListener :
    document => string => ( => Js.boolean) => Js.boolean => unit =
    "" [@@bs.send];
    */
-external keyboardEventToJsObj : keyboardEvent => Js.t {..} = "%identity";
+external keyboardEventToJsObj : keyboardEvent => Js.t({..}) = "%identity";

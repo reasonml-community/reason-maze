@@ -2,11 +2,11 @@ type styles;
 
 type style;
 
-external css_ : style => string = "css" [@@bs.module "aphrodite"];
+[@bs.module "aphrodite"] external css_ : style => string = "css";
 
-external csss_ : array style => string = "css" [@@bs.module "aphrodite"];
+[@bs.module "aphrodite"] external csss_ : array(style) => string = "css";
 
-let get: styles => string => style = [%bs.raw
+let get: (styles, string) => style = [%bs.raw
   {|
   function (styles, name) {
     return styles[name]
@@ -14,15 +14,15 @@ let get: styles => string => style = [%bs.raw
 |}
 ];
 
-let css styles name => css_ (get styles name);
+let css = (styles, name) => css_(get(styles, name));
 
-let csss styles names => csss_ (Array.map (get styles) names);
+let csss = (styles, names) => csss_(Array.map(get(styles), names));
 
 type styleSheet;
 
-external styleSheet : styleSheet = "StyleSheet" [@@bs.val] [@@bs.module "aphrodite"];
+[@bs.val] [@bs.module "aphrodite"] external styleSheet : styleSheet = "StyleSheet";
 
-external create_ : styleSheet => Js.t 'a => styles = "create" [@@bs.send];
+[@bs.send] external create_ : (styleSheet, Js.t('a)) => styles = "create";
 
-let create v => create_ styleSheet v;
+let create = (v) => create_(styleSheet, v);
 /*external create: Js.t 'a => styles = "StyleSheet.create" [@@bs.val][@@bs.module "aphrodite"];*/

@@ -1,11 +1,11 @@
 type canvas;
 
-external canvas : int => int => canvas = "canvas" [@@bs.new] [@@bs.module];
+[@bs.new] [@bs.module] external canvas : (int, int) => canvas = "canvas";
 
-external getContext : canvas => string => Canvas.ctx = "" [@@bs.send];
+[@bs.send] external getContext : (canvas, string) => Canvas.ctx = "";
 
 type pngBuffer;
 
-external toBuffer : canvas => pngBuffer = "" [@@bs.send];
+[@bs.send] external toBuffer : canvas => pngBuffer = "";
 
-external saveAs : string => pngBuffer => unit = "writeFileSync" [@@bs.module "fs"];
+[@bs.module "fs"] external saveAs : (string, pngBuffer) => unit = "writeFileSync";
