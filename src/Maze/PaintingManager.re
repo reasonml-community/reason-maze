@@ -1,3 +1,5 @@
+open Belt;
+
 module State = {
   type t('shape, 'coord, 'map) = {
     shape: 'shape,
@@ -11,15 +13,13 @@ module State = {
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   include Manager.F(Board, Gen);
   let create_enabled_map = coords =>
-    Array.fold_left(
-      (map, c) => CoordMap.add(c, false, map),
-      CoordMap.empty,
-      coords,
+    Array.reduce(coords, CoordMap.empty, (map, c) =>
+      CoordMap.add(c, false, map)
     );
   let paint_init = ((width, height), hint_size) => {
     let (shape, scale, outsize) =
       Board.auto_size((width, height), hint_size);
-    let coords = Board.coordinates(shape) |> Array.of_list;
+    let coords = Board.coordinates(shape) |> List.toArray;
     let enabled = create_enabled_map(coords);
     State.{shape, scale, outsize, coords, enabled};
   };
@@ -27,12 +27,10 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     open State;
     let enabled =
       Board.adjacents(state.shape, coord)
-      |> List.map(Board.adjacent_coord(state.shape, coord))
-      |> List.fold_left(
-           (enabled, coord) =>
-             CoordMap.mem(coord, enabled) ?
-               CoordMap.add(coord, true, enabled) : enabled,
-           state.State.enabled,
+      |> List.map(_, Board.adjacent_coord(state.shape, coord))
+      |> List.reduce(_, state.State.enabled, (enabled, coord) =>
+           CoordMap.mem(coord, enabled) ?
+             CoordMap.add(coord, true, enabled) : enabled
          );
     {...state, State.enabled};
   };
@@ -49,12 +47,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     };
   };
   let realize_state = ({State.shape, scale, outsize, coords, enabled}) => {
-    let coords =
-      List.filter(
-        coord => CoordMap.find(coord, enabled),
-        Array.to_list(coords),
-      )
-      |> Array.of_list;
+    let coords = Array.keep(coords, coord => CoordMap.find(coord, enabled));
     switch (coords) {
     | [||] => None
     | coords =>
@@ -84,18 +77,17 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   let paint_shapes = ({State.coords, scale, shape, enabled}) =>
     /*all_shapes (realize_state state)*/
     /*List.map*/
-    List.filter(
-      coord => CoordMap.find(coord, enabled),
-      Array.to_list(coords),
-    )
-    |> List.map(coord => {
-         let offset = Board.offset(shape, scale, coord);
-         let shape = Board.tile_at_coord(shape, coord);
-         /*let visited = Array.get (Gen.visited gen_state) i;*/
-         (
-           Shape.transform(offset, scale, shape),
-           CoordMap.find(coord, enabled) ? 8 : 2,
-         );
-       })
-    |> Array.of_list;
+    Array.keep(coords, coord => CoordMap.find(coord, enabled))
+    |> Array.map(
+         _,
+         coord => {
+           let offset = Board.offset(shape, scale, coord);
+           let shape = Board.tile_at_coord(shape, coord);
+           /*let visited = Array.get (Gen.visited gen_state) i;*/
+           (
+             Shape.transform(offset, scale, shape),
+             CoordMap.find(coord, enabled) ? 8 : 2,
+           );
+         },
+       );
 };

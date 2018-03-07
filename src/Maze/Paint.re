@@ -1,3 +1,5 @@
+open Belt;
+
 let iof = int_of_float;
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
@@ -15,7 +17,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     /*let (xm, ym) = (0.0, 0.0);*/
     /*Array.iter (Pres.draw_shape ctx (xm, ym) (Presenter.hsl 0 100) 10) (Man.paint_shapes state);*/
     Canvas.Ctx.setStrokeStyle(ctx, "#aaa");
-    List.iter(Pres.draw_wall(ctx, (xm, ym)), Man.paint_walls(state));
+    List.forEach(Man.paint_walls(state), Pres.draw_wall(ctx, (xm, ym)));
   };
   let listen_to_canvas:
     (Canvas.canvasElement, ((float, float)) => unit) => unit = [%bs.raw

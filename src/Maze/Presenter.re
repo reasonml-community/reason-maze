@@ -1,3 +1,5 @@
+open Belt;
+
 module Ctx = Canvas.Ctx;
 
 let hsl = (h, s, l) =>
@@ -49,13 +51,13 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
     let tx = ref(0.0);
     let ty = ref(0.0);
     let c = ref(0);
-    List.iter(
+    List.forEach(
+      pts,
       ((x, y)) => {
         tx := tx^ +. x;
         ty := ty^ +. y;
         c := c^ + 1;
       },
-      pts,
     );
     (tx^ /. float_of_int(c^), ty^ /. float_of_int(c^));
   };
@@ -84,7 +86,7 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
       | [(x, y), ...rest] =>
         Ctx.beginPath(ctx);
         Ctx.moveTo(ctx, x +. xm, y +. ym);
-        List.iter(((x, y)) => Ctx.lineTo(ctx, x +. xm, y +. ym), rest);
+        List.forEach(rest, ((x, y)) => Ctx.lineTo(ctx, x +. xm, y +. ym));
         Ctx.fill(ctx);
       }
     | Shape.Rect((x, y, w, h)) => Ctx.fillRect(ctx, x +. xm, y +. ym, w, h)
