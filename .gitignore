@@ -6,6 +6,5 @@ bundledOutputs
 shots/*.mov
 .env
 lastPostTime
-lib/js
 public/bundle.js
 pages
