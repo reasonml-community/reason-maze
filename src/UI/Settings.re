@@ -1,3 +1,5 @@
+open Belt;
+
 module T = {
   type fill =
     | NoFill
@@ -83,8 +85,6 @@ let parse_line = value =>
     }
   );
 
-let maybe_get = (ar, count, n) => n < count ? Some(ar[n]) : None;
-
 let initial =
   T.{
     board: Types.Board.Hexagon,
@@ -108,8 +108,7 @@ let from_json = str => {
   | Some(arr) =>
     switch (decodeArray(arr)) {
     | Some(items) =>
-      let count = Array.length(items);
-      let item = maybe_get(items, count);
+      let item = Array.get(items);
       let board =
         item(0) >>== decodeString >>== Types.Board.by_name >? initial.board;
       let algorithm =

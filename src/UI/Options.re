@@ -1,3 +1,5 @@
+open Belt;
+
 let se = ReasonReact.stringToElement;
 
 let si = string_of_int;
@@ -26,14 +28,15 @@ let make = (~options, ~get_title, ~current, ~on_change, _children) => {
     <div className=Aphrodite.(css(styles, "container"))>
       (
         ReasonReact.arrayToElement(
-          Array.map(
-            option =>
+          Array.map(options, option
+            =>
               <SelectableButton
                 key=(get_title(option))
                 title=(get_title(option))
                 onClick=(() => on_change(option))
                 selected=(current === option)
-              />,
+              />
+            ),
             /*
              <button
                key=(get_title option)
@@ -43,8 +46,6 @@ let make = (~options, ~get_title, ~current, ~on_change, _children) => {
                (se (get_title option))
              </button>
              */
-            options,
-          ),
         )
       )
     </div>,
