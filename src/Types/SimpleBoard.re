@@ -9,7 +9,8 @@ module type T = {
   let coordinates: shape => list(Coord.t);
   /* TODO need to make a "output coord" or something? */
   let auto_size:
-    ((float, float), int) => (shape, float /* unit size */, (float, float) /* full size */);
+    ((float, float), int) =>
+    (shape, float /* unit size */, (float, float) /* full size */);
   let offset: (shape, float, Coord.t) => (float, float);
   let tile_center: (shape, float, Coord.t) => (float, float);
   let tile_at_coord: (shape, Coord.t) => Shape.t;

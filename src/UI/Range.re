@@ -3,7 +3,7 @@ let si = string_of_int;
 let component = ReasonReact.statelessComponent("Range");
 
 /*let styles = Aphrodite.create {"container": {}};*/
-let px = (m) => si(m) ++ "px";
+let px = m => si(m) ++ "px";
 
 let mkstyle = (width, height, vertical) => {
   let style = ReactDOMRe.Style.make(~width=px(width), ~height=px(height));
@@ -11,17 +11,20 @@ let mkstyle = (width, height, vertical) => {
     style(
       ~transformOrigin=px(width / 2) ++ " " ++ px(width / 2),
       ~transform="rotate(-90deg)",
-      ()
+      (),
     ) :
-    style()
+    style();
 };
 
-let getValue = (evt) =>
-  int_of_string(ReactDOMRe.domElementToObj(ReactEventRe.Form.target(evt))##value);
+let getValue = evt =>
+  int_of_string(
+    ReactDOMRe.domElementToObj(ReactEventRe.Form.target(evt))##value,
+  );
 
-let make = (~min, ~max, ~value, ~step, ~width, ~height, ~vertical, ~onChange, _) => {
+let make =
+    (~min, ~max, ~value, ~step, ~width, ~height, ~vertical, ~onChange, _) => {
   ...component,
-  render: (_self) =>
+  render: _self =>
     <input
       _type="range"
       style=(mkstyle(width, height, vertical))
@@ -29,6 +32,6 @@ let make = (~min, ~max, ~value, ~step, ~width, ~height, ~vertical, ~onChange, _)
       max=(si(max))
       value=(si(value))
       step
-      onChange=((evt) => onChange(getValue(evt)))
-    />
+      onChange=(evt => onChange(getValue(evt)))
+    />,
 };

@@ -21,7 +21,8 @@ module FromSimple = (Simple: Simple) => {
   module Coord = Simple.Coord;
   type direction = Simple.direction;
   let adjacents = (_) => Simple.adjacents;
-  let adjacent_coord = (coord, direction) => Coord.offset(coord, Simple.adjacent_coord(direction));
+  let adjacent_coord = (coord, direction) =>
+    Coord.offset(coord, Simple.adjacent_coord(direction));
   let direction_to_border = (_) => Simple.direction_to_border;
   let to_shape = (_) => Simple.shape;
 };

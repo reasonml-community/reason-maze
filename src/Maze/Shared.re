@@ -2,7 +2,7 @@ module Edge = {
   type edge = {
     src: int,
     dest: int,
-    age: int
+    age: int,
   };
 };
 
@@ -16,7 +16,7 @@ let optmap = (fn, lst) =>
       | Some(x) => [x, ...res]
       },
     [],
-    lst
+    lst,
   );
 
 module type Generator = {
@@ -41,9 +41,12 @@ type drawable_wall =
 
 let transform_wall = (wall, scale, (dx, dy)) =>
   Utils.Float.(
-    switch wall {
+    switch (wall) {
     | Line(((x, y), (a, b))) =>
-      Line(((x * scale + dx, y * scale + dy), (a * scale + dx, b * scale + dy)))
+      Line((
+        (x * scale + dx, y * scale + dy),
+        (a * scale + dx, b * scale + dy),
+      ))
     }
   );
 
@@ -73,7 +76,8 @@ module type Board = {
   module Shape: BoardShape;
   let adjacency_list: Shape.shape => adjacency_list;
   let vertex_pos: (int, Shape.shape, canvas_size) => (float, float);
-  let drawable_wall: ((int, int), Shape.shape, canvas_size) => option(drawable_wall);
+  let drawable_wall:
+    ((int, int), Shape.shape, canvas_size) => option(drawable_wall);
   let border_walls: (Shape.shape, canvas_size) => list(drawable_wall);
 };
 
@@ -85,23 +89,22 @@ module Board = (Shape: BoardShape) => {
         let wall = Shape.Tile.wall_in_direction(direction);
         let scale = Shape.scale(shape, size);
         let offset = Shape.coord_to_board(shape, size, (x, y));
-        transform_wall(wall, scale, offset)
+        transform_wall(wall, scale, offset);
       },
-      Shape.border_walls(shape)
+      Shape.border_walls(shape),
     );
-  let adjacency_list = (shape) => {
+  let adjacency_list = shape => {
     let res = Array.make(Shape.vertex_count(shape), []);
     Shape.all_coordinates(shape)
-    |> Array.iteri(
-         (i, (x, y)) =>
-           res[i] =
-             Shape.Tile.adjacent((x, y))
-             |> optmap(((a, b)) => Shape.to_vertex(shape, (x + a, y + b)))
+    |> Array.iteri((i, (x, y)) =>
+         res[i] =
+           Shape.Tile.adjacent((x, y))
+           |> optmap(((a, b)) => Shape.to_vertex(shape, (x + a, y + b)))
        );
-    res
+    res;
   };
   let (|?<) = (a, b) =>
-    switch b {
+    switch (b) {
     | Some(x) => Some(a(x))
     | None => None
     };
@@ -118,8 +121,8 @@ module Board = (Shape: BoardShape) => {
       let wall = Shape.Tile.wall_in_direction(direction);
       let scale = Shape.scale(shape, size);
       let offset = Shape.coord_to_board(shape, size, (x, y));
-      Some(transform_wall(wall, scale, offset))
-    }
+      Some(transform_wall(wall, scale, offset));
+    };
   };
 };
 /*

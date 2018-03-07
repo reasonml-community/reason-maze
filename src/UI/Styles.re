@@ -7,5 +7,5 @@ let button =
     ~padding="10px 20px",
     ~border="none",
     ~boxShadow="0 0 4px #aaa",
-    ()
+    (),
   );

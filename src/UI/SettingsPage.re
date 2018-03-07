@@ -4,7 +4,7 @@ let se = ReasonReact.stringToElement;
 
 module Title = {
   let component = ReasonReact.statelessComponent("Title");
-  let make = (children) => {
+  let make = children => {
     ...component,
     render: (_) =>
       <div
@@ -13,11 +13,11 @@ module Title = {
             ~fontWeight="bold",
             ~alignSelf="flex-start",
             ~padding="15px 0px 5px",
-            ()
+            (),
           )
         )>
         (ReasonReact.arrayToElement(children))
-      </div>
+      </div>,
   };
 };
 
@@ -47,7 +47,7 @@ let newSeed: unit => int = [%bs.raw
 
 let make = (~settings, ~update, _children) => {
   ...component,
-  render: (_self) =>
+  render: _self =>
     <div className="settings">
       <Title> (se("Animation Speed")) </Title>
       <Range
@@ -58,7 +58,7 @@ let make = (~settings, ~update, _children) => {
         max=20
         value=settings.batch_size
         step=1.0
-        onChange=((batch_size) => update({...settings, batch_size}))
+        onChange=(batch_size => update({...settings, batch_size}))
       />
       (se("Canvas Size: "))
       (se(si(settings.canvas_size)))
@@ -70,7 +70,7 @@ let make = (~settings, ~update, _children) => {
         max=1000
         value=settings.canvas_size
         step=10.0
-        onChange=((canvas_size) => update({...settings, canvas_size}))
+        onChange=(canvas_size => update({...settings, canvas_size}))
       />
       (se("Size: "))
       (se(si(settings.size_hint)))
@@ -86,7 +86,9 @@ let make = (~settings, ~update, _children) => {
       />
       <Title> (se("Seed")) </Title>
       <input value=(si(settings.seed)) />
-      <button onClick=((_) => update({...settings, seed: newSeed()})) style=Styles.button>
+      <button
+        onClick=((_) => update({...settings, seed: newSeed()}))
+        style=Styles.button>
         (se("New Seed"))
       </button>
       <Title> (se("Fill color")) </Title>
@@ -106,7 +108,7 @@ let make = (~settings, ~update, _children) => {
         width=150
         height=100
         value=(
-          switch settings.fill {
+          switch (settings.fill) {
           | HueSat(fill) => Some(fill)
           | _ => None
           }
@@ -114,9 +116,15 @@ let make = (~settings, ~update, _children) => {
         onChange=(compose(update, set_fill(settings)))
       />
       <Title> (se("Wall")) </Title>
-      <LineSetting value=settings.wall onChange=((wall) => update({...settings, wall})) />
+      <LineSetting
+        value=settings.wall
+        onChange=(wall => update({...settings, wall}))
+      />
       <Title> (se("Path")) </Title>
-      <LineSetting value=settings.edge onChange=((edge) => update({...settings, edge})) />
+      <LineSetting
+        value=settings.edge
+        onChange=(edge => update({...settings, edge}))
+      />
       <Title> (se("Shape")) </Title>
       <Options
         get_title=Board.name
@@ -131,5 +139,5 @@ let make = (~settings, ~update, _children) => {
         current=settings.algorithm
         on_change=(compose(update, set_alg(settings)))
       />
-    </div>
+    </div>,
 };

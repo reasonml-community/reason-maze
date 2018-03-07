@@ -8,7 +8,7 @@ module Options = {
     /*line_width: float,*/
     draw_edges: option((float, string)),
     draw_walls: option((float, string)),
-    draw_shapes: option((float, float) => string)
+    draw_shapes: option((float, float) => string),
   };
 };
 
@@ -31,31 +31,37 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     let ym = (height -. h) /. 2.0;
     /*Js.log (w, h, width, height, xm, ym);*/
     /*let (xm, ym) = (0.0, 0.0);*/
-    switch options.draw_shapes {
+    switch (options.draw_shapes) {
     | Some(get_color) =>
       /*Canvas.Ctx.setFillStyle ctx color;*/
       Array.iter(
-        Presenter.draw_shape(ctx, (xm, ym), get_color, Man.current_age(state), Man.max_age(state)),
-        Man.all_shapes(state)
+        Presenter.draw_shape(
+          ctx,
+          (xm, ym),
+          get_color,
+          Man.current_age(state),
+          Man.max_age(state),
+        ),
+        Man.all_shapes(state),
       )
     | None => ()
     };
-    switch options.draw_edges {
+    switch (options.draw_edges) {
     | Some((width, color)) =>
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
       let edges = Man.all_edges(state);
-      List.iter(Presenter.draw_edge(ctx, (xm, ym)), edges)
+      List.iter(Presenter.draw_edge(ctx, (xm, ym)), edges);
     | None => ()
     };
-    switch options.draw_walls {
+    switch (options.draw_walls) {
     | Some((width, color)) =>
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
       let walls = Man.all_walls(state);
-      List.iter(Presenter.draw_wall(ctx, (xm, ym)), walls)
+      List.iter(Presenter.draw_wall(ctx, (xm, ym)), walls);
     | None => ()
-    }
+    };
   };
   /* have this take some config */
   let show_debug = (ctx, options, state) => {
@@ -75,7 +81,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     Generator.PairSet.iter(((a, b)) => Js.log((a, b)), edges);
     let walls = Man.all_walls(state);
     Js.log(("walls", Array.of_list(walls)));
-    switch options.draw_shapes {
+    switch (options.draw_shapes) {
     | Some(get_color) =>
       /*Canvas.Ctx.setFillStyle ctx color;*/
       /*Array.iter (Presenter.draw_shape ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);*/
@@ -85,21 +91,21 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
           (xm, ym),
           get_color,
           Man.current_age(state),
-          Man.max_age(state)
+          Man.max_age(state),
         ),
-        Man.all_shapes(state)
+        Man.all_shapes(state),
       )
     | None => ()
     };
-    switch options.draw_edges {
+    switch (options.draw_edges) {
     | Some((width, color)) =>
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
-      List.iter(Presenter.draw_edge(ctx, (xm, ym)), Man.all_edges(state))
+      List.iter(Presenter.draw_edge(ctx, (xm, ym)), Man.all_edges(state));
     /*List.iteri (Presenter.draw_edgei ctx (xm, ym)) (Man.all_edges state);*/
     | None => ()
     };
-    switch options.draw_walls {
+    switch (options.draw_walls) {
     | Some((width, color)) =>
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
@@ -107,40 +113,46 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       Js.log(walls);
       Js.log("hi");
       /*List.iter (Presenter.draw_wall ctx (xm, ym)) walls;*/
-      List.iteri(Presenter.draw_walli(ctx, (xm, ym)), walls)
+      List.iteri(Presenter.draw_walli(ctx, (xm, ym)), walls);
     | None => ()
-    }
+    };
   };
   let rec batch = (state, n) =>
     if (n === 0) {
-      state
+      state;
     } else {
-      batch(Man.step(state), n - 1)
+      batch(Man.step(state), n - 1);
     };
   let animate = (ctx, batch_size, interval, options, state, onStop) => {
     Js.log("animate");
     let id = ref(0);
-    let rec inner = (state) => {
+    let rec inner = state => {
       let state = batch(state, batch_size);
       show(ctx, options, state);
-      Man.finished(state) ? onStop() : id := Window.setTimeout(() => inner(state), interval)
+      Man.finished(state) ?
+        onStop() : id := Window.setTimeout(() => inner(state), interval);
     };
     inner(state);
-    id
+    id;
   };
   let init_state = ({canvas_size, min_margin, size_hint}) => {
     let (width, height) = canvas_size;
-    let with_margins = (width -. min_margin *. 2.0, height -. min_margin *. 2.0);
-    Man.init(with_margins, size_hint)
+    let with_margins = (
+      width -. min_margin *. 2.0,
+      height -. min_margin *. 2.0,
+    );
+    Man.init(with_margins, size_hint);
   };
-  let init = (options) => {
+  let init = options => {
     let (width, height) = options.canvas_size;
     let canvas = Canvas.createOnBody(iof(width), iof(height));
     let ctx = Canvas.getContext(canvas);
-    (canvas, ctx, init_state(options))
+    (canvas, ctx, init_state(options));
   };
-  let loop = (options, ctx, state) => show(ctx, options, Man.loop_to_end(state));
-  let loop_debug = (options, ctx, state) => show_debug(ctx, options, Man.loop_to_end(state));
+  let loop = (options, ctx, state) =>
+    show(ctx, options, Man.loop_to_end(state));
+  let loop_debug = (options, ctx, state) =>
+    show_debug(ctx, options, Man.loop_to_end(state));
   /*let main {canvas_size, min_margin, size_hint} => {
 
       if (false) {

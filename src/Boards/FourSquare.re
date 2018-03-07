@@ -6,10 +6,10 @@ let coordinates = ((w, h): shape) => {
   let v = ref([]);
   for (x in 0 to w - 1) {
     for (y in 0 to h - 1) {
-      v := [(x, y), ...v^]
-    }
+      v := [(x, y), ...v^];
+    };
   };
-  v^
+  v^;
 };
 
 let fi = float_of_int;
@@ -21,10 +21,13 @@ let auto_size = ((cwidth, cheight), hint_num) => {
   let size = dim /. fi(hint_num);
   let width = iof(cwidth /. size);
   let height = iof(cheight /. size);
-  ((width * 2, height), size, (fi(width) *. size, fi(height) *. size))
+  ((width * 2, height), size, (fi(width) *. size, fi(height) *. size));
 };
 
-let offset = (_shape, scale, (x, y)) => ((fi(x / 2) +. 0.5) *. scale, (fi(y) +. 0.5) *. scale);
+let offset = (_shape, scale, (x, y)) => (
+  (fi(x / 2) +. 0.5) *. scale,
+  (fi(y) +. 0.5) *. scale,
+);
 
 let tau: float = [%bs.raw "Math.PI * 2"];
 
@@ -42,7 +45,7 @@ let tile_center = (shape, scale, (x, y)) => {
   | TR => (cx +. d, cy -. d)
   | BL => (cx -. d, cy +. d)
   | BR => (cx +. d, cy +. d)
-  }
+  };
 };
 
 let from_point = (_, _, _) => (0, 0);

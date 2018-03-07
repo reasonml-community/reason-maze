@@ -16,24 +16,30 @@ let get_walls = (full, clear) => {
         src + 1,
         List.fold_left(
           (walls, vend) =>
-            vend < src ? walls : WallSet.mem((src, vend), clear) ? walls : [(src, vend), ...walls],
+            vend < src ?
+              walls :
+              WallSet.mem((src, vend), clear) ?
+                walls : [(src, vend), ...walls],
           [],
-          ends
+          ends,
         )
-        @ res
+        @ res,
       ),
       (0, []),
-      full
+      full,
     );
-  res
+  res;
 };
 
-let wall_set = (traveled) =>
+let wall_set = traveled =>
   WallSet.of_list(
-    List.map(({Shared.Edge.src, dest}) => src > dest ? (dest, src) : (src, dest), traveled)
+    List.map(
+      ({Shared.Edge.src, dest}) => src > dest ? (dest, src) : (src, dest),
+      traveled,
+    ),
   );
 
 let walls_remaining = (full, traveled) => {
   let clear = wall_set(traveled);
-  get_walls(full, clear)
+  get_walls(full, clear);
 };

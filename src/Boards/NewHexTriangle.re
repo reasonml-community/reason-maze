@@ -2,14 +2,14 @@ include SimpleBoard.FromTile((Tile.FromSimple(HexTile)));
 
 type shape = int;
 
-let coordinates = (shape) => {
+let coordinates = shape => {
   let v = ref([]);
   for (y in 0 to shape - 1) {
     for (x in 0 to shape - y - 1) {
-      v := [(x, y), ...v^]
-    }
+      v := [(x, y), ...v^];
+    };
   };
-  v^
+  v^;
 };
 
 let fi = float_of_int;
@@ -21,11 +21,11 @@ let auto_size = ((cwidth, cheight), hint_num) =>
     if (cwidth < cheight / sqrt(3.0) * 2.0) {
       let size = cwidth / fi(hint_num);
       let height = cwidth * sqrt(3.0) / 2.0;
-      (hint_num, size, (cwidth, height))
+      (hint_num, size, (cwidth, height));
     } else {
       let width = cheight / sqrt(3.0) * 2.0;
       let size = width / fi(hint_num);
-      (hint_num, size, (width, cheight))
+      (hint_num, size, (width, cheight));
     }
   );
 
@@ -41,8 +41,8 @@ let offset = (shape, scale, (x, y)) => {
     /*fx * scale,
       fy * vsize*/
     fx * scale / 2.0 - fy * scale / 2.0 + fi(shape) / 2.0 * scale,
-    fx * vertical + fy * vertical + vsize / 2.0
-  )
+    fx * vertical + fy * vertical + vsize / 2.0,
+  );
 };
 
 let tile_center = offset;

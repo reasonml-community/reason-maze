@@ -8,7 +8,7 @@ let make = (~value, ~onChange, _) => {
   ...component,
   render: (_) => {
     let (width, color) =
-      switch value {
+      switch (value) {
       | Some(x) => x
       | None => (0, 20)
       };
@@ -23,7 +23,7 @@ let make = (~value, ~onChange, _) => {
         max=30
         value=width
         step=1.0
-        onChange=((x) => onChange(x === 0 ? None : Some((x, color))))
+        onChange=(x => onChange(x === 0 ? None : Some((x, color))))
       />
       (se("Lightness: "))
       (se(si(color)))
@@ -35,8 +35,8 @@ let make = (~value, ~onChange, _) => {
         max=100
         value=color
         step=1.0
-        onChange=((x) => onChange(Some((width, x))))
+        onChange=(x => onChange(Some((width, x))))
       />
-    </div>
-  }
+    </div>;
+  },
 };

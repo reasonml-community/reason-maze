@@ -8,4 +8,5 @@ type pngBuffer;
 
 [@bs.send] external toBuffer : canvas => pngBuffer = "";
 
-[@bs.module "fs"] external saveAs : (string, pngBuffer) => unit = "writeFileSync";
+[@bs.module "fs"]
+external saveAs : (string, pngBuffer) => unit = "writeFileSync";

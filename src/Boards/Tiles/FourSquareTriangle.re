@@ -24,24 +24,24 @@ type tile =
   | BL
   | BR;
 
-let shape = (tile) =>
-  switch tile {
+let shape = tile =>
+  switch (tile) {
   | TL => [topleft, topright, bottomleft]
   | TR => [topleft, topright, bottomright]
   | BL => [bottomleft, bottomright, topleft]
   | BR => [bottomleft, bottomright, topright]
   };
 
-let adjacents = (tile) =>
-  switch tile {
+let adjacents = tile =>
+  switch (tile) {
   | TL => [Up, Left, DownRight]
   | TR => [Up, Right, DownLeft]
   | BR => [Down, Right, UpLeft]
   | BL => [Down, Left, UpRight]
   };
 
-let adjacent_coord = (direction) =>
-  switch direction {
+let adjacent_coord = direction =>
+  switch (direction) {
   | Left => ((-1), 0)
   | Right => (1, 0)
   | UpLeft => ((-1), 0)
@@ -53,7 +53,7 @@ let adjacent_coord = (direction) =>
   };
 
 let direction_to_border = (_, direction) =>
-  switch direction {
+  switch (direction) {
   | Up => Border.Line((topleft, topright))
   | Down => Border.Line((bottomleft, bottomright))
   | Left => Border.Line((topleft, bottomleft))
@@ -75,11 +75,11 @@ let tile = ((x, y)) =>
   | _ => raise(Unreachable)
   };
 
-let adjacents = (pos) => adjacents(tile(pos));
+let adjacents = pos => adjacents(tile(pos));
 
 let adjacent_coord = ((x, y), direction) => {
   let (dx, dy) = adjacent_coord(direction);
-  (x + dx, y + dy)
+  (x + dx, y + dy);
 };
 
-let to_shape = (pos) => Shape.Polyline(shape(tile(pos)));
+let to_shape = pos => Shape.Polyline(shape(tile(pos)));

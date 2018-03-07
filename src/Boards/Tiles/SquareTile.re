@@ -8,8 +8,8 @@ type direction =
 
 let adjacents = [Up, Down, Left, Right];
 
-let adjacent_coord = (direction) =>
-  switch direction {
+let adjacent_coord = direction =>
+  switch (direction) {
   | Up => (0, (-1))
   | Down => (0, 1)
   | Left => ((-1), 0)
@@ -24,8 +24,8 @@ let bottomleft = ((-0.5), 0.5);
 
 let bottomright = (0.5, 0.5);
 
-let direction_to_border = (direction) =>
-  switch direction {
+let direction_to_border = direction =>
+  switch (direction) {
   | Up => Border.Line((topleft, topright))
   | Down => Border.Line((bottomleft, bottomright))
   | Left => Border.Line((topleft, bottomleft))

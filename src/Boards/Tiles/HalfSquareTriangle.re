@@ -20,11 +20,11 @@ let shape = Shape.Polyline([topleft, topright, bottomleft]);
 
 let flipped_shape = Shape.Polyline([topright, bottomright, bottomleft]);
 
-let adjacents_simple = (is_flipped) =>
+let adjacents_simple = is_flipped =>
   is_flipped ? [Right, Down, TopHalf] : [Up, Left, BottomHalf];
 
-let adjacent_coord_simple = (direction) =>
-  switch direction {
+let adjacent_coord_simple = direction =>
+  switch (direction) {
   | Up => (1, (-1))
   | Down => ((-1), 1)
   | Left => ((-1), 0)
@@ -34,7 +34,7 @@ let adjacent_coord_simple = (direction) =>
   };
 
 let direction_to_border = (_, direction) =>
-  switch direction {
+  switch (direction) {
   | Up => Border.Line((topleft, topright))
   | Down => Border.Line((bottomleft, bottomright))
   | Left => Border.Line((topleft, bottomleft))
@@ -43,15 +43,15 @@ let direction_to_border = (_, direction) =>
   | TopHalf => Border.Line((topright, bottomleft))
   };
 
-let to_shape_simple = (is_flipped) => is_flipped ? flipped_shape : shape;
+let to_shape_simple = is_flipped => is_flipped ? flipped_shape : shape;
 
 let is_flipped = ((x, _)) => x mod 2 !== 0;
 
-let adjacents = (pos) => adjacents_simple(is_flipped(pos));
+let adjacents = pos => adjacents_simple(is_flipped(pos));
 
 let adjacent_coord = ((x, y), direction) => {
   let (dx, dy) = adjacent_coord_simple(direction);
-  (x + dx, y + dy)
+  (x + dx, y + dy);
 };
 
-let to_shape = (pos) => to_shape_simple(is_flipped(pos));
+let to_shape = pos => to_shape_simple(is_flipped(pos));

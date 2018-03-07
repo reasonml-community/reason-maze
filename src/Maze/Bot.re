@@ -4,7 +4,7 @@ let main = () => {
   let ctx = NodeCanvas.getContext(canvas, "2d");
   /*main();*/
   ignore(RandomMaze.run(ctx, (1000.0, 1000.0)));
-  NodeCanvas.saveAs("./out.png", NodeCanvas.toBuffer(canvas))
+  NodeCanvas.saveAs("./out.png", NodeCanvas.toBuffer(canvas));
 };
 
 main();

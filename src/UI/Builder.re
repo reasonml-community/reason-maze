@@ -2,8 +2,8 @@ let se = ReasonReact.stringToElement;
 
 external refToCanvas : Dom.element => Canvas.canvasElement = "%identity";
 
-let refToContext = (canv) =>
-  switch (Js.Nullable.to_opt(canv)) {
+let refToContext = canv =>
+  switch (Js.Nullable.toOption(canv)) {
   | Some(canv) => Some(Canvas.getContext(refToCanvas(canv)))
   | None => None
   };
@@ -18,7 +18,7 @@ let show = (ctx, settings) => {
   module Paint' = Paint.F(Board, Gen);
   module Show' = Show.F(Board, Gen);
   let state = Show'.init_state(options);
-  Show'.loop(options, ctx, state)
+  Show'.loop(options, ctx, state);
 };
 
 let animate = (ctx, settings, onStop) => {
@@ -32,8 +32,9 @@ let animate = (ctx, settings, onStop) => {
   module Paint' = Paint.F(Board, Gen);
   module Show' = Show.F(Board, Gen);
   let state = Show'.init_state(options);
-  let r: ref(int) = Show'.animate(ctx, settings.batch_size, 40, options, state, onStop);
-  r
+  let r: ref(int) =
+    Show'.animate(ctx, settings.batch_size, 40, options, state, onStop);
+  r;
 };
 
 let record = (settings, ctx, onDone) => {
@@ -51,14 +52,15 @@ let record = (settings, ctx, onDone) => {
   module Paint' = Paint.F(Board, Gen);
   module Show' = Show.F(Board, Gen);
   let state = Show'.init_state(options);
-  let rec step = (state) => {
+  let rec step = state => {
     let state = Show'.batch(state, settings.batch_size);
     Show'.show(ctx, options, state);
     CCapture.capture(capturer, Canvas.Ctx.canvas(ctx));
     Show'.Man.finished(state) ?
-      CCapture.save(capturer, (blob) => onDone(CCapture.objUrl(blob))) : step(state)
+      CCapture.save(capturer, blob => onDone(CCapture.objUrl(blob))) :
+      step(state);
   };
-  step(state)
+  step(state);
 };
 
 let now_date: unit => string = [%bs.raw
@@ -74,7 +76,7 @@ module Page = {
     settings: Settings.T.t,
     animation: option(ref(int)),
     downloadUrl: option(string),
-    ctx: ref(option(Canvas.ctx))
+    ctx: ref(option(Canvas.ctx)),
   };
   type action =
     | ClearAnimation
@@ -95,14 +97,14 @@ module Page = {
       "container": {
         "flex-direction": "row",
         "align-self": "stretch",
-        "flex": 1
-      }
+        "flex": 1,
+      },
     });
   let process_new_settings = (settings, state) =>
     ReasonReact.Update({...state, settings, animation: None});
   let update = (update_settings, payload, {ReasonReact.state}) => {
     let settings = update_settings(payload, state.settings);
-    process_new_settings(settings, state)
+    process_new_settings(settings, state);
   };
   let listen_for_hash: (string => unit) => unit = [%bs.raw
     {|
@@ -131,24 +133,24 @@ module Page = {
   ];
   let throttle = (fn, time) => {
     let last = ref(None);
-    (v) => {
-      switch last^ {
+    v => {
+      switch (last^) {
       | Some(t) => Js.Global.clearTimeout(t)
       | None => ()
       };
-      last := Some(Js.Global.setTimeout(() => fn(v), time))
-    }
+      last := Some(Js.Global.setTimeout(() => fn(v), time));
+    };
   };
   let update_hash =
     throttle(
-      (settings) =>
+      settings =>
         switch (Settings.to_json(settings)) {
         | None => ()
         | Some(str) => set_hash(str)
         },
-      500
+      500,
     );
-  let make = (_children) => {
+  let make = _children => {
     ...component,
     initialState: () => {
       settings:
@@ -158,50 +160,60 @@ module Page = {
         },
       animation: None,
       downloadUrl: None,
-      ctx: ref(None)
+      ctx: ref(None),
     },
     reducer: (action, state) =>
-      switch action {
+      switch (action) {
       | ClearAnimation => ReasonReact.Update({...state, animation: None})
       | Noop => ReasonReact.NoUpdate
       | ToggleAnimating =>
-        switch state.animation {
+        switch (state.animation) {
         | Some(id) =>
           ReasonReact.UpdateWithSideEffects(
             {...state, animation: None},
-            ((_self) => Window.clearTimeout(id^))
+            (_self => Window.clearTimeout(id^)),
           )
         | None =>
-          switch state.ctx^ {
+          switch (state.ctx^) {
           | Some(ctx) =>
             ReasonReact.SideEffects(
               (
-                (self) => {
-                  let id = animate(ctx, state.settings, self.reduce((_) => ClearAnimation));
-                  self.reduce(() => SetAnimating(Some(id)), ())
+                self => {
+                  let id =
+                    animate(
+                      ctx,
+                      state.settings,
+                      self.reduce((_) => ClearAnimation),
+                    );
+                  self.reduce(() => SetAnimating(Some(id)), ());
                 }
-              )
+              ),
             )
           | None => ReasonReact.NoUpdate
           }
         }
       | SetAnimating(id) => ReasonReact.Update({...state, animation: id})
-      | ProcessNewSettings(settings) => ReasonReact.Update({...state, settings, animation: None})
+      | ProcessNewSettings(settings) =>
+        ReasonReact.Update({...state, settings, animation: None})
       | DidMount(animation) => ReasonReact.Update({...state, animation})
       | Click =>
-        switch state.ctx^ {
+        switch (state.ctx^) {
         | None => ReasonReact.NoUpdate
         | Some(ctx) =>
           ReasonReact.SideEffects(
-            ((self) => record(state.settings, ctx, self.reduce((blobUrl) => SaveBlob(blobUrl))))
+            (
+              self =>
+                record(
+                  state.settings,
+                  ctx,
+                  self.reduce(blobUrl => SaveBlob(blobUrl)),
+                )
+            ),
           )
         }
       | SettingsUpdate(settings) => ReasonReact.Update({...state, settings})
       | SaveBlob(blobUrl) =>
-        ReasonReact.Update({
-          ...state,
-          downloadUrl: Some(blobUrl)
-        }) /*      | UpdateSomething update_settings =>
+        ReasonReact.Update({...state, downloadUrl: Some(blobUrl)}) /*      | UpdateSomething update_settings =>
         let settings = update_settings payload state.settings;
         ReasonReact.Update {...state, settings, animation: None}
 */
@@ -210,36 +222,45 @@ module Page = {
         | None => ReasonReact.NoUpdate
         | Some(settings) =>
           if (state.settings == settings) {
-            ReasonReact.NoUpdate
+            ReasonReact.NoUpdate;
           } else {
-            ReasonReact.Update({...state, settings, animation: None})
+            ReasonReact.Update({...state, settings, animation: None});
           }
         }
       },
     didUpdate: ({oldSelf, newSelf}) => {
       update_hash(newSelf.state.settings);
       if (newSelf.state.settings != oldSelf.state.settings) {
-        switch oldSelf.state.animation {
+        switch (oldSelf.state.animation) {
         | Some(id) => Window.clearTimeout(id^)
         | _ => ()
         };
-        switch newSelf.state.ctx^ {
+        switch (newSelf.state.ctx^) {
         | Some(ctx) => show(ctx, newSelf.state.settings)
         | None => ()
-        }
-      }
+        };
+      };
     },
     didMount: ({state} as self) => {
-      listen_for_hash(self.reduce((str) => HashChange(str)));
-      switch state.ctx^ {
+      listen_for_hash(self.reduce(str => HashChange(str)));
+      switch (state.ctx^) {
       | Some(ctx) =>
         self.reduce(
-          () => DidMount(Some(animate(ctx, state.settings, self.reduce((_) => ClearAnimation)))),
-          ()
+          () =>
+            DidMount(
+              Some(
+                animate(
+                  ctx,
+                  state.settings,
+                  self.reduce((_) => ClearAnimation),
+                ),
+              ),
+            ),
+          (),
         )
       | None => ()
       };
-      ReasonReact.NoUpdate
+      ReasonReact.NoUpdate;
     },
     render: ({state, reduce} as self) =>
       /* let updater =
@@ -247,19 +268,24 @@ module Page = {
       <div className=(Aphrodite.css(styles, "container"))>
         <div style=(ReactDOMRe.Style.make(~flex="1", ()))>
           <canvas
-            width=(string_of_int(state.settings.Settings.T.canvas_size) ++ "px")
-            height=(string_of_int(state.settings.Settings.T.canvas_size) ++ "px")
+            width=(
+              string_of_int(state.settings.Settings.T.canvas_size) ++ "px"
+            )
+            height=(
+              string_of_int(state.settings.Settings.T.canvas_size) ++ "px"
+            )
             className="canvas"
             ref=(self.handle(setCtxRef))
           />
         </div>
         <div>
-          <button onClick=(self.reduce((_) => ToggleAnimating)) style=Styles.button>
+          <button
+            onClick=(self.reduce((_) => ToggleAnimating)) style=Styles.button>
             (se(state.animation === None ? "Animate" : "Stop"))
           </button>
           <SettingsPage
             settings=state.settings
-            update=(reduce((settings) => SettingsUpdate(settings)))
+            update=(reduce(settings => SettingsUpdate(settings)))
           />
           /*          <SettingsPage
                                   state=state.settings
@@ -271,7 +297,7 @@ module Page = {
             (se("Record animation"))
           </button>
           (
-            switch state.downloadUrl {
+            switch (state.downloadUrl) {
             | None => ReasonReact.nullElement
             | Some(url) =>
               /* TODO make a nice name */
@@ -281,7 +307,7 @@ module Page = {
             }
           )
         </div>
-      </div>
+      </div>,
   };
 };
 

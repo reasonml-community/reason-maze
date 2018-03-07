@@ -247,9 +247,9 @@ browserify-zlib@^0.1.4:
   dependencies:
     pako "~0.2.0"
 
-bs-platform@^1.9.2:
-  version "1.10.3"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-1.10.3.tgz#da5aaba2e0507f5f85a5f662818b7f8734156f84"
+bs-platform@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.2.2.tgz#95ff37719771bbf310e8376fedd1148865c0da19"
 
 buffer@^4.9.0:
   version "4.9.1"
@@ -1432,7 +1432,16 @@ rc@^1.1.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-dom@>=15.0.0, react-dom@^15.5.4:
+"react-dom@>=15.0.0 || >=16.0.0":
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.2.0.tgz#69003178601c0ca19b709b33a83369fe6124c044"
+  dependencies:
+    fbjs "^0.8.16"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
+
+react-dom@^15.5.4:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.6.2.tgz#41cfadf693b757faf2708443a1d1fd5a02bef730"
   dependencies:
@@ -1441,7 +1450,16 @@ react-dom@>=15.0.0, react-dom@^15.5.4:
     object-assign "^4.1.0"
     prop-types "^15.5.10"
 
-react@>=15.0.0, react@^15.5.4:
+"react@>=15.0.0 || >=16.0.0":
+  version "16.2.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.2.0.tgz#a31bd2dab89bff65d42134fa187f24d054c273ba"
+  dependencies:
+    fbjs "^0.8.16"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
+
+react@^15.5.4:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/react/-/react-15.6.2.tgz#dba0434ab439cfe82f108f0f511663908179aa72"
   dependencies:
@@ -1472,12 +1490,12 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
-reason-react@^0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/reason-react/-/reason-react-0.2.4.tgz#96d85a533fc93e695818dbb3e6a8ae05fbf0de7d"
+reason-react@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/reason-react/-/reason-react-0.3.4.tgz#afec4073ec0ea8122833f52b7e77219ef8ab8467"
   dependencies:
-    react ">=15.0.0"
-    react-dom ">=15.0.0"
+    react ">=15.0.0 || >=16.0.0"
+    react-dom ">=15.0.0 || >=16.0.0"
 
 regex-cache@^0.4.2:
   version "0.4.3"

@@ -13,19 +13,23 @@ let styles =
       "cursor": "pointer",
       "outline": "none",
       ":hover": {
-        "background-color": "#eee"
-      }
+        "background-color": "#eee",
+      },
     },
     "selected": {
-      "background-color": "#aaa"
-    }
+      "background-color": "#aaa",
+    },
   });
 
-let className = (is_current) =>
-  Aphrodite.(csss(styles, [|"button", is_current ? "selected" : "nonselected"|]));
+let className = is_current =>
+  Aphrodite.(
+    csss(styles, [|"button", is_current ? "selected" : "nonselected"|])
+  );
 
 let make = (~title, ~selected, ~onClick, _children) => {
   ...component,
-  render: (_self) =>
-    <button onClick=((_) => onClick()) className=(className(selected))> (se(title)) </button>
+  render: _self =>
+    <button onClick=((_) => onClick()) className=(className(selected))>
+      (se(title))
+    </button>,
 };

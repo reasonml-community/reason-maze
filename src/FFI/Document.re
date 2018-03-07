@@ -4,12 +4,15 @@ type document;
 
 type keyboardEvent;
 
-[@bs.val] external createElement : string => element = "document.createElement";
+[@bs.val]
+external createElement : string => element = "document.createElement";
 
-[@bs.val] external appendChild : element => element = "document.body.appendChild";
+[@bs.val]
+external appendChild : element => element = "document.body.appendChild";
 
 [@bs.send]
-external addEventListener : (element, string, unit => unit) => unit = "addEventListener";
+external addEventListener : (element, string, unit => unit) => unit =
+  "addEventListener";
 
 [@bs.get] external getWidth : element => int = "innerWidth";
 

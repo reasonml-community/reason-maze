@@ -3,7 +3,7 @@ module PairSet =
     {
       type t = (int, int);
       let compare = (a, b) => compare(a, b);
-    }
+    },
   );
 
 module IntMap =
@@ -11,7 +11,7 @@ module IntMap =
     {
       type t = int;
       let compare = (a, b) => compare(a, b);
-    }
+    },
   );
 
 type get_adjacent = int => list(int);

@@ -15,9 +15,10 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     /*let (xm, ym) = (0.0, 0.0);*/
     /*Array.iter (Pres.draw_shape ctx (xm, ym) (Presenter.hsl 0 100) 10) (Man.paint_shapes state);*/
     Canvas.Ctx.setStrokeStyle(ctx, "#aaa");
-    List.iter(Pres.draw_wall(ctx, (xm, ym)), Man.paint_walls(state))
+    List.iter(Pres.draw_wall(ctx, (xm, ym)), Man.paint_walls(state));
   };
-  let listen_to_canvas: (Canvas.canvasElement, ((float, float)) => unit) => unit = [%bs.raw
+  let listen_to_canvas:
+    (Canvas.canvasElement, ((float, float)) => unit) => unit = [%bs.raw
     {|function(canvas, fn) {
     canvas.addEventListener('mousemove', evt => {
       if (evt.button === 0 && evt.buttons === 1) {
@@ -34,7 +35,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     button.addEventListener('click', fn)
   }|}
   ];
-  let paint = (options) => {
+  let paint = options => {
     open Show.Options;
     Random.self_init();
     let (width, height) = options.canvas_size;
@@ -52,17 +53,15 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       canvas,
       ((x, y)) => {
         pstate := Man.toggle_point(pstate^, (x -. xm, y -. ym));
-        show_paint(ctx, options.canvas_size, pstate^)
+        show_paint(ctx, options.canvas_size, pstate^);
+      },
+    );
+    make_button("Go", () =>
+      switch (Man.realize_state(pstate^)) {
+      | Some(state) => Show'.animate(ctx, 5, 40, options, state) |> ignore
+      | None => ()
+      /* TODO need to make it work with unconnected sections */
       }
     );
-    make_button(
-      "Go",
-      () =>
-        switch (Man.realize_state(pstate^)) {
-        | Some(state) => Show'.animate(ctx, 5, 40, options, state) |> ignore
-        | None => ()
-        /* TODO need to make it work with unconnected sections */
-        }
-    )
   };
 };
