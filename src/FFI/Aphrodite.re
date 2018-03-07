@@ -1,3 +1,5 @@
+open Belt;
+
 type styles;
 
 type style;
@@ -16,7 +18,7 @@ let get: (styles, string) => style = [%bs.raw
 
 let css = (styles, name) => css_(get(styles, name));
 
-let csss = (styles, names) => csss_(Array.map(get(styles), names));
+let csss = (styles, names) => csss_(Array.map(names, get(styles)));
 
 type styleSheet;
 

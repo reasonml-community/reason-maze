@@ -1,3 +1,5 @@
+open Belt;
+
 module Ctx = Canvas.Ctx;
 
 let sf = string_of_float;
@@ -56,47 +58,47 @@ module Draw = (Board: Shared.Board, Config: Config) => {
     | Shared.Line((p1, p2)) => Ctx.line(ctx, p1, p2)
     };
   let draw_walls = (ctx, bsize, csize, walls) =>
-    List.iter(
+    List.forEach(
+      walls,
       wall =>
         Board.drawable_wall(wall, bsize, csize)
         |> Utils.maybe(draw_wall(ctx))
         |> ignore,
-      walls,
     );
   let vertex_dots = (ctx, bsize, csize, vertices, size) =>
-    List.iter(
+    List.forEach(
+      vertices,
       vertex => {
         let (x, y) = Board.vertex_pos(vertex, bsize, csize);
         Ctx.beginPath(ctx);
         Ctx.circle(ctx, x, y, size);
         Ctx.fill(ctx);
       },
-      vertices,
     );
   let dots = (ctx, bsize, csize, traveled, total_age, dot_color, size) =>
-    List.iter(
+    List.forEach(
+      traveled,
       ({Shared.Edge.dest, age}) =>
         Board.vertex_pos(dest, bsize, csize)
         |> draw_point(ctx, total_age, age, dot_color, size),
-      traveled,
     );
   let paths = (ctx, bsize, csize, traveled) =>
-    List.iter(
+    List.forEach(
+      traveled,
       ({Shared.Edge.dest, src}) => {
         let a = Board.vertex_pos(src, bsize, csize);
         let b = Board.vertex_pos(dest, bsize, csize);
         Canvas.Ctx.line(ctx, a, b);
       },
-      traveled,
     );
   let connections = (ctx, bsize, csize, adjacent) =>
-    List.iter(
+    List.forEach(
+      adjacent,
       ((src, dest)) => {
         let a = Board.vertex_pos(src, bsize, csize);
         let b = Board.vertex_pos(dest, bsize, csize);
         Canvas.Ctx.line(ctx, a, b);
       },
-      adjacent,
     );
   let draw = (ctx, bsize, csize, walls, traveled, current, next) => {
     let (wsize, hsize) = csize;
@@ -105,7 +107,7 @@ module Draw = (Board: Shared.Board, Config: Config) => {
       Canvas.Ctx.setStrokeStyle(ctx, Config.wallColor);
       Canvas.Ctx.strokeRect(ctx, 0.0, 0.0, wsize, hsize);
       draw_walls(ctx, bsize, csize, walls);
-      Board.border_walls(bsize, csize) |> List.iter(draw_wall(ctx));
+      Board.border_walls(bsize, csize) |> List.forEach(_, draw_wall(ctx));
     };
     if (Config.showTrails) {
       Canvas.Ctx.setStrokeStyle(ctx, "rgb(200, 200, 200)");

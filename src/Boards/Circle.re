@@ -1,3 +1,5 @@
+open Belt;
+
 module Coord = Coord2d;
 
 type shape = int;
@@ -33,7 +35,7 @@ let rec ring_counts = n =>
     };
   };
 
-let counts = Array.of_list(List.rev(ring_counts(1000)));
+let counts = List.toArray(List.reverse(ring_counts(1000)));
 
 let adjacents = (_size, (_x, y)) =>
   if (y == 0) {
@@ -50,12 +52,12 @@ let adjacents = (_size, (_x, y)) =>
 
 let adjacent_coord = (_size, (x, y), direction) =>
   switch (direction) {
-  | Left => x > 0 ? (x - 1, y) : (counts[y] - 1, y)
-  | Right => (x + 1 < counts[y] ? x + 1 : 0, y)
+  | Left => x > 0 ? (x - 1, y) : (Array.getExn(counts, y) - 1, y)
+  | Right => (x + 1 < Array.getExn(counts, y) ? x + 1 : 0, y)
   | Down =>
     y === 0 ?
       ((x + 1) mod 2, y) :
-      counts[y] === counts[y - 1] ? (x, y - 1) : (x / 2, y - 1)
+      Array.getExn(counts, y) === Array.getExn(counts, y - 1) ? (x, y - 1) : (x / 2, y - 1)
   | Up => (x, y + 1)
   | UpLeft => (x * 2, y + 1)
   | UpRight => (x * 2 + 1, y + 1)
@@ -74,16 +76,16 @@ let polarf = (x, y, count) => {
 let direction_to_border = (_size, (x, y), direction) =>
   switch (direction) {
   | Left =>
-    let count = counts[y];
+    let count = Array.getExn(counts, y);
     Border.Line((polar(x, y, count), polar(x, y + 1, count)));
   | Right =>
-    let count = counts[y];
+    let count = Array.getExn(counts, y);
     Border.Line((polar(x + 1, y, count), polar(x + 1, y + 1, count)));
   | Down =>
     if (y === 0) {
       Border.Line((polar(0, 1, 2), polar(1, 1, 2)));
     } else {
-      let count = counts[y] |> fi;
+      let count = Array.getExn(counts, y) |> fi;
       Border.Arc((
         0.0,
         0.0,
@@ -93,7 +95,7 @@ let direction_to_border = (_size, (x, y), direction) =>
       ));
     }
   | Up =>
-    let count = counts[y] |> fi;
+    let count = Array.getExn(counts, y) |> fi;
     Border.Arc((
       0.0,
       0.0,
@@ -102,7 +104,7 @@ let direction_to_border = (_size, (x, y), direction) =>
       fi(x + 1) /. count *. tau,
     ));
   | UpLeft =>
-    let count = counts[y] |> fi;
+    let count = Array.getExn(counts, y) |> fi;
     Border.Arc((
       0.0,
       0.0,
@@ -111,7 +113,7 @@ let direction_to_border = (_size, (x, y), direction) =>
       (0.5 +. fi(x)) /. count *. tau,
     ));
   | UpRight =>
-    let count = counts[y] |> fi;
+    let count = Array.getExn(counts, y) |> fi;
     Border.Arc((
       0.0,
       0.0,
@@ -127,7 +129,7 @@ let str_pos = ((a, b)) =>
 let coordinates = size => {
   let v = ref([]);
   for (y in 0 to size - 1) {
-    let count = counts[y];
+    let count = Array.getExn(counts, y);
     for (x in 0 to count - 1) {
       v := [(x, y), ...v^];
     };
@@ -155,7 +157,7 @@ let tile_center = (size, scale, (x, y)) => {
     if (y === 0) {
       polarf(fi(x) +. 0.5, scale *. 0.5, 2);
     } else {
-      polarf(fi(x) +. 0.5, scale *. (fi(y) +. 0.5), counts[y]);
+      polarf(fi(x) +. 0.5, scale *. (fi(y) +. 0.5), Array.getExn(counts, y));
     };
   (ax +. cx, ay +. cy);
 };
@@ -166,7 +168,7 @@ let tile_center = (size, scale, (x, y)) => {
    };
     */
 let tile_at_coord = (_size, (x, y)) => {
-  let count = counts[y] |> fi;
+  let count = Array.getExn(counts, y) |> fi;
   Shape.Arc((
     (0.0, 0.0),
     fi(y),
