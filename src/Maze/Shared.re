@@ -1,3 +1,5 @@
+open Belt;
+
 module Edge = {
   type edge = {
     src: int,
@@ -9,14 +11,11 @@ module Edge = {
 type adjacency_list = array(list(int));
 
 let optmap = (fn, lst) =>
-  List.fold_left(
-    (res, v) =>
-      switch (fn(v)) {
-      | None => res
-      | Some(x) => [x, ...res]
-      },
-    [],
-    lst,
+  List.reduce(lst, [], (res, v) =>
+    switch (fn(v)) {
+    | None => res
+    | Some(x) => [x, ...res]
+    }
   );
 
 module type Generator = {
@@ -85,21 +84,23 @@ module Board = (Shape: BoardShape) => {
   module Shape = Shape;
   let border_walls = (shape, size) =>
     List.map(
+      Shape.border_walls(shape),
       (((x, y), direction)) => {
         let wall = Shape.Tile.wall_in_direction(direction);
         let scale = Shape.scale(shape, size);
         let offset = Shape.coord_to_board(shape, size, (x, y));
         transform_wall(wall, scale, offset);
       },
-      Shape.border_walls(shape),
     );
   let adjacency_list = shape => {
     let res = Array.make(Shape.vertex_count(shape), []);
     Shape.all_coordinates(shape)
-    |> Array.iteri((i, (x, y)) =>
-         res[i] =
-           Shape.Tile.adjacent((x, y))
-           |> optmap(((a, b)) => Shape.to_vertex(shape, (x + a, y + b)))
+    |> Array.forEachWithIndex(_, (i, (x, y)) =>
+         ignore(
+           res[i] =
+             Shape.Tile.adjacent((x, y))
+             |> optmap(((a, b)) => Shape.to_vertex(shape, (x + a, y + b))),
+         )
        );
     res;
   };

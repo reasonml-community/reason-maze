@@ -1,3 +1,5 @@
+open Belt;
+
 let iof = int_of_float;
 
 module Options = {
@@ -34,7 +36,8 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     switch (options.draw_shapes) {
     | Some(get_color) =>
       /*Canvas.Ctx.setFillStyle ctx color;*/
-      Array.iter(
+      Array.forEach(
+        Man.all_shapes(state),
         Presenter.draw_shape(
           ctx,
           (xm, ym),
@@ -42,7 +45,6 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
           Man.current_age(state),
           Man.max_age(state),
         ),
-        Man.all_shapes(state),
       )
     | None => ()
     };
@@ -51,7 +53,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
       let edges = Man.all_edges(state);
-      List.iter(Presenter.draw_edge(ctx, (xm, ym)), edges);
+      List.forEach(edges, Presenter.draw_edge(ctx, (xm, ym)));
     | None => ()
     };
     switch (options.draw_walls) {
@@ -59,7 +61,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
       let walls = Man.all_walls(state);
-      List.iter(Presenter.draw_wall(ctx, (xm, ym)), walls);
+      List.forEach(walls, Presenter.draw_wall(ctx, (xm, ym)));
     | None => ()
     };
   };
@@ -80,12 +82,13 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     let edges = Man.edges(state);
     Generator.PairSet.iter(((a, b)) => Js.log((a, b)), edges);
     let walls = Man.all_walls(state);
-    Js.log(("walls", Array.of_list(walls)));
+    Js.log(("walls", List.toArray(walls)));
     switch (options.draw_shapes) {
     | Some(get_color) =>
       /*Canvas.Ctx.setFillStyle ctx color;*/
-      /*Array.iter (Presenter.draw_shape ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);*/
-      Array.iteri(
+      /*Array.forEach (Presenter.draw_shape ctx (xm, ym) get_color (Man.max_age state)) (Man.all_shapes state);*/
+      Array.forEachWithIndex(
+        Man.all_shapes(state),
         Presenter.draw_shapei(
           ctx,
           (xm, ym),
@@ -93,7 +96,6 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
           Man.current_age(state),
           Man.max_age(state),
         ),
-        Man.all_shapes(state),
       )
     | None => ()
     };
@@ -101,8 +103,11 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     | Some((width, color)) =>
       Canvas.Ctx.setLineWidth(ctx, width);
       Canvas.Ctx.setStrokeStyle(ctx, color);
-      List.iter(Presenter.draw_edge(ctx, (xm, ym)), Man.all_edges(state));
-    /*List.iteri (Presenter.draw_edgei ctx (xm, ym)) (Man.all_edges state);*/
+      List.forEach(
+        Man.all_edges(state),
+        Presenter.draw_edge(ctx, (xm, ym)),
+      );
+    /*List.forEachWithIndex (Presenter.draw_edgei ctx (xm, ym)) (Man.all_edges state);*/
     | None => ()
     };
     switch (options.draw_walls) {
@@ -112,8 +117,8 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       let walls = Man.all_walls(state);
       Js.log(walls);
       Js.log("hi");
-      /*List.iter (Presenter.draw_wall ctx (xm, ym)) walls;*/
-      List.iteri(Presenter.draw_walli(ctx, (xm, ym)), walls);
+      /*List.forEach (Presenter.draw_wall ctx (xm, ym)) walls;*/
+      List.forEachWithIndex(walls, Presenter.draw_walli(ctx, (xm, ym)));
     | None => ()
     };
   };
