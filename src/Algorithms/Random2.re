@@ -1,3 +1,5 @@
+open Belt;
+
 type state = {
   visited: array(int),
   edges: Generator.PairSet.t,
@@ -24,16 +26,14 @@ let max_age = state => state.step;
 
 let sortpair = (a, b) => a > b ? (b, a) : (a, b);
 
-let choose = arr => arr[Random.int(Array.length(arr))];
+let choose = arr => Array.getExn(arr, Random.int(Array.length(arr)));
 
 let jump_to_new_block = state => {
   let remaining = [%bs.raw "[]"];
-  Array.iteri(
-    (i, age) =>
-      if (age === 0) {
-        Js.Array.push(i, remaining) |> ignore;
-      },
-    state.visited,
+  Array.forEachWithIndex(state.visited, (i, age) =>
+    if (age === 0) {
+      Js.Array.push(i, remaining) |> ignore;
+    }
   );
   switch (remaining) {
   | [||] => state
@@ -56,7 +56,7 @@ let rec step = (get_adjacent, state) =>
       )
     ) {
     | [|(src, dest)|] =>
-      if (state.visited[dest] > 0) {
+      if (Array.getExn(state.visited, dest) > 0) {
         step(
           get_adjacent,
           switch (Array.length(state.frontier)) {
@@ -65,12 +65,17 @@ let rec step = (get_adjacent, state) =>
           },
         );
       } else {
-        state.visited[dest] = state.step + 1;
+        ignore(state.visited[dest] = state.step + 1);
         let others =
           get_adjacent(dest)
-          |> List.filter(x => state.visited[x] === 0)
-          |> List.map(x => (dest, x));
-        let frontier = Array.append(Array.of_list(others), state.frontier);
+          |> List.keepMap(_, x =>
+               if (Array.getExn(state.visited, x) === 0) {
+                 Some((dest, x));
+               } else {
+                 None;
+               }
+             );
+        let frontier = Array.concat(List.toArray(others), state.frontier);
         let state = {
           ...state,
           step: state.step + 1,

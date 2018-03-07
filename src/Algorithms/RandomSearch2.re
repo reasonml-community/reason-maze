@@ -1,3 +1,5 @@
+open Belt;
+
 module State = {
   type t = {
     adjacency_list: Shared.adjacency_list,
@@ -19,10 +21,10 @@ let rec add_adjacent_edges = (state, adjacents, next, traveled, age) => {
   switch (adjacents) {
   | [] => (next, traveled, age)
   | [dest, ...rest] =>
-    if (visited[dest]) {
+    if (Array.getExn(visited, dest)) {
       add_adjacent_edges(state, rest, next, traveled, age);
     } else {
-      visited[dest] = true;
+      ignore(visited[dest] = true);
       add_adjacent_edges(
         state,
         rest,
@@ -40,12 +42,12 @@ let step = state => {
   switch (current) {
   | [] => state
   | [src] =>
-    let adjacents = adjacency_list[src];
+    let adjacents = Array.getExn(adjacency_list, src);
     let (next, traveled, age) =
       add_adjacent_edges((visited, src), adjacents, next, traveled, age);
     {...state, current: Utils.shuffle(next), next: [], traveled, age};
   | [src, ...rest] =>
-    let adjacents = adjacency_list[src];
+    let adjacents = Array.getExn(adjacency_list, src);
     let (next, traveled, age) =
       add_adjacent_edges((visited, src), adjacents, next, traveled, age);
     {...state, current: Utils.shuffle(rest @ next), traveled, age};
@@ -61,7 +63,7 @@ let rec loop = state =>
 let init = (vertices, adjacency_list) => {
   let visited = Array.make(vertices, false);
   let initial = Random.int(vertices);
-  visited[initial] = true;
+  ignore(visited[initial] = true);
   State.{
     adjacency_list,
     visited,

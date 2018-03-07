@@ -1,3 +1,5 @@
+open Belt;
+
 module State = {
   type t = {
     adjacency_list: Shared.adjacency_list,
@@ -7,22 +9,22 @@ module State = {
     traveled: list(Shared.Edge.edge),
   };
   let traveled = t => t.traveled;
-  let current = t => List.map(({Shared.Edge.dest}) => dest, t.current);
+  let current = t => List.map(t.current, ({Shared.Edge.dest}) => dest);
   let next = (_) => [];
   let age = t => t.age;
   let finished = t => t.current === [];
 };
 
 let adjacent_edges = (visited, src, adjacents) =>
-  List.fold_left(
+  List.reduce(
+    adjacents,
+    [],
     (arr, dest) =>
-      if (visited[dest]) {
+      if (Array.getExn(visited, dest)) {
         arr;
       } else {
         [Shared.Edge.{src, dest, age: 0}, ...arr];
       },
-    [],
-    adjacents,
   );
 
 let step = state => {
@@ -31,11 +33,11 @@ let step = state => {
   switch (current) {
   | [] => state
   | [src, ...rest] =>
-    if (visited[src.dest]) {
+    if (Array.getExn(visited, src.dest)) {
       {...state, current: rest};
     } else {
-      let adjacents = adjacency_list[src.dest];
-      visited[src.dest] = true;
+      let adjacents = Array.getExn(adjacency_list, src.dest);
+      ignore(visited[src.dest] = true);
       let age = age + 1;
       let traveled = [{...src, age}, ...traveled];
       let next = rest @ adjacent_edges(visited, src.dest, adjacents);

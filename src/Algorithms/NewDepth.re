@@ -69,10 +69,10 @@ module F = (Config: Config) => {
           get_adjacent(dest)
           |> Utils.shuffle
           |> List.keepMap(_, x =>
-               if (x !== src) {
-                 Some((dest, x));
-               } else {
+               if (x === src) {
                  None;
+               } else {
+                 Some((dest, x));
                }
              );
         let step_count = step_count + 1;
