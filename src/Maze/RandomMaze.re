@@ -1,3 +1,5 @@
+open Belt;
+
 let random_line = () => (
   1.0 +. float_of_int(Random.int(10)),
   Presenter.hsl(0, 0, Random.int(80)),
@@ -38,7 +40,7 @@ let run = (ctx, canvas_size) => {
   Random.init(seed);
   Js.log(("Seed", seed));
   let options = random_options(canvas_size);
-  let choose = arr => arr[Random.int(Array.length(arr))];
+  let choose = arr => Array.getExn(arr, Random.int(Array.length(arr)));
   let random_board = () =>
     choose([|
       ((module Circle): (module SimpleBoard.T)),

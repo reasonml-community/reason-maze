@@ -5,9 +5,9 @@ let maybe = (f, n) =>
   };
 
 let shuffle = d => {
-  let nd = List.map(c => (Random.bits(), c), d);
+  let nd = Belt.List.map(d, c => (Random.bits(), c));
   let sond = List.sort(compare, nd);
-  List.map(snd, sond);
+  Belt.List.map(sond, snd);
 };
 
 module Float = {

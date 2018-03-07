@@ -1,43 +1,42 @@
-module Wall = {
-  type t = (int, int);
-  let compare = ((x, y), (a, b)) =>
-    switch (compare(x, a)) {
-    | 0 => compare(y, b)
-    | v => v
-    };
-};
+open Belt;
 
-module WallSet = Set.Make(Wall);
+module WallComparator = (
+  val Belt.Id.comparable(~cmp=((x: int, y: int), (a, b)) =>
+        switch (compare(x, a)) {
+        | 0 => compare(y, b)
+        | v => v
+        }
+      )
+);
 
 let get_walls = (full, clear) => {
   let (_, res) =
-    Array.fold_left(
+    Array.reduce(
+      full,
+      (0, []),
       ((src, res), ends) => (
         src + 1,
-        List.fold_left(
+        List.reduce(
+          ends,
+          [],
           (walls, vend) =>
             vend < src ?
               walls :
-              WallSet.mem((src, vend), clear) ?
+              Set.has(clear, (src, vend)) ?
                 walls : [(src, vend), ...walls],
-          [],
-          ends,
         )
         @ res,
       ),
-      (0, []),
-      full,
     );
   res;
 };
 
 let wall_set = traveled =>
-  WallSet.of_list(
-    List.map(
-      ({Shared.Edge.src, dest}) => src > dest ? (dest, src) : (src, dest),
-      traveled,
-    ),
-  );
+  List.toArray(traveled)
+  |> Array.map(_, ({Shared.Edge.src, dest}) =>
+       src > dest ? (dest, src) : (src, dest)
+     )
+  |> Set.ofArray(~id=(module WallComparator));
 
 let walls_remaining = (full, traveled) => {
   let clear = wall_set(traveled);
