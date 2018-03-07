@@ -21,7 +21,7 @@ module F = (Config: Config) => {
     };
     let traveled = t => t.traveled;
     let current = t =>
-      List.map(List.ofArray(t.current), ({Shared.Edge.dest}) => dest);
+      List.map(List.fromArray(t.current), ({Shared.Edge.dest}) => dest);
     let next = t =>
       switch (t.active) {
       | Some((x, _)) => [x.Shared.Edge.dest]

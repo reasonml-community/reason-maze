@@ -2,7 +2,7 @@ open Belt;
 
 type state = {
   visited: array(int),
-  edges: Generator.PairSet.t,
+  edges: Utils.intPairSet,
   frontier: array((int, int)),
   step: int,
 };
@@ -12,7 +12,7 @@ let init = size => {
   /*let start = 0;*/
   {
     visited: Array.make(size, 0),
-    edges: Generator.PairSet.empty,
+    edges: Utils.intPairSet,
     frontier: [|(start, start)|],
     step: 0,
   };
@@ -79,7 +79,7 @@ let rec step = (get_adjacent, state) =>
         let state = {
           ...state,
           step: state.step + 1,
-          edges: Generator.PairSet.add(sortpair(src, dest), state.edges),
+          edges: Set.add(state.edges, sortpair(src, dest)),
           frontier,
         };
         switch (Array.length(state.frontier)) {

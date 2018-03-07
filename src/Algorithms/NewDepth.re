@@ -10,7 +10,7 @@ module RandomConfig = (()) => {
 module F = (Config: Config) => {
   type state = {
     visited: array(int),
-    edges: Generator.PairSet.t,
+    edges: Utils.intPairSet,
     frontier: array((int, int)),
     step: int,
     active: option(((int, int), int)),
@@ -19,7 +19,7 @@ module F = (Config: Config) => {
     let start = Random.int(size);
     {
       visited: Array.make(size, 0),
-      edges: Generator.PairSet.empty,
+      edges: Utils.intPairSet,
       frontier: [||],
       step: 0,
       active: Some(((start, start), 0)),
@@ -31,7 +31,7 @@ module F = (Config: Config) => {
   let finished = state => state.active == None;
   let sortpair = (a, b) => a > b ? (b, a) : (a, b);
   let add_edge = (edges, src, dest) =>
-    Generator.PairSet.add(sortpair(src, dest), edges);
+    Set.add(edges, sortpair(src, dest));
   let shouldHit = prob =>
     switch (prob) {
     | 0.0 => false
@@ -136,7 +136,7 @@ module F = (Config: Config) => {
           {
             ...state,
             step: state.step + 1,
-            edges: Generator.PairSet.add(sortpair(src, dest), state.edges),
+            edges: Set.add(state.edges, sortpair(src, dest)),
             frontier: Array.concat(List.toArray(others), nonEmptyArray),
           };
         }

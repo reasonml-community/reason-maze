@@ -1,14 +1,5 @@
 open Belt;
 
-module WallComparator = (
-  val Belt.Id.comparable(~cmp=((x: int, y: int), (a, b)) =>
-        switch (compare(x, a)) {
-        | 0 => compare(y, b)
-        | v => v
-        }
-      )
-);
-
 let get_walls = (full, clear) => {
   let (_, res) =
     Array.reduce(
@@ -36,7 +27,7 @@ let wall_set = traveled =>
   |> Array.map(_, ({Shared.Edge.src, dest}) =>
        src > dest ? (dest, src) : (src, dest)
      )
-  |> Set.ofArray(~id=(module WallComparator));
+  |> Set.fromArray(~id=(module Utils.IntPairComparator));
 
 let walls_remaining = (full, traveled) => {
   let clear = wall_set(traveled);

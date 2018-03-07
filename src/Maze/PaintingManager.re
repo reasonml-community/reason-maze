@@ -11,11 +11,21 @@ module State = {
 };
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
-  include Manager.F(Board, Gen);
-  let create_enabled_map = coords =>
-    Array.reduce(coords, CoordMap.empty, (map, c) =>
-      CoordMap.add(c, false, map)
+  include
+    Manager.F(
+      Board,
+      Gen,
     );
+/*  module BoardCoordComparator2 = (
+    val Id.comparable(~cmp=Board.Coord.compare)
+  );
+*/  module BoardCoordComparator2 = Id.MakeComparable({
+    type t = Board.Coord.t;
+    let cmp = Board.Coord.compare;
+  });
+  let boardCoord2 = Map.make(~id=(module BoardCoordComparator2));
+  let create_enabled_map = coords =>
+    Array.reduce(coords, boardCoord2, (map, c) => Map.set(map, c, false));
   let paint_init = ((width, height), hint_size) => {
     let (shape, scale, outsize) =
       Board.auto_size((width, height), hint_size);
@@ -29,8 +39,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       Board.adjacents(state.shape, coord)
       |> List.map(_, Board.adjacent_coord(state.shape, coord))
       |> List.reduce(_, state.State.enabled, (enabled, coord) =>
-           CoordMap.mem(coord, enabled) ?
-             CoordMap.add(coord, true, enabled) : enabled
+           Map.has(enabled, coord) ? Map.set(enabled, coord, true) : enabled
          );
     {...state, State.enabled};
   };
@@ -38,16 +47,16 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     open State;
     let {shape, scale, enabled} = state;
     let coord = Board.from_point(shape, scale, (x, y));
-    if (CoordMap.mem(coord, enabled)) {
+    if (Map.has(enabled, coord)) {
       let state = toggle_all(state, coord);
-      let enabled = CoordMap.add(coord, true, state.enabled);
+      let enabled = Map.set(state.enabled, coord, true);
       {...state, State.enabled};
     } else {
       state;
     };
   };
   let realize_state = ({State.shape, scale, outsize, coords, enabled}) => {
-    let coords = Array.keep(coords, coord => CoordMap.find(coord, enabled));
+    let coords = Array.keep(coords, coord => Map.getExn(enabled, coord));
     switch (coords) {
     | [||] => None
     | coords =>
@@ -77,7 +86,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   let paint_shapes = ({State.coords, scale, shape, enabled}) =>
     /*all_shapes (realize_state state)*/
     /*List.map*/
-    Array.keep(coords, coord => CoordMap.find(coord, enabled))
+    Array.keep(coords, coord => Map.getExn(enabled, coord))
     |> Array.map(
          _,
          coord => {
@@ -86,7 +95,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
            /*let visited = Array.get (Gen.visited gen_state) i;*/
            (
              Shape.transform(offset, scale, shape),
-             CoordMap.find(coord, enabled) ? 8 : 2,
+             Map.getExn(enabled, coord) ? 8 : 2,
            );
          },
        );

@@ -1,3 +1,5 @@
+open Belt;
+
 module State = {
   type t('shape, 'gen_state, 'coord, 'direction, 'map) = {
     count: int,
@@ -12,29 +14,29 @@ module State = {
 };
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
-  module CoordMap = Map.Make(Board.Coord);
+  module BoardCoordComparator = Id.MakeComparable({
+    type t = Board.Coord.t;
+    let cmp = Board.Coord.compare;
+  });
+  let boardCoord = Map.make(~id=(module BoardCoordComparator));
   let create_index_map = coords =>
-    Array.fold_left(
-      ((i, map), c) => (i + 1, CoordMap.add(c, i, map)),
-      (0, CoordMap.empty),
-      coords,
+    Array.reduce(coords, (0, boardCoord), ((i, map), c) =>
+      (i + 1, Map.set(map, c, i))
     )
     |> snd;
   let get_adjacent = (shape, clist, cmap, i) => {
-    let coord = clist[i];
+    let coord = Array.getExn(clist, i);
     Board.adjacents(shape, coord)
-    |> List.map(Board.adjacent_coord(shape, coord))
-    |> List.fold_left(
-         (adjacents, coord) =>
-           CoordMap.mem(coord, cmap) ?
-             [CoordMap.find(coord, cmap), ...adjacents] : adjacents,
-         [],
+    |> List.map(_, Board.adjacent_coord(shape, coord))
+    |> List.reduce(_, [], (adjacents, coord) =>
+         Map.has(cmap, coord) ?
+           [Map.getExn(cmap, coord), ...adjacents] : adjacents
        );
   };
   let init = ((width, height), hint_size) => {
     let (shape, scale, outsize) =
       Board.auto_size((width, height), hint_size);
-    let coords = Board.coordinates(shape) |> Array.of_list;
+    let coords = Board.coordinates(shape) |> List.toArray;
     let coord_map = create_index_map(coords);
     let count = Array.length(coords);
     let gen_state = Gen.init(count);
@@ -66,51 +68,51 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   let current_age = ({State.gen_state}) => Gen.max_age(gen_state);
   let all_edges = ({State.shape, scale, coords, gen_state}) => {
     let to_points = ((a, b)) => (
-      Board.tile_center(shape, scale, coords[a]),
-      Board.tile_center(shape, scale, coords[b]),
+      Board.tile_center(shape, scale, Array.getExn(coords, a)),
+      Board.tile_center(shape, scale, Array.getExn(coords, b)),
     );
-    Generator.PairSet.fold(
-      (pair, coll) => [to_points(pair), ...coll],
-      Gen.edges(gen_state),
-      [],
+    Set.reduce(Gen.edges(gen_state), [], (coll, pair) =>
+      [to_points(pair), ...coll]
     );
   };
   let all_shapes = ({State.coords, shape, scale, gen_state}) =>
-    Array.mapi(
+    Array.mapWithIndex(
+      coords,
       (i, coord) => {
         let offset = Board.offset(shape, scale, coord);
         let shape = Board.tile_at_coord(shape, coord);
-        let visited = Gen.visited(gen_state)[i];
+        let visited = Array.getExn(Gen.visited(gen_state), i);
         (Shape.transform(offset, scale, shape), visited);
       },
-      coords,
     );
   let all_walls = ({State.shape, scale, coords, coord_map, gen_state}) => {
     let edges = Gen.edges(gen_state);
-    Array.fold_left(
+    Array.reduce(
+      coords,
+      (0, []),
       ((i, walls), _coord) => {
-        let coord = coords[i];
+        let coord = Array.getExn(coords, i);
         /*let make_border = Board.direction_to_border shape coord;*/
         let borders =
-          List.filter(
+          List.keep(
+            Board.adjacents(shape, coord),
             d => {
               let next = Board.adjacent_coord(shape, coord, d);
               /* borders */
-              if (! CoordMap.mem(next, coord_map)) {
+              if (! Map.has(coord_map, next)) {
                 true;
               } else {
-                let nexti = CoordMap.find(next, coord_map);
+                let nexti = Map.getExn(coord_map, next);
                 /* dedup shared walls */
                 if (nexti < i) {
                   false;
                 } else {
-                  ! Generator.PairSet.mem((i, nexti), edges);
+                  ! Set.has(edges, (i, nexti));
                 };
               };
             },
-            Board.adjacents(shape, coord),
           )
-          |> List.map(direction =>
+          |> List.map(_, direction =>
                Border.transform(
                  scale,
                  Board.offset(shape, scale, coord),
@@ -119,8 +121,6 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
              );
         (i + 1, borders @ walls);
       },
-      (0, []),
-      coords,
     )
     |> snd;
   };

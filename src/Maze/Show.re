@@ -80,7 +80,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     Js.log((w, h, width, height, xm, ym));
     /*let (xm, ym) = (0.0, 0.0);*/
     let edges = Man.edges(state);
-    Generator.PairSet.iter(((a, b)) => Js.log((a, b)), edges);
+    Set.forEach(edges, ((a, b)) => Js.log((a, b)));
     let walls = Man.all_walls(state);
     Js.log(("walls", List.toArray(walls)));
     switch (options.draw_shapes) {

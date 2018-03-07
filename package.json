@@ -10,7 +10,7 @@
     "twit": "^2.2.5"
   },
   "devDependencies": {
-    "bs-platform": "^2.2.2",
+    "bs-platform": "^2.2.3",
     "webpack": "^1.14.0"
   },
   "scripts": {
