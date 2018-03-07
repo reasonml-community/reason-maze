@@ -1,3 +1,5 @@
+open Belt;
+
 type state = {
   visited: array(int),
   edges: Generator.PairSet.t,
@@ -27,18 +29,18 @@ let max_age = state => state.step;
 let sortpair = (a, b) => a > b ? (b, a) : (a, b);
 
 let add_edges = (adjacents, state, (pre, src)) => {
-  state.visited[src] = state.step + 1;
+  ignore(state.visited[src] = state.step + 1);
   let next =
-    List.fold_left(
-      (next, dest) =>
-        if (state.visited[dest] > 0) {
+    List.reduce(
+      adjacents,
+      state.next,
+      (next, dest) => {
+        if (Array.getExn(state.visited, dest) > 0) {
           next;
         } else {
-          state.visited[dest] = state.step + 1;
+          ignore(state.visited[dest] = state.step + 1);
           [(src, dest), ...next];
-        },
-      state.next,
-      adjacents,
+        }},
     );
   (
     next,

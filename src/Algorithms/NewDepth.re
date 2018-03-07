@@ -1,3 +1,5 @@
+open Belt;
+
 module type Config = {let maxHits: int; let joinOnHit: float;};
 
 module RandomConfig = (()) => {
@@ -60,21 +62,26 @@ module F = (Config: Config) => {
     switch (state.active) {
     | None => state
     | Some(((src, dest), hits)) =>
-      if (state.visited[dest] > 0) {
+      if (Array.getExn(state.visited, dest) > 0) {
         step(get_adjacent, get_new(state));
       } else {
         let others =
           get_adjacent(dest)
           |> Utils.shuffle
-          |> List.filter(x => x !== src)
-          |> List.map(x => (dest, x));
+          |> List.keepMap(_, x =>
+               if (x !== src) {
+                 Some((dest, x));
+               } else {
+                 None;
+               }
+             );
         let step_count = step_count + 1;
-        state.visited[dest] = step_count;
+        ignore(state.visited[dest] = step_count);
         let edges = add_edge(edges, src, dest);
         let rec loop = (adjacents, hit) =>
           switch (adjacents) {
           | [(esrc, edest), ...rest] =>
-            if (state.visited[edest] > 0) {
+            if (Array.getExn(state.visited, edest) > 0) {
               if (hits > Config.maxHits) {
                 let edges =
                   shouldHit(Config.joinOnHit) ?
@@ -85,7 +92,7 @@ module F = (Config: Config) => {
               };
             } else {
               let frontier =
-                Array.append(Array.of_list(rest), state.frontier);
+                Array.concat(List.toArray(rest), state.frontier);
               {
                 ...state,
                 frontier,
@@ -113,19 +120,24 @@ module F = (Config: Config) => {
         )
       ) {
       | [|(src, dest)|] =>
-        if (state.visited[dest] > 0) {
+        if (Array.getExn(state.visited, dest) > 0) {
           step(get_adjacent, state);
         } else {
-          state.visited[dest] = state.step + 1;
+          ignore(state.visited[dest] = state.step + 1);
           let others =
             get_adjacent(dest)
-            |> List.filter(x => state.visited[x] === 0)
-            |> List.map(x => (dest, x));
+            |> List.keepMap(_, x =>
+                 if (Array.getExn(state.visited, x) === 0) {
+                   Some((dest, x));
+                 } else {
+                   None;
+                 }
+               );
           {
             ...state,
             step: state.step + 1,
             edges: Generator.PairSet.add(sortpair(src, dest), state.edges),
-            frontier: Array.append(Array.of_list(others), nonEmptyArray),
+            frontier: Array.concat(List.toArray(others), nonEmptyArray),
           };
         }
       | _ => assert false

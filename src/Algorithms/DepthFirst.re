@@ -1,3 +1,5 @@
+open Belt;
+
 module type Config = {let maxHits: int; let joinOnHit: float;};
 
 let shouldHit = prob =>
@@ -19,7 +21,7 @@ module F = (Config: Config) => {
     };
     let traveled = t => t.traveled;
     let current = t =>
-      List.map(({Shared.Edge.dest}) => dest, Array.to_list(t.current));
+      List.map(List.ofArray(t.current), ({Shared.Edge.dest}) => dest);
     let next = t =>
       switch (t.active) {
       | Some((x, _)) => [x.Shared.Edge.dest]
@@ -29,15 +31,15 @@ module F = (Config: Config) => {
     let finished = t => t.active === None;
   };
   let adjacent_edges = (visited, src, adjacents) =>
-    List.fold_left(
+    List.reduce(
+      adjacents,
+      [],
       (arr, dest) =>
-        if (visited[dest]) {
+        if (Array.getExn(visited, dest)) {
           arr;
         } else {
           [Shared.Edge.{src, dest, age: 0}, ...arr];
         },
-      [],
-      adjacents,
     );
   let get_new = state => {
     open State;
@@ -64,23 +66,23 @@ module F = (Config: Config) => {
     switch (active) {
     | None => state
     | Some((src, hits)) =>
-      if (visited[src.dest]) {
+      if (Array.getExn(visited, src.dest)) {
         get_new({...state, traveled});
       } else {
-        let adjacents = adjacency_list[src.dest] |> Utils.shuffle;
+        let adjacents = Array.getExn(adjacency_list, src.dest) |> Utils.shuffle;
         let edges =
           List.map(
-            dest => {Shared.Edge.src: src.dest, dest, age: 0},
             adjacents,
+            dest => {Shared.Edge.src: src.dest, dest, age: 0},
           );
-        let edges = List.filter(x => x.Shared.Edge.dest !== src.src, edges);
+        let edges = List.keep(edges, x => x.Shared.Edge.dest !== src.src);
         let age = age + 1;
-        visited[src.dest] = true;
+        ignore(visited[src.dest] = true);
         let traveled = [{...src, age}, ...traveled];
         let rec loop = (edges, state, hit) =>
           switch (edges) {
           | [edge, ...others] =>
-            if (visited[edge.Shared.Edge.dest]) {
+            if (Array.getExn(visited, edge.Shared.Edge.dest)) {
               if (hits > Config.maxHits /* || others === []*/) {
                 let traveled =
                   shouldHit(Config.joinOnHit) ?
@@ -90,7 +92,7 @@ module F = (Config: Config) => {
                 loop(others, state, true);
               };
             } else {
-              let current = Array.append(Array.of_list(others), current);
+              let current = Array.concat(List.toArray(others), current);
               /*Js.Array.unshift edge current |> ignore;*/
               {
                 ...state,
