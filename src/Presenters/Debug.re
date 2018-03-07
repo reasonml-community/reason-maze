@@ -1,8 +1,10 @@
+open Belt;
+
 let all_walls = full =>
-  Array.fold_left(
-    ((i, res), item) => (i + 1, List.map(d => (i, d), item) @ res),
-    (0, []),
+  Array.reduce(
     full,
+    (0, []),
+    ((i, res), item) => (i + 1, List.map(item, d => (i, d)) @ res),
   )
   |> snd;
 
@@ -41,7 +43,7 @@ module Draw =
   };
   let connections = (ctx, bsize, csize) => {
     let full = Board.adjacency_list(bsize);
-    Js.log(Array.map(Array.of_list, full));
+    Js.log(Array.map(full, List.toArray));
     Canvas.Ctx.setStrokeStyle(ctx, "rgba(100, 100, 100, 0.1)");
     Draw.connections(ctx, bsize, csize, all_walls(full));
   };

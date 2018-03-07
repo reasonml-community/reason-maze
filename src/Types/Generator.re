@@ -6,14 +6,6 @@ module PairSet =
     },
   );
 
-module IntMap =
-  Map.Make(
-    {
-      type t = int;
-      let compare = (a, b) => compare(a, b);
-    },
-  );
-
 type get_adjacent = int => list(int);
 
 module type T = {
