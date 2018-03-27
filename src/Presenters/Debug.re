@@ -1,10 +1,8 @@
 open Belt;
 
 let all_walls = full =>
-  Array.reduce(
-    full,
-    (0, []),
-    ((i, res), item) => (i + 1, List.map(item, d => (i, d)) @ res),
+  Array.reduce(full, (0, []), ((i, res), item) =>
+    (i + 1, List.map(item, d => (i, d)) @ res)
   )
   |> snd;
 
@@ -25,15 +23,18 @@ module Draw =
          DrawConfig: DrawShared.Config,
        ) => {
   module Draw = DrawShared.Draw(Board, DrawConfig);
+
   let walls = (ctx, bsize, csize) => {
     let full = Board.adjacency_list(bsize);
     Draw.draw_walls(ctx, bsize, csize, all_walls(full));
   };
+
   let dots = (ctx, bsize, csize) => {
     /*let full = Board.adjacency_list bsize;*/
     let vertices = Board.Shape.vertex_count(bsize);
     Draw.vertex_dots(ctx, bsize, csize, range(0, vertices), 10.0);
   };
+
   let paths = (ctx, bsize, csize) => {
     let full = Board.adjacency_list(bsize);
     let traveled =
@@ -41,6 +42,7 @@ module Draw =
     Canvas.Ctx.setStrokeStyle(ctx, "rgba(100, 100, 100, 0.1)");
     Draw.paths(ctx, bsize, csize, traveled);
   };
+
   let connections = (ctx, bsize, csize) => {
     let full = Board.adjacency_list(bsize);
     Js.log(Array.map(full, List.toArray));

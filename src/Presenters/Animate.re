@@ -12,6 +12,7 @@ module Draw =
          DrawConfig: DrawShared.Config,
        ) => {
   module Draw = DrawShared.Draw(Board, DrawConfig);
+
   let draw = (ctx, bsize, csize) => {
     let adjacency = Board.adjacency_list(bsize);
     let state = Generator.init(Board.Shape.vertex_count(bsize), adjacency);

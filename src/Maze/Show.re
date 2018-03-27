@@ -18,7 +18,9 @@ open Options;
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   module Man = Manager.F(Board, Gen);
+
   module Presenter = Presenter.F(Board, Gen);
+
   /* have this take some config */
   let show = (ctx, options, state) => {
     let (width, height) = options.canvas_size;
@@ -65,6 +67,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     | None => ()
     };
   };
+
   /* have this take some config */
   let show_debug = (ctx, options, state) => {
     let (width, height) = options.canvas_size;
@@ -122,12 +125,14 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     | None => ()
     };
   };
+
   let rec batch = (state, n) =>
     if (n === 0) {
       state;
     } else {
       batch(Man.step(state), n - 1);
     };
+
   let animate = (ctx, batch_size, interval, options, state, onStop) => {
     Js.log("animate");
     let id = ref(0);
@@ -140,6 +145,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     inner(state);
     id;
   };
+
   let init_state = ({canvas_size, min_margin, size_hint}) => {
     let (width, height) = canvas_size;
     let with_margins = (
@@ -148,14 +154,17 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     );
     Man.init(with_margins, size_hint);
   };
+
   let init = options => {
     let (width, height) = options.canvas_size;
     let canvas = Canvas.createOnBody(iof(width), iof(height));
     let ctx = Canvas.getContext(canvas);
     (canvas, ctx, init_state(options));
   };
+
   let loop = (options, ctx, state) =>
     show(ctx, options, Man.loop_to_end(state));
+
   let loop_debug = (options, ctx, state) =>
     show_debug(ctx, options, Man.loop_to_end(state));
   /*let main {canvas_size, min_margin, size_hint} => {

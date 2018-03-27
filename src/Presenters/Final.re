@@ -5,6 +5,7 @@ module Draw =
          DrawConfig: DrawShared.Config,
        ) => {
   module Draw = DrawShared.Draw(Board, DrawConfig);
+
   let draw = (ctx, bsize, csize) => {
     let full = Board.adjacency_list(bsize);
     let traveled =

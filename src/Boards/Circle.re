@@ -57,7 +57,8 @@ let adjacent_coord = (_size, (x, y), direction) =>
   | Down =>
     y === 0 ?
       ((x + 1) mod 2, y) :
-      Array.getExn(counts, y) === Array.getExn(counts, y - 1) ? (x, y - 1) : (x / 2, y - 1)
+      Array.getExn(counts, y) === Array.getExn(counts, y - 1) ?
+        (x, y - 1) : (x / 2, y - 1)
   | Up => (x, y + 1)
   | UpLeft => (x * 2, y + 1)
   | UpRight => (x * 2 + 1, y + 1)
@@ -157,7 +158,11 @@ let tile_center = (size, scale, (x, y)) => {
     if (y === 0) {
       polarf(fi(x) +. 0.5, scale *. 0.5, 2);
     } else {
-      polarf(fi(x) +. 0.5, scale *. (fi(y) +. 0.5), Array.getExn(counts, y));
+      polarf(
+        fi(x) +. 0.5,
+        scale *. (fi(y) +. 0.5),
+        Array.getExn(counts, y),
+      );
     };
   (ax +. cx, ay +. cy);
 };

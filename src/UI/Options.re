@@ -28,24 +28,23 @@ let make = (~options, ~get_title, ~current, ~on_change, _children) => {
     <div className=Aphrodite.(css(styles, "container"))>
       (
         ReasonReact.arrayToElement(
-          Array.map(options, option
-            =>
-              <SelectableButton
-                key=(get_title(option))
-                title=(get_title(option))
-                onClick=(() => on_change(option))
-                selected=(current === option)
-              />
-            ),
-            /*
-             <button
-               key=(get_title option)
-               onClick=(fun _ => on_change option)
-               className=(className (current === option))
-             >
-               (se (get_title option))
-             </button>
-             */
+          Array.map(options, option =>
+            <SelectableButton
+              key=(get_title(option))
+              title=(get_title(option))
+              onClick=(() => on_change(option))
+              selected=(current === option)
+            />
+          ),
+          /*
+           <button
+             key=(get_title option)
+             onClick=(fun _ => on_change option)
+             className=(className (current === option))
+           >
+             (se (get_title option))
+           </button>
+           */
         )
       )
     </div>,

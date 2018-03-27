@@ -29,7 +29,7 @@ let className = is_current =>
 let make = (~title, ~selected, ~onClick, _children) => {
   ...component,
   render: _self =>
-    <button onClick=((_) => onClick()) className=(className(selected))>
+    <button onClick=(_ => onClick()) className=(className(selected))>
       (se(title))
     </button>,
 };

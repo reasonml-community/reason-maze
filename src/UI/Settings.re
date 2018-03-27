@@ -5,6 +5,7 @@ module T = {
     | NoFill
     | Rainbow
     | HueSat((int, int));
+
   type t = {
     board: Types.Board.t,
     algorithm: Types.Alg.t,
@@ -16,6 +17,7 @@ module T = {
     canvas_size: int,
     seed: int,
   };
+
   let fill_json = fill =>
     switch (fill) {
     | NoFill => Js.Json.string("none")
@@ -23,6 +25,7 @@ module T = {
     | HueSat((hue, sat)) =>
       Js.Json.numberArray([|float_of_int(hue), float_of_int(sat)|])
     };
+
   let parse_fill = fill =>
     Js.Json.(
       switch (classify(fill)) {

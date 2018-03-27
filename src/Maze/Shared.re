@@ -82,6 +82,7 @@ module type Board = {
 
 module Board = (Shape: BoardShape) => {
   module Shape = Shape;
+
   let border_walls = (shape, size) =>
     List.map(
       Shape.border_walls(shape),
@@ -92,6 +93,7 @@ module Board = (Shape: BoardShape) => {
         transform_wall(wall, scale, offset);
       },
     );
+
   let adjacency_list = shape => {
     let res = Array.make(Shape.vertex_count(shape), []);
     Shape.all_coordinates(shape)
@@ -104,13 +106,16 @@ module Board = (Shape: BoardShape) => {
        );
     res;
   };
+
   let (|?<) = (a, b) =>
     switch (b) {
     | Some(x) => Some(a(x))
     | None => None
     };
+
   let vertex_pos = (v, shape, size) =>
     Shape.coord_to_board(shape, size, Shape.from_vertex(shape, v));
+
   let drawable_wall = ((src, dest), shape, size) => {
     let (x, y) = Shape.from_vertex(shape, src);
     let (a, b) = Shape.from_vertex(shape, dest);

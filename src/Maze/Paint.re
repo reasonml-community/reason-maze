@@ -4,8 +4,11 @@ let iof = int_of_float;
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
   module Man = PaintingManager.F(Board, Gen);
+
   module Pres = Presenter.F(Board, Gen);
+
   module Show' = Show.F(Board, Gen);
+
   let show_paint = (ctx, (width, height), state) => {
     Canvas.Ctx.setStrokeWidth(ctx, 1.0);
     Canvas.Ctx.setLineCap(ctx, "round");
@@ -19,6 +22,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     Canvas.Ctx.setStrokeStyle(ctx, "#aaa");
     List.forEach(Man.paint_walls(state), Pres.draw_wall(ctx, (xm, ym)));
   };
+
   let listen_to_canvas:
     (Canvas.canvasElement, ((float, float)) => unit) => unit = [%bs.raw
     {|function(canvas, fn) {
@@ -29,6 +33,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     })
   }|}
   ];
+
   let make_button: (string, unit => unit) => unit = [%bs.raw
     {|function(text, fn) {
     var button = document.createElement('button')
@@ -37,6 +42,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     button.addEventListener('click', fn)
   }|}
   ];
+
   let paint = options => {
     open Show.Options;
     Random.self_init();

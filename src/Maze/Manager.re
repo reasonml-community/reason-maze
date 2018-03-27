@@ -14,16 +14,21 @@ module State = {
 };
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
-  module BoardCoordComparator = Id.MakeComparable({
-    type t = Board.Coord.t;
-    let cmp = Board.Coord.compare;
-  });
+  module BoardCoordComparator =
+    Id.MakeComparable({
+      type t = Board.Coord.t;
+
+      let cmp = Board.Coord.compare;
+    });
+
   let boardCoord = Map.make(~id=(module BoardCoordComparator));
+
   let create_index_map = coords =>
     Array.reduce(coords, (0, boardCoord), ((i, map), c) =>
       (i + 1, Map.set(map, c, i))
     )
     |> snd;
+
   let get_adjacent = (shape, clist, cmap, i) => {
     let coord = Array.getExn(clist, i);
     Board.adjacents(shape, coord)
@@ -33,6 +38,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
            [Map.getExn(cmap, coord), ...adjacents] : adjacents
        );
   };
+
   let init = ((width, height), hint_size) => {
     let (shape, scale, outsize) =
       Board.auto_size((width, height), hint_size);
@@ -52,20 +58,27 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       coord_map,
     };
   };
+
   let step = state =>
     State.{
       ...state,
       gen_state: Gen.step(state.get_adjacent, state.gen_state),
     };
+
   let loop_to_end = state =>
     State.{
       ...state,
       gen_state: Gen.loop_to_end(state.get_adjacent, state.gen_state),
     };
+
   let finished = ({State.gen_state}) => Gen.finished(gen_state);
+
   let edges = ({State.gen_state}) => Gen.edges(gen_state);
+
   let max_age = ({State.count}) => count;
+
   let current_age = ({State.gen_state}) => Gen.max_age(gen_state);
+
   let all_edges = ({State.shape, scale, coords, gen_state}) => {
     let to_points = ((a, b)) => (
       Board.tile_center(shape, scale, Array.getExn(coords, a)),
@@ -75,6 +88,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       [to_points(pair), ...coll]
     );
   };
+
   let all_shapes = ({State.coords, shape, scale, gen_state}) =>
     Array.mapWithIndex(
       coords,
@@ -85,6 +99,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
         (Shape.transform(offset, scale, shape), visited);
       },
     );
+
   let all_walls = ({State.shape, scale, coords, coord_map, gen_state}) => {
     let edges = Gen.edges(gen_state);
     Array.reduce(

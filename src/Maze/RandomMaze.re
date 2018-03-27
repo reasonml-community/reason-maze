@@ -56,9 +56,7 @@ let run = (ctx, canvas_size) => {
         (module
          NewDepth.F(
            (
-             NewDepth.RandomConfig(
-               {},
-             )
+             NewDepth.RandomConfig({})
            ),
          )): (module Generator.T)
       ),

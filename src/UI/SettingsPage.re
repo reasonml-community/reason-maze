@@ -4,9 +4,10 @@ let se = ReasonReact.stringToElement;
 
 module Title = {
   let component = ReasonReact.statelessComponent("Title");
+
   let make = children => {
     ...component,
-    render: (_) =>
+    render: _ =>
       <div
         style=(
           ReactDOMRe.Style.make(
@@ -87,7 +88,7 @@ let make = (~settings, ~update, _children) => {
       <Title> (se("Seed")) </Title>
       <input value=(si(settings.seed)) />
       <button
-        onClick=((_) => update({...settings, seed: newSeed()}))
+        onClick=(_ => update({...settings, seed: newSeed()}))
         style=Styles.button>
         (se("New Seed"))
       </button>
@@ -96,12 +97,12 @@ let make = (~settings, ~update, _children) => {
         <SelectableButton
           title="No fill"
           selected=(settings.fill === NoFill)
-          onClick=((_) => update({...settings, fill: NoFill}))
+          onClick=(_ => update({...settings, fill: NoFill}))
         />
         <SelectableButton
           title="Rainbow"
           selected=(settings.fill === Rainbow)
-          onClick=((_) => update({...settings, fill: Rainbow}))
+          onClick=(_ => update({...settings, fill: Rainbow}))
         />
       </div>
       <ColorSlider

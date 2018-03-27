@@ -11,21 +11,23 @@ module State = {
 };
 
 module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
-  include
-    Manager.F(
-      Board,
-      Gen,
-    );
-/*  module BoardCoordComparator2 = (
-    val Id.comparable(~cmp=Board.Coord.compare)
-  );
-*/  module BoardCoordComparator2 = Id.MakeComparable({
-    type t = Board.Coord.t;
-    let cmp = Board.Coord.compare;
-  });
+  include Manager.F(Board, Gen);
+
+  /*  module BoardCoordComparator2 = (
+          val Id.comparable(~cmp=Board.Coord.compare)
+        );
+      */ module BoardCoordComparator2 =
+           Id.MakeComparable({
+             type t = Board.Coord.t;
+
+             let cmp = Board.Coord.compare;
+           });
+
   let boardCoord2 = Map.make(~id=(module BoardCoordComparator2));
+
   let create_enabled_map = coords =>
     Array.reduce(coords, boardCoord2, (map, c) => Map.set(map, c, false));
+
   let paint_init = ((width, height), hint_size) => {
     let (shape, scale, outsize) =
       Board.auto_size((width, height), hint_size);
@@ -33,6 +35,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
     let enabled = create_enabled_map(coords);
     State.{shape, scale, outsize, coords, enabled};
   };
+
   let toggle_all = (state, coord) => {
     open State;
     let enabled =
@@ -43,6 +46,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
          );
     {...state, State.enabled};
   };
+
   let toggle_point = (state, (x, y)) => {
     open State;
     let {shape, scale, enabled} = state;
@@ -55,6 +59,7 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       state;
     };
   };
+
   let realize_state = ({State.shape, scale, outsize, coords, enabled}) => {
     let coords = Array.keep(coords, coord => Map.getExn(enabled, coord));
     switch (coords) {
@@ -78,11 +83,13 @@ module F = (Board: SimpleBoard.T, Gen: Generator.T) => {
       );
     };
   };
+
   let paint_walls = state =>
     switch (realize_state(state)) {
     | None => []
     | Some(mstate) => all_walls(mstate)
     };
+
   let paint_shapes = ({State.coords, scale, shape, enabled}) =>
     /*all_shapes (realize_state state)*/
     /*List.map*/

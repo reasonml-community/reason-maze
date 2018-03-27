@@ -2,22 +2,16 @@ open Belt;
 
 let get_walls = (full, clear) => {
   let (_, res) =
-    Array.reduce(
-      full,
-      (0, []),
-      ((src, res), ends) => (
+    Array.reduce(full, (0, []), ((src, res), ends) =>
+      (
         src + 1,
-        List.reduce(
-          ends,
-          [],
-          (walls, vend) =>
-            vend < src ?
-              walls :
-              Set.has(clear, (src, vend)) ?
-                walls : [(src, vend), ...walls],
+        List.reduce(ends, [], (walls, vend) =>
+          vend < src ?
+            walls :
+            Set.has(clear, (src, vend)) ? walls : [(src, vend), ...walls]
         )
         @ res,
-      ),
+      )
     );
   res;
 };

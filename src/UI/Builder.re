@@ -78,6 +78,7 @@ module Page = {
     downloadUrl: option(string),
     ctx: ref(option(Canvas.ctx)),
   };
+
   type action =
     | ClearAnimation
     | ToggleAnimating
@@ -90,8 +91,11 @@ module Page = {
     | SetAnimating(option(ref(int)))
     | Click
     | Noop;
+
   let component = ReasonReact.reducerComponent("Page");
+
   let setCtxRef = (r, {ReasonReact.state}) => state.ctx := refToContext(r);
+
   let styles =
     Aphrodite.create({
       "container": {
@@ -100,12 +104,15 @@ module Page = {
         "flex": 1,
       },
     });
+
   let process_new_settings = (settings, state) =>
     ReasonReact.Update({...state, settings, animation: None});
+
   let update = (update_settings, payload, {ReasonReact.state}) => {
     let settings = update_settings(payload, state.settings);
     process_new_settings(settings, state);
   };
+
   let listen_for_hash: (string => unit) => unit = [%bs.raw
     {|
     function (fn) {
@@ -121,6 +128,7 @@ module Page = {
     }
   |}
   ];
+
   let set_hash: string => unit = [%bs.raw
     {|
     function (val) {
@@ -128,9 +136,11 @@ module Page = {
     }
   |}
   ];
+
   let get_hash: unit => string = [%bs.raw
     {| function () { try {return atob(window.location.hash.slice(1));}catch (e) {return ''} } |}
   ];
+
   let throttle = (fn, time) => {
     let last = ref(None);
     v => {
@@ -141,6 +151,7 @@ module Page = {
       last := Some(Js.Global.setTimeout(() => fn(v), time));
     };
   };
+
   let update_hash =
     throttle(
       settings =>
@@ -150,6 +161,7 @@ module Page = {
         },
       500,
     );
+
   let make = _children => {
     ...component,
     initialState: () => {
@@ -183,7 +195,7 @@ module Page = {
                     animate(
                       ctx,
                       state.settings,
-                      self.reduce((_) => ClearAnimation),
+                      self.reduce(_ => ClearAnimation),
                     );
                   self.reduce(() => SetAnimating(Some(id)), ());
                 }
@@ -252,7 +264,7 @@ module Page = {
                 animate(
                   ctx,
                   state.settings,
-                  self.reduce((_) => ClearAnimation),
+                  self.reduce(_ => ClearAnimation),
                 ),
               ),
             ),
@@ -280,7 +292,7 @@ module Page = {
         </div>
         <div>
           <button
-            onClick=(self.reduce((_) => ToggleAnimating)) style=Styles.button>
+            onClick=(self.reduce(_ => ToggleAnimating)) style=Styles.button>
             (se(state.animation === None ? "Animate" : "Stop"))
           </button>
           <SettingsPage
@@ -293,7 +305,7 @@ module Page = {
                                 />
 
                       */
-          <button onClick=(self.reduce((_) => Click)) style=Styles.button>
+          <button onClick=(self.reduce(_ => Click)) style=Styles.button>
             (se("Record animation"))
           </button>
           (

@@ -9,10 +9,15 @@ module State = {
     age: int,
     traveled: list(Shared.Edge.edge),
   };
+
   let traveled = t => t.traveled;
+
   let current = t => t.current;
+
   let next = t => t.next;
+
   let age = t => t.age;
+
   let finished = t => t.current === [];
 };
 

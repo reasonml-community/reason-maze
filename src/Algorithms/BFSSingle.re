@@ -31,22 +31,15 @@ let sortpair = (a, b) => a > b ? (b, a) : (a, b);
 let add_edges = (adjacents, state, (pre, src)) => {
   ignore(state.visited[src] = state.step + 1);
   let next =
-    List.reduce(
-      adjacents,
-      state.next,
-      (next, dest) => {
-        if (Array.getExn(state.visited, dest) > 0) {
-          next;
-        } else {
-          ignore(state.visited[dest] = state.step + 1);
-          [(src, dest), ...next];
-        }},
+    List.reduce(adjacents, state.next, (next, dest) =>
+      if (Array.getExn(state.visited, dest) > 0) {
+        next;
+      } else {
+        ignore(state.visited[dest] = state.step + 1);
+        [(src, dest), ...next];
+      }
     );
-  (
-    next,
-    Set.add(state.edges, sortpair(pre, src)),
-    state.step + 1,
-  );
+  (next, Set.add(state.edges, sortpair(pre, src)), state.step + 1);
 };
 
 let step = (get_adjacent, state) =>

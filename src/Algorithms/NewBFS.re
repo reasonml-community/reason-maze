@@ -29,16 +29,12 @@ let add_edges = (adjacents, state, src) =>
     adjacents,
     (state.next, state.edges, state.step),
     ((next, edges, step), dest) =>
-      if (Array.getExn(state.visited, dest) > 0) {
-        (next, edges, step);
-      } else {
-        ignore(state.visited[dest] = step + 1);
-        (
-          [dest, ...next],
-          Set.add(edges, sortpair(src, dest)),
-          step + 1,
-        );
-      },
+    if (Array.getExn(state.visited, dest) > 0) {
+      (next, edges, step);
+    } else {
+      ignore(state.visited[dest] = step + 1);
+      ([dest, ...next], Set.add(edges, sortpair(src, dest)), step + 1);
+    }
   );
 
 let step = (get_adjacent, state) =>

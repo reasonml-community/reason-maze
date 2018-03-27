@@ -4,6 +4,7 @@ module type Config = {let maxHits: int; let joinOnHit: float;};
 
 module RandomConfig = (()) => {
   let maxHits = 1 + Random.int(20);
+
   let joinOnHit = Random.float(1.0);
 };
 
@@ -15,6 +16,7 @@ module F = (Config: Config) => {
     step: int,
     active: option(((int, int), int)),
   };
+
   let init = size => {
     let start = Random.int(size);
     {
@@ -25,19 +27,26 @@ module F = (Config: Config) => {
       active: Some(((start, start), 0)),
     };
   };
+
   let edges = state => state.edges;
+
   let visited = state => state.visited;
+
   let max_age = state => state.step;
+
   let finished = state => state.active == None;
+
   let sortpair = (a, b) => a > b ? (b, a) : (a, b);
-  let add_edge = (edges, src, dest) =>
-    Set.add(edges, sortpair(src, dest));
+
+  let add_edge = (edges, src, dest) => Set.add(edges, sortpair(src, dest));
+
   let shouldHit = prob =>
     switch (prob) {
     | 0.0 => false
     | 1.0 => true
     | _ => Random.float(1.0) < prob
     };
+
   let get_new = state => {
     let frontier = state.frontier;
     if (Array.length(frontier) === 0) {
@@ -56,6 +65,7 @@ module F = (Config: Config) => {
       };
     };
   };
+
   let rec step = (get_adjacent, state) => {
     let step_count = state.step;
     let {edges} = state;
@@ -107,6 +117,7 @@ module F = (Config: Config) => {
       }
     };
   };
+
   let step__ = (get_adjacent, state) =>
     switch (state.frontier) {
     | [||] => state
@@ -143,6 +154,7 @@ module F = (Config: Config) => {
       | _ => assert false
       }
     };
+
   /* hmm these can be shared */
   let rec loop_to_end = (get_adjacent, state) =>
     if (! finished(state)) {
@@ -150,5 +162,6 @@ module F = (Config: Config) => {
     } else {
       state;
     };
+
   let run = (size, get_adjacent) => loop_to_end(get_adjacent, init(size));
 };

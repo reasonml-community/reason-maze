@@ -8,23 +8,25 @@ module State = {
     age: int,
     traveled: list(Shared.Edge.edge),
   };
+
   let traveled = t => t.traveled;
+
   let current = t => List.map(t.current, ({Shared.Edge.dest}) => dest);
-  let next = (_) => [];
+
+  let next = _ => [];
+
   let age = t => t.age;
+
   let finished = t => t.current === [];
 };
 
 let adjacent_edges = (visited, src, adjacents) =>
-  List.reduce(
-    adjacents,
-    [],
-    (arr, dest) =>
-      if (Array.getExn(visited, dest)) {
-        arr;
-      } else {
-        [Shared.Edge.{src, dest, age: 0}, ...arr];
-      },
+  List.reduce(adjacents, [], (arr, dest) =>
+    if (Array.getExn(visited, dest)) {
+      arr;
+    } else {
+      [Shared.Edge.{src, dest, age: 0}, ...arr];
+    }
   );
 
 let step = state => {

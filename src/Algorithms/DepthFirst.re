@@ -19,28 +19,32 @@ module F = (Config: Config) => {
       traveled: list(Shared.Edge.edge),
       active: option((Shared.Edge.edge, int)),
     };
+
     let traveled = t => t.traveled;
+
     let current = t =>
       List.map(List.fromArray(t.current), ({Shared.Edge.dest}) => dest);
+
     let next = t =>
       switch (t.active) {
       | Some((x, _)) => [x.Shared.Edge.dest]
       | None => []
       };
+
     let age = t => t.age;
+
     let finished = t => t.active === None;
   };
+
   let adjacent_edges = (visited, src, adjacents) =>
-    List.reduce(
-      adjacents,
-      [],
-      (arr, dest) =>
-        if (Array.getExn(visited, dest)) {
-          arr;
-        } else {
-          [Shared.Edge.{src, dest, age: 0}, ...arr];
-        },
+    List.reduce(adjacents, [], (arr, dest) =>
+      if (Array.getExn(visited, dest)) {
+        arr;
+      } else {
+        [Shared.Edge.{src, dest, age: 0}, ...arr];
+      }
     );
+
   let get_new = state => {
     open State;
     let current = state.current;
@@ -60,6 +64,7 @@ module F = (Config: Config) => {
       };
     };
   };
+
   let step = state => {
     open State;
     let {adjacency_list, visited, current, active, traveled, age} = state;
@@ -69,11 +74,11 @@ module F = (Config: Config) => {
       if (Array.getExn(visited, src.dest)) {
         get_new({...state, traveled});
       } else {
-        let adjacents = Array.getExn(adjacency_list, src.dest) |> Utils.shuffle;
+        let adjacents =
+          Array.getExn(adjacency_list, src.dest) |> Utils.shuffle;
         let edges =
-          List.map(
-            adjacents,
-            dest => {Shared.Edge.src: src.dest, dest, age: 0},
+          List.map(adjacents, dest =>
+            {Shared.Edge.src: src.dest, dest, age: 0}
           );
         let edges = List.keep(edges, x => x.Shared.Edge.dest !== src.src);
         let age = age + 1;
@@ -111,11 +116,13 @@ module F = (Config: Config) => {
       }
     };
   };
+
   let rec loop = state =>
     switch (step(state)) {
     | {active: None, traveled} => traveled
     | state => loop(state)
     };
+
   let init = (vertices, adjacency_list) => {
     let visited = Array.make(vertices, false);
     let initial = Random.int(vertices);
@@ -128,6 +135,7 @@ module F = (Config: Config) => {
       age: 0,
     };
   };
+
   let spanning_tree = (vertices, adjacency_list) =>
     loop(init(vertices, adjacency_list));
 };

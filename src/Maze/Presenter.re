@@ -30,6 +30,7 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
       Ctx.arc(ctx, x +. xm, y +. ym, r, t1, t2);
       Ctx.stroke(ctx);
     };
+
   let draw_walli = (ctx, (xm, ym), i, wall) => {
     draw_wall(ctx, (xm, ym), wall);
     let txt = string_of_int(i);
@@ -47,6 +48,7 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
       Ctx.fillText(ctx, txt, x +. dx +. xm, y +. dy +. ym);
     };
   };
+
   let center = pts => {
     let tx = ref(0.0);
     let ty = ref(0.0);
@@ -61,9 +63,13 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
     );
     (tx^ /. float_of_int(c^), ty^ /. float_of_int(c^));
   };
+
   let (||>) = ((x, y), b) => b(x, y);
+
   let polar = (r, t) => (r *. cos(t), r *. sin(t));
+
   let offset = ((x, y), a, b) => (x +. a, y +. b);
+
   let draw_shape =
       (ctx, (xm, ym), get_color, current_age, max_age, (shape, age)) => {
     if (age === 0) {
@@ -100,6 +106,7 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
       Ctx.fill(ctx);
     };
   };
+
   let draw_shapei =
       (ctx, (xm, ym), get_color, current_age, max_age, i, (shape, age)) => {
     draw_shape(
@@ -128,6 +135,7 @@ module F = (Board: SimpleBoard.T, Generator: Generator.T) => {
       Ctx.fillText(ctx, txt, cx +. dx +. xm, cy +. dy +. ym);
     };
   };
+
   let draw_edge = (ctx, (xm, ym), ((x, y), (a, b))) =>
     Ctx.line(ctx, (x +. xm, y +. ym), (a +. xm, b +. ym));
 };

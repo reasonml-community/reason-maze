@@ -19,9 +19,14 @@ module type T = {
 
 module FromTile = (Tile: Tile.T) => {
   type direction = Tile.direction;
+
   module Coord = Tile.Coord;
-  let adjacents = (_) => Tile.adjacents;
-  let adjacent_coord = (_) => Tile.adjacent_coord;
-  let direction_to_border = (_) => Tile.direction_to_border;
-  let tile_at_coord = (_) => Tile.to_shape;
+
+  let adjacents = _ => Tile.adjacents;
+
+  let adjacent_coord = _ => Tile.adjacent_coord;
+
+  let direction_to_border = _ => Tile.direction_to_border;
+
+  let tile_at_coord = _ => Tile.to_shape;
 };

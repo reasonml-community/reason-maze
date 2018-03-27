@@ -8,6 +8,7 @@ module Board = {
     | SquareTriangle
     | FourSquare
     | Rect;
+
   let all = [|
     Circle,
     HexBox,
@@ -18,6 +19,7 @@ module Board = {
     SquareTriangle,
     FourSquare,
   |];
+
   let tomod = board =>
     switch (board) {
     | Circle => ((module Circle): (module SimpleBoard.T))
@@ -29,6 +31,7 @@ module Board = {
     | FourSquare => (module FourSquare)
     | SquareTriangle => (module SquareTriangle)
     };
+
   let name = board =>
     switch (board) {
     | Circle => "Circle"
@@ -40,6 +43,7 @@ module Board = {
     | FourSquare => "FourSquare"
     | Rect => "Rect"
     };
+
   let by_name = name =>
     switch (name) {
     | "Circle" => Some(Circle)
@@ -59,28 +63,30 @@ module Alg = {
     | DFS
     | BFS
     | Random;
+
   let all = [|DFS, BFS, Random|];
+
   let tomod = alg =>
     switch (alg) {
     | DFS => (
         (module
          NewDepth.F(
            (
-             NewDepth.RandomConfig(
-               {},
-             )
+             NewDepth.RandomConfig({})
            ),
          )): (module Generator.T)
       )
     | BFS => (module NewBFS)
     | Random => (module Random2)
     };
+
   let name = alg =>
     switch (alg) {
     | DFS => "DFS"
     | BFS => "BFS"
     | Random => "Random"
     };
+
   let by_name = name =>
     switch (name) {
     | "DFS" => Some(DFS)

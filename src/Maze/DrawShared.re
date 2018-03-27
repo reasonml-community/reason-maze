@@ -40,15 +40,24 @@ module type Config = {
 
 module Default = {
   let unvisitedFill = None;
+
   let showTrails = true;
+
   let batch = 1;
+
   let wallColor = "rgb(100, 100, 100)";
+
   let showEdge = true;
+
   let showWalls = true;
+
   let showAge = false;
+
   let dotColor = (age, total_age) =>
     hsla(0, 100, 100 * (total_age - age) / total_age, 0.3);
+
   let dotSize = 15.0;
+
   let edgeDotSize = 5.0;
 };
 
@@ -57,14 +66,14 @@ module Draw = (Board: Shared.Board, Config: Config) => {
     switch (wall) {
     | Shared.Line((p1, p2)) => Ctx.line(ctx, p1, p2)
     };
+
   let draw_walls = (ctx, bsize, csize, walls) =>
-    List.forEach(
-      walls,
-      wall =>
-        Board.drawable_wall(wall, bsize, csize)
-        |> Utils.maybe(draw_wall(ctx))
-        |> ignore,
+    List.forEach(walls, wall =>
+      Board.drawable_wall(wall, bsize, csize)
+      |> Utils.maybe(draw_wall(ctx))
+      |> ignore
     );
+
   let vertex_dots = (ctx, bsize, csize, vertices, size) =>
     List.forEach(
       vertices,
@@ -75,13 +84,13 @@ module Draw = (Board: Shared.Board, Config: Config) => {
         Ctx.fill(ctx);
       },
     );
+
   let dots = (ctx, bsize, csize, traveled, total_age, dot_color, size) =>
-    List.forEach(
-      traveled,
-      ({Shared.Edge.dest, age}) =>
-        Board.vertex_pos(dest, bsize, csize)
-        |> draw_point(ctx, total_age, age, dot_color, size),
+    List.forEach(traveled, ({Shared.Edge.dest, age}) =>
+      Board.vertex_pos(dest, bsize, csize)
+      |> draw_point(ctx, total_age, age, dot_color, size)
     );
+
   let paths = (ctx, bsize, csize, traveled) =>
     List.forEach(
       traveled,
@@ -91,6 +100,7 @@ module Draw = (Board: Shared.Board, Config: Config) => {
         Canvas.Ctx.line(ctx, a, b);
       },
     );
+
   let connections = (ctx, bsize, csize, adjacent) =>
     List.forEach(
       adjacent,
@@ -100,6 +110,7 @@ module Draw = (Board: Shared.Board, Config: Config) => {
         Canvas.Ctx.line(ctx, a, b);
       },
     );
+
   let draw = (ctx, bsize, csize, walls, traveled, current, next) => {
     let (wsize, hsize) = csize;
     Canvas.Ctx.clearRect(ctx, 0.0, 0.0, wsize, hsize);
